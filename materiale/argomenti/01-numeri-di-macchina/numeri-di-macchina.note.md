@@ -34,7 +34,7 @@ $$ 2^{-52} $$
 Quando `u` diventa più piccolo di questa quantità, l'operazione `1 + u` non riesce più a distinguere il risultato da 1, perchè `u` è sotto la soglia di precisione della mantissa.
 
 Quindi accade che:
-$$ 1 + \frac{1}{2^{k}} = 1 \hspace{25px} k \ge 53 $$
+$$ 1 + \frac{1}{2^{k}} = 1 \quad k \ge 53 $$
 e la condizione `u + 1 > 1` diventa `1 > 1` che è falsa.
 
 Il numero di iterazioni è 53 perchè sto dividendo per 2 partendo da 1:
@@ -105,8 +105,6 @@ Il risultato matematico è 43.56, che in binario **non è rappresentabile esatta
 > $$ (a \div b)^2 \ne a^2 \div b^2 $$
 > non per motivi matematici, ma per **propagazione diversa degli errori di arrotondmento**.
 
----
-
 ## Esempio Conversione (Base decimale $\Rightarrow$ Forma scientifica)
 
 1. **Numero dato**: $-123,987$
@@ -148,8 +146,6 @@ Lo **zero** non può essere rappresentato in forma normalizzata, perché non esi
 Un aspetto fondamentale per il Calcolo Numerico è che n**on tutti i numeri reali sono rappresentabili esattamente**. Se, dopo la conversione in binario e la normalizzazione, la mantissa richiede più bit di quelli disponibili, i bit in eccesso devono essere eliminati. Questo comporta una **perdita di informazione** e introduce un **errore di rappresentazione**. In teoria si potrebbe semplicemente troncare (**Troncamento**) i bit in eccesso, ma lo standard IEEE 754 prevede modalità di arrotondamento (la più comune è l’**Arrotondamento** al più vicino), che riducono l’errore medio.
 
 Di conseguenza, l’insieme dei numeri rappresentabili in macchina è finito e discreto, mentre l’insieme dei numeri reali è infinito e continuo. Ogni operazione aritmetica può introdurre piccoli errori di arrotondamento, che **nel tempo possono accumularsi o propagarsi**. Proprio da queste considerazioni nasce l’importanza, nel Calcolo Numerico, dello studio degli errori e della stabilità degli algoritmi.
-
----
 
 ## Errori di Approssimazione
 
@@ -221,7 +217,7 @@ dove:
 
 In forma equivalente si può scrivere:
 
-$$ fl(\alpha) = \alpha(1 + \epsilon), \hspace{12px} |\epsilon| \le u $$
+$$ fl(\alpha) = \alpha(1 + \varepsilon), \quad |\varepsilon| \le u $$
 
 dove $u = \beta^{1 - t}$ è detta **precisione di macchina** (o machine epsilon, in senso teorico).
 
@@ -291,8 +287,253 @@ dove $u$ è la precisione di macchina e $\beta$ è la base (per IEEE 754, $\beta
 
 Questo effetto è strettamente legato alla distribuzione non uniforme dei numeri rappresentabili: più ci si allontana dallo zero, maggiore è la distanza tra due numeri consecutivi rappresentabili. Di conseguenza, numeri molto piccoli rispetto a un numero grande possono risultare “invisibili” alla macchina.
 
-### Non validità della proprietà associativa
+## Proprietà algebriche e aritmetica floating point
 
-...
+Nell’aritmetica reale valgono proprietà fondamentali come l’associatività della somma, la distributività del prodotto rispetto alla somma e la legge di annullamento del prodotto. Tuttavia, quando si lavora in aritmetica floating point, queste proprietà non sono più garantite. Il motivo è che ogni operazione di macchina introduce un errore di arrotondamento, e questi errori dipendono dall’ordine con cui le operazioni vengono eseguite.
 
----
+È essenziale comprendere che il calcolatore non lavora sui numeri reali, ma sulle loro approssimazioni finite. Ogni volta che si esegue un’operazione, il risultato viene nuovamente arrotondato al numero rappresentabile più vicino. Questo fa sì che il risultato finale di un’espressione dipenda dall’algoritmo utilizzato per calcolarla.
+
+### Non validità della proprietà associativa della somma
+
+In matematica vale sempre:
+
+$$ (x + y) + z = x + (y + z) $$
+
+In aritmetica floating point, invece, può accadere che:
+
+$$ fl(fl(x + y) + z) = fl(x + fl(y + z)) $$
+
+Il problema nasce dal fatto che, prima ancora di eseguire la somma, la macchina deve **riallineare gli esponenti**. Se i numeri hanno ordini di grandezza diversi, il numero con esponente più piccolo viene shiftato verso destra, e può **subire troncamento**.
+
+Di conseguenza, se in un caso si sommano prima due numeri piccoli e poi il risultato viene sommato a uno grande, l’errore può essere diverso rispetto al caso in cui si somma prima un numero grande con uno piccolo. Anche se sulla carta i due **algoritmi sono equivalenti**, in macchina producono **risultati differenti**.
+
+Questo mostra che l’associatività della somma non è valida nell’aritmetica finita.
+
+### Non validità della proprietà distributiva
+
+In matematica vale la proprietà distributiva:
+
+$$ x(y + z) = xy + xz $$
+
+In aritmetica floating point, invece, può verificarsi che:
+
+$$ fl(x + z) \ne fl(fl(x \cdot y) + fl(x \cdot z)) $$
+
+Anche qui il problema è legato agli arrotondamenti intermedi. Nel primo caso si effettua prima la somma $y + z$, con il relativo errore, e poi si moltiplica il risultato per $x$. Nel secondo caso si eseguono prima due prodotti separati, ciascuno con il proprio errore di arrotondamento, e poi si sommano i risultati, introducendo un ulteriore errore.
+
+Le due sequenze di operazioni, pur essendo **matematicamente equivalenti**, generano **catene di errori diverse**. Il risultato finale può quindi differire in modo anche significativo, soprattutto se i numeri coinvolti hanno ordini di grandezza molto diversi.
+
+### Legge di annullamento del prodotto
+
+Un altro fenomeno tipico dell’aritmetica floating point riguarda la moltiplicazione di numeri molto piccoli. Supponiamo di avere due numeri $x$ e $y$, entrambi compresi tra 0 e 1 e ancora rappresentabili in macchina. Il loro prodotto può essere **così piccolo da non essere più rappresentabile** nel formato scelto.
+
+In questo caso si verifica un **underflow** e può accadere che:
+
+$$ fl(x \cdot y) = 0 \space\text{ anche se }\space x,y \ne 0 $$
+
+Questo contraddice la legge matematica secondo cui il prodotto di due numeri non nulli non può essere nullo. In aritmetica finita, invece, il risultato può “collassare” a zero perché esce dall’intervallo dei numeri rappresentabili.
+
+### Conseguenze per gli algoritmi numerici
+
+Questi esempi mostrano un fatto fondamentale:
+
+1. Nell’aritmetica del calcolatore non valgono molte delle proprietà algebriche usuali. **L’aritmetica finita introduce errori a ogni operazione**, e tali **errori si propagano** lungo la sequenza di calcoli.
+
+2. Il risultato di un’espressione, intesa come successione di operazioni aritmetiche, dipende quindi dall’**algoritmo utilizzato per calcolarla**. Due algoritmi matematicamente equivalenti possono produrre risultati diversi in macchina, perché **generano e propagano errori in modo differente**.
+
+Per questo motivo, nel Calcolo Numerico non ci si limita a verificare che un algoritmo sia corretto dal punto di vista matematico, ma si analizza anche la sua stabilità numerica.
+
+- L’**obiettivo** è scegliere formulazioni che riducano al minimo l’amplificazione degli errori e che forniscano risultati il più possibile accurati all’interno dell’aritmetica finita del calcolatore.
+
+- **Trade-off** tra efficienza in termini di risorse (temporali, spaziali) e **stabilità** (*correttezza, accuratezza, consistenza*) dei risultati.
+
+## Relazione tra errore relativo e precisione di macchina
+
+Quando eseguiamo un’operazione in aritmetica floating point, il risultato memorizzato non coincide esattamente con il valore reale dell’operazione, ma con la sua approssimazione rappresentabile. Tuttavia, l’errore relativo che si commette è sempre limitato superiormente dalla **precisione di macchina**.
+
+Se indichiamo con $fl(x \bullet y)$ il risultato di macchina dell’operazione reale $x \bullet y$, vale:
+
+$$ \frac{|fl(x \bullet y ) - (x \bullet y)|}{|x \bullet y|} \le k\beta^{1-t} $$
+
+dove:
+- $\beta$ è la base (per IEEE 754, $\beta = 2$)
+- $t$ è il numero di cifre della mantissa
+- $k$ dipende dal tipo di approssimazione
+
+Nel caso di **troncamento**, l’errore massimo può arrivare fino all’intera distanza tra due numeri consecutivi, quindi:
+
+$$ k = 1 $$
+
+Nel caso di arrotondamento al più vicino (quello usato in IEEE 754), l’errore massimo è metà di tale distanza, quindi:
+
+$$ k = \frac{1}{2} $$
+
+### Definizione di precisione di macchina
+
+In genere si incorpora il fattore $k$ direttamente nella definizione di precisione di macchina $u$, scrivendo:
+
+$$ fl(z) = z(1 + \varepsilon), \quad |\varepsilon| \le u $$
+
+dove
+
+$$ u = \begin{cases}
+    \beta^{1-t} & (\text{troncamento})\\
+    \frac{1}{2}\beta^{1-t} & (\text{arrotondamento al più vicino})
+\end{cases}$$
+
+Poiché nei calcolatori la base è $\beta = 2$, arrotondando al più vicino, l’errore massimo possibile è metà di quella distanza:
+
+$$ u = \frac{1}{2}\beta^{1-t} = \beta^{-t} $$
+
+Qui $t$ è il numero di bit significativi effettivi della mantissa, cioè includendo il bit nascosto: in singola precisione $t = 24$, in doppia precisione $t = 53$.
+
+### Osservazione importante
+
+Il fatto che **l’errore relativo sia limitato dalla precisione di macchina** vale per qualsiasi numero reale rappresentabile e, in particolare, per i risultati delle singole operazioni di macchina.
+
+Ogni operazione introduce un errore relativo al più dell’ordine di $u$. Tuttavia, quando si eseguono **molte operazioni in sequenza**, questi piccoli errori possono **propagarsi o amplificarsi**, ed è per questo che l’analisi degli algoritmi numerici non si limita al singolo passo, ma considera l’intero processo di calcolo.
+
+## Analisi degli errori: peso e propagazione
+
+Quando si lavora in aritmetica floating point, ogni numero **memorizzato dal calcolatore** contiene già un **piccolo errore relativo** dovuto alla rappresentazione. Possiamo scrivere ogni variabile come
+
+$$ fl(s) = s(1 + \varepsilon), \quad |\varepsilon| \le u $$
+
+dove $u$ è la precisione di macchina. Questo errore iniziale si chiama **errore sugli input**.
+
+Supponiamo di voler calcolare $\alpha = x + y + z$ e consideriamo l’algoritmo che somma prima $x + y$ e poi aggiunge $z$:
+
+$$ \alpha^* = fl\big(fl(fl(x) + fl(y)) + fl(z)\big) $$
+
+Analizzando passo passo:
+
+1. Gli input sono già approssimati:
+
+    - $fl(x) = x(1 + \varepsilon_x), \text{ con } |\varepsilon_x| \le u$
+    - $fl(y) = y(1 + \varepsilon_y), \text{ con } |\varepsilon_y| \le u$
+    - $fl(z) = z(1 + \varepsilon_z), \text{ con } |\varepsilon_z| \le u$
+
+2. La prima somma introduce un nuovo errore $\varepsilon_1$ dovuto all’operazione stessa:
+
+    $$\begin{aligned}
+        fl(fl(x) + fl(y)) 
+        &= (fl(x) + fl(y))(1 + \varepsilon_1), && |\varepsilon_1| \le u \\
+        &= \big(x(1+\varepsilon_x) + y(1+\varepsilon_y)\big)(1 + \varepsilon_1) \\
+        &= x + y + x\varepsilon_x + y\varepsilon_y + x\varepsilon_1 + y\varepsilon_1 
+        + \textcolor{lightgreen}{x\varepsilon_x \varepsilon_1 + y\varepsilon_y \varepsilon_1} \\
+        &\simeq x + y + x\varepsilon_x + y\varepsilon_y + (x+y)\varepsilon_1
+    \end{aligned}$$
+
+    > Stiamo applicando un'**approssimazione lineare**. Il termine completo sarebbe
+    >
+    > $$ x\varepsilon_x\varepsilon_1 + y\varepsilon_y\varepsilon_1$$
+    >
+    > cioè il prodotto tra l’errore sugli input e l’errore dell’operazione.
+    >
+    > Questi termini sono **di secondo ordine**, cioè dell’ordine $u^2$, molto piccoli rispetto agli altri termini ($u$ è la precisione di macchina, tipicamente $2^{-24}$ o $2^{-53}$).
+    >
+    > In analisi dell’errore numerico, si **trascurano i termini di secondo ordine**, perché non contribuiscono significativamente alla stima dell’errore relativo complessivo. Questo semplifica il raccolimento e permette di scrivere i termini come una somma pesata lineare degli errori.
+
+3. Aggiungendo $fl(z)$ e arrotondando di nuovo si introduce un secondo errore $\varepsilon_2$:
+
+    $$ \alpha^* \simeq x + y + z + x\varepsilon_x + y\varepsilon_y + z\varepsilon_z + (x+y)\varepsilon_1 + (x+y+z)\varepsilon_2 $$
+
+### Somma pesata degli errori
+
+Normalizzando per $x + y + z$, l’errore relativo totale diventa:
+
+$$
+E_r \simeq 
+\underbrace{\frac{x}{x+y+z}\varepsilon_x + \frac{y}{x+y+z}\varepsilon_y + \frac{z}{x+y+z}\varepsilon_z}_{\text{errore sugli input}}
++
+\underbrace{\frac{x+y}{x+y+z}\varepsilon_1 + \varepsilon_2}_{\text{errore dell’algoritmo}}
+$$
+
+In questa formula:
+
+- La prima parte rappresenta l’errore dovuto alla **rappresentazione dei dati**, cioè il fatto che i numeri iniziali non sono esatti.
+
+- La parte in giallo rappresenta l’errore dovuto alle **operazioni**, cioè all’algoritmo utilizzato e al troncamento/arrottondamento in ciascun passo.
+
+Osservazioni chiave:
+
+1. L’errore sugli input viene **pesato** rispetto al contributo di ciascun numero nella somma totale: numeri più grandi trasmettono un errore maggiore.
+
+2. L’errore dell’algoritmo cresce con la somma dei numeri coinvolti nell’operazione: più grande è la quantità che stiamo arrotondando, maggiore sarà l’errore assoluto introdotto.
+
+3. Questo modello mostra come gli errori **si propagano e si combinano** lungo la sequenza di operazioni. La scelta dell’algoritmo e l’ordine delle operazioni influenzano direttamente il risultato finale.
+
+> **Nota**: in una macchina ideale con aritmetica infinita, non ci sarebbe errore introdotto dalle operazioni; l’unica fonte di errore sarebbe quella dei dati rappresentati in floating point.
+
+## Somma generica pesata degli errori
+
+Supponiamo di voler calcolare:
+
+$$ \alpha = x_1 + x_2 + \cdots + x_n $$
+
+e che l'algoritmo sommi i numeri **uno alla volta** seguendo l'ordine $\big(\big(\big(x_1 + x_2\big) + x_3\big) + \cdots + x_n\big)$.
+
+### 1) Errori sugli input
+
+Ogni numero ha un valore relativo iniziale $\varepsilon_i$:
+
+$$ fl(x_i) = x_i(1 + \varepsilon_i), \quad |\varepsilon_i| \le u $$
+
+Quando normalizziamo rispetto alla somma totale $\sum_{i=1}^{n} x_i$, il contributo di ciascun errore sugli input è **pesato**:
+
+$$ \text{Errore sugli input} = \sum_{i = 1}^{n} \frac{x_i}{\sum_{j = 1}^{n} x_j}\varepsilon_i $$
+
+### 2) Errori introdotti dalle operazioni
+
+Ogni somma parziale introduce un nuovo errore di arrotondamento $\varepsilon_k$ (errore dell’algoritmo) che viene **pesato dalla somma dei termini già sommati**:
+
+$$ \text{Errore delle operazioni} = \sum_{k = 1}^{n - 1} \frac{\sum_{i = 1}^{k} x_i}{\sum_{i = 1}^{n} x_i}\varepsilon_k + \varepsilon_n $$
+
+- Qui $\varepsilon_1$ è l'errore della prima somma $x_1 + x_2$, $\epsilon_2$ della seconda somma $(x_1 + x_2) + x_3$, e così via fino a $\varepsilon_{n-1}$.
+- L’ultimo termine non introduce un nuovo peso perché dopo l’ultima somma si prende l’errore $\varepsilon_{n-1}$ della somma finale.
+
+### 3) Formula generale
+
+Combinando i due contributi otteniamo l’errore relativo totale:
+
+$$
+E_r \simeq 
+\underbrace{\sum_{i=1}^n \frac{x_i}{\sum_{j=1}^n x_j} \varepsilon_i}_{\text{errore sugli input}}
++
+\underbrace{\sum_{k=1}^{n-1} \frac{\sum_{i=1}^k x_i}{\sum_{i=1}^n x_i} \varepsilon_k}_{\text{errore dell'algoritmo}}
+$$
+
+Dove:
+
+- $x_i$ = i-esimo numero da sommare
+- $\varepsilon_i$ = errore relativo sugli input
+- $\varepsilon_k$ = errore introdotto dalla k-esima operazione di somma
+
+## Consigli pratici nella somma di numeri floating point
+
+Quando si sommano numeri di magnitudine diversa, l’ordine di somma influisce sull’errore relativo:
+
+- Conviene sommare **prima i numeri più piccoli**, così da ridurre l’errore di incolonnamento.
+- In generale, sommare numeri con **esponenti simili** minimizza la perdita di informazioni.
+- Una volta sommati i piccoli numeri, il risultato parzialmente sommato (più grande) può essere sommato ai numeri più grandi successivi, riducendo l’accumulo di errore.
+
+La **propagazione dell’errore dipende sia dal condizionamento del problema sia dall’algoritmo scelto**, confermando l’importanza di considerare entrambe le caratteristiche per ottenere risultati affidabili (Vedi esempio slide 81-86).
+
+## Stabilità e condizionamento
+
+In Calcolo Numerico è fondamentale distinguere **stabilità e condizionamento**, perché indicano due cose diverse: come reagisce l’algoritmo agli errori e quanto è sensibile il problema stesso agli errori nei dati.
+
+**Stabilità** riguarda l’algoritmo. Un algoritmo è stabile se gli errori introdotti durante i calcoli (ad esempio arrotondamenti e troncamenti) non si amplificano in modo eccessivo lungo la sequenza di operazioni. In altre parole, una piccola perturbazione in corso d’opera non provoca un grande scostamento nel risultato finale.
+
+**Condizionamento**, invece, è una proprietà intrinseca del problema matematico. Un problema si dice ben condizionato se piccole perturbazioni dei dati portano a piccole variazioni nella soluzione. Viceversa, un problema è mal condizionato se anche piccole perturbazioni nei dati possono generare grandi variazioni nella soluzione.
+
+- Il condizionamento **non dipende dall’algoritmo**: è una caratteristica della funzione che lega i dati alla soluzione del problema.
+- È fortemente legato ai dati specifici del problema.
+
+**Esempio pratico** (slide 79): Supponiamo di risolvere un problema con dati che contengono un errore relativo dell’ordine di $10^{-6}$. Se la soluzione ottenuta presenta un errore relativo dell’ordine di $10^{-3}$, il problema è **mal condizionato**, perché l’errore sulla soluzione è mille volte maggiore dell’errore sui dati.
+
+## Come affrontare un problema numerico
+
+1. Prima di tutto, occorre verificare che la soluzione esista e sia unica.
+2. Successivamente, si valuta il condizionamento: se il problema è mal condizionato, anche algoritmi stabili produrranno inevitabilmente risultati con un certo grado di imprecisione, perché la sensibilità del problema amplifica gli errori sui dati.
+
