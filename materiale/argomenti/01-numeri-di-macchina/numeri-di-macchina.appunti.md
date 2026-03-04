@@ -97,7 +97,7 @@ Il calcolatore tronca i bit che superano il numero di bit rappresentati dal form
 
     Il **bias** viene aggiunto all'esponente in IEEE 754 perchè permette di **confrontare più facilmente i due esponenti** nel caso di una operazione di macchina che richiede riallineamento.
 
-# (4) Lezione 02-03-2026 | s 61..80 | Precisione di Macchina, Proprietà operazioni Floating Point
+# (4) Lezione 02-03-2026 | s 61..86 | Precisione di Macchina, Proprietà operazioni Floating Point
 
 - **Non validità della proprietà associativa (somma)**: (Slide 67) Vogliamo trovare la somma dei tre numer $x$, $y$ e $z$. L'unica cosa che possiamo cambiare è l'ordine. Il troncamento avviene prima dell'effettuazione dell'operazione; durante il riallineamento dell'esponente più piccolo.
 
@@ -201,9 +201,5 @@ Vorremmo calcolare: $\alpha = x + y + z$. L'idea è quello di confrontare l'$\al
     2. Poi ci chiederemo se il problema è mal condizionato oppure no. Spesso la risposta dipende dai dati. Il condizionamento è una caratteristica del problema ma che dipende dai dati.
 
     **Considerazione**: Dobbiamo sommare dei numeri: alcuni sono grandi, mentre altri sono piccoli. Conviene sommare prima i numeri più piccoli, in questo modo evitiamo per quanto possibile l'errore di incolonnamento. Sommando numeri fp i quali esponenti sono vicini riduce l'errore di incolonnamento e otteniamo un numero più grande che potrà essere sommato con gli altri numeri... 
-
-# (5) Lezione 03-03-2026 | s 80.. | 
-
-
 
 ---
