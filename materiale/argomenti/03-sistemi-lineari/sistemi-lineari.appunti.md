@@ -35,7 +35,7 @@ Il **numero di condizionamento** fa da amplificatore all'errore sui dati.
 
 Dimostrazione numero di condizionamento. Nella formula a slide 130 si denota come il fattore k amplifica l'errore sulle soluzioni. La disequazione mostra come l'errore relativo sui dati è maggiorato dall'errore sull seoluzioni aplificate per il $k(A)$.
 
-Supponiamo che l'errore si trovi tutto nel termine noto. In realtà un'analisi simile la può fare anche quando gli errori li abbiamo sugli elementi della matrice. Quindi abbiamo errori sui termini noti e sulla matrice (slide 132). C'è sempre di mezzo l'indice di condizionamento.A−1b
+Supponiamo che l'errore si trovi tutto nel termine noto. In realtà un'analisi simile la può fare anche quando gli errori li abbiamo sugli elementi della matrice. Quindi abbiamo errori sui termini noti e sulla matrice (slide 132). C'è sempre di mezzo l'indice di condizionamento.
 
 Esprime il fattore di amplificazione sui dati che si riflette sulle soluzioni.
 
@@ -86,7 +86,7 @@ $$ \sum_{j=1}^{n} (j-1) = \frac{n(n-1)}{2} \quad\to\quad O\Big(\frac{n^2}{2}\Big
 
 Al passo i si effettuano $i$ somme e $i - 1$ prodotti, ed un quoziente. Le divisioni sono solo $i$ di un ordine inferiore a $i^2$, quindi non le riportiamo.
 
-# (9) Lezione 11-03-2026 | s 140.. | Sistemi Lineari Generici
+# (9) Lezione 11-03-2026 | s 140..152 | Sistemi Lineari Generici
 
 ### Instabilità metodo di sostituzione
 
