@@ -112,6 +112,7 @@ $$
 \newcommand{\tcr}[1]{\textcolor{red}{#1}}
 \newcommand{\tcy}[1]{\textcolor{yellow}{#1}}
 \newcommand{\tclg}[1]{\textcolor{lightgreen}{#1}}
+\newcommand{\tclb}[1]{\textcolor{lightblue}{#1}}
 $$
 
 $$ Ax = b $$
@@ -276,6 +277,112 @@ $$
 
 Formula di aggiornamento: $a_{ij}^{(3)} = a_{ij}^{(2)} - m_{i2}a_{2j}^{(2)}$ per $i,j = \dots$.
 
+---
+
+Esempio:
+Data la matrice $A\in\R^{n\times n}$
+
+**PASSO 1**:
+
+1. Scelgo come elemento perno (o pivot): $a_{11}$.
+2. Ipotesi: $a_{11}\ne 0$.
+3. Calcolo i moltiplicatori:
+    $$ m_{i1} = \frac{a_{i1}}{a_{11}},\quad i=2,\dots,n $$
+
+    La formula per il calcolo dei moltiplicatori deriva da:
+
+    $$ a_{i1} = m\cdot a_{ii} $$
+
+    Vogliamo sapere qual'è il valore di m per cui $a_{ii}$ è uguagliato ad $a_{i1}$ che vogliamo azzerare. Notare come si trovano sulla stessa colonna perchè poi sottrarremo la riga del perno a quella indicizzata da $i$, annullando il valore nella posizione $i1$. Questo viene fatto per ogni riga:
+4. Combinazioni lineare: riga $i$ con la riga 1 e coefficiente $-m_{i1},\quad i=2,\dots,n$.
+
+$$
+A\equiv A_1 = \begin{pmatrix}
+a_{11} & a_{12} & a_{13} & \cdots & a_{1n} \\
+a_{21} & a_{22} & a_{23} & \cdots & a_{2n} \\
+a_{31} & a_{32} & a_{33} & \cdots & a_{3n} \\
+\vdots & \vdots & \vdots &        & \vdots \\
+a_{n1} & a_{n2} & a_{n3} & \cdots & a_{nn} \\
+\end{pmatrix}\Rightarrow A_2 = \begin{pmatrix}
+\tcr{a_{11}} & a_{12} & a_{13} & \cdots & a_{1n} \\
+\tclb{0}      & \tclb{a_{22}^{(2)}} & \tclb{a_{23}^{(2)}} & \tclb{\cdots} & \tclb{a_{2n}^{(2)}} \\
+\tclb{0}      & \tclb{a_{32}^{(2)}} & \tclb{a_{33}^{(2)}} & \tclb{\cdots} & \tclb{a_{3n}^{(2)}} \\
+\tclb{\vdots} & \tclb{\vdots}       & \tclb{\vdots}       &               & \tclb{\vdots} \\
+\tclb{0}      & \tclb{a_{n2}^{(2)}} & \tclb{a_{n3}^{(2)}} & \tclb{\cdots} & \tclb{a_{nn}^{(2)}} \\
+\end{pmatrix}
+$$
+
+Formula per il calcolo di $a_{ij}^{(2)}$:
+
+$$ \tclb{a_{ij}^{(2)}} = a_{ij} - m_{i1}a_{1j}\quad i,j=2,\dots,n $$
+
+A questo punto:
+
+$$
+A\equiv A_1 = \begin{pmatrix}
+1       &   &        &        & \\
+-m_{21} & 1 &        &        & \\
+-m_{31} & 0 & 1      &        & \\
+\vdots  &   &        & \ddots & \\
+-m_{n1} & 0 & \cdots & 0      & 1 \\
+\end{pmatrix}\begin{pmatrix}
+a_{11} & a_{12} & a_{13} & \cdots & a_{1n} \\
+a_{21} & a_{22} & a_{23} & \cdots & a_{2n} \\
+a_{31} & a_{32} & a_{33} & \cdots & a_{3n} \\
+\vdots & \vdots & \vdots &        & \vdots \\
+a_{n1} & a_{n2} & a_{n3} & \cdots & a_{nn} \\
+\end{pmatrix} = LA_1
+$$
+
+**PASSO 2**:
+
+1. Scelgo come elemento perno (o pivot): $a_{22}^{(2)}$.
+2. Ipotesi: $a_{22}^{(2)}\ne 0$.
+3. Calcolo i moltiplicatori:
+    $$ m_{i2} = \frac{a_{i2}^{(2)}}{a_{22}^{(2)}},\quad i=3,\dots,n $$
+4. Combinazioni lineare: riga $i$ con la riga 2 e coefficiente $-m_{i2},\quad i=3,\dots,n$.
+
+$$
+A_2 = \begin{pmatrix}
+a_{11} & a_{12} & a_{13} & \cdots & a_{1n} \\
+\tclb{0}      & \tclb{a_{22}^{(2)}} & \tclb{a_{23}^{(2)}} & \tclb{\cdots} & \tclb{a_{2n}^{(2)}} \\
+\tclb{0}      & \tclb{a_{32}^{(2)}} & \tclb{a_{33}^{(2)}} & \tclb{\cdots} & \tclb{a_{3n}^{(2)}} \\
+\tclb{\vdots} & \tclb{\vdots}       & \tclb{\vdots}       &               & \tclb{\vdots} \\
+\tclb{0}      & \tclb{a_{n2}^{(2)}} & \tclb{a_{n3}^{(2)}} & \tclb{\cdots} & \tclb{a_{nn}^{(2)}} \\
+\end{pmatrix}\Rightarrow A_3 = \begin{pmatrix}
+a_{11} & a_{12} & a_{13} & \cdots & a_{1n} \\
+\tclb{0}      & \tcr{a_{22}^{(2)}}  & \tclb{a_{23}^{(2)}} & \tclb{\cdots} & \tclb{a_{2n}^{(2)}} \\
+\tclb{0}      & \tclb{0}      & \tclg{a_{33}^{(3)}} & \tclg{\cdots} & \tclg{a_{3n}^{(3)}} \\
+\tclb{\vdots} & \tclb{\vdots} & \tclg{\vdots}       &               & \tclg{\vdots} \\
+\tclb{0}      & \tclb{0}      & \tclg{a_{n3}^{(3)}} & \tclg{\cdots} & \tclg{a_{nn}^{(3)}} \\
+\end{pmatrix}
+$$
+
+Formula per il calcolo di $a_{ij}^{(2)}$:
+
+$$ \tclg{a_{ij}^{(3)}} = \tclb{a_{ij}} - m_{i2}\tclb{a_{2j}}\quad i,j=3,\dots,n $$
+
+A questo punto:
+
+$$
+A\equiv A_1 = \begin{pmatrix}
+1      &         &   &        & \\
+0      & 1       &   &        & \\
+0      & -m_{32} & 1 &        & \\
+\vdots &         &   & \ddots & \\
+0      & -m_{n2} & 0 & \cdots & 1 \\
+\end{pmatrix}\begin{pmatrix}
+a_{11} & a_{12} & a_{13} & \cdots & a_{1n} \\
+\tclb{0}      & \tclb{a_{22}^{(2)}} & \tclb{a_{23}^{(2)}} & \tclb{\cdots} & \tclb{a_{2n}^{(2)}} \\
+\tclb{0}      & \tclb{a_{32}^{(2)}} & \tclb{a_{33}^{(2)}} & \tclb{\cdots} & \tclb{a_{3n}^{(2)}} \\
+\tclb{\vdots} & \tclb{\vdots}       & \tclb{\vdots}       &               & \tclb{\vdots} \\
+\tclb{0}      & \tclb{a_{n2}^{(2)}} & \tclb{a_{n3}^{(2)}} & \tclb{\cdots} & \tclb{a_{nn}^{(2)}} \\
+\end{pmatrix} = L_2A_2
+$$
+
+---
+
+
 #### In generale
 
 Ad un generico passo $k$. Abbiamo in ingresso la matrice $A_k$ (dai passi precedenti) e dobbiamo produrre la matrice $A_{k+1}$. Prendo gli elementi che stavano nella vecchia matrice, meno i moltiplicatori di quella riga li moltiplicati per gli elementi che stavano sulla stessa riga e colonna del moltiplicatore.
@@ -284,7 +391,7 @@ Iteriamo l'algoritmo $n-1$ volte. Alla fine ritrovaremo la matrice trasformata n
 
 #### Studio dell'algoritmo
 
-Le formule di aggiornamento sono l'algoritmo di Gauss. Prenderequeste formule ed implementarle per i vari indici.
+Le formule di aggiornamento sono l'algoritmo di Gauss. Prendere queste formule ed implementarle per i vari indici.
 
 Tre cicli annidati:
 - **Cilo esterno**: ciclo del passo.
