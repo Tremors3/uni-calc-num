@@ -319,7 +319,7 @@ $$ \tclb{a_{ij}^{(2)}} = a_{ij} - m_{i1}a_{1j}\quad i,j=2,\dots,n $$
 A questo punto:
 
 $$
-A\equiv A_1 = \begin{pmatrix}
+A_2 = \begin{pmatrix}
 1       &   &        &        & \\
 -m_{21} & 1 &        &        & \\
 -m_{31} & 0 & 1      &        & \\
@@ -448,7 +448,7 @@ Quindi possiamo sostituire il secondo ciclo con un'operazione che prevede la mol
 
 ---
 
-# (10) Lezione 16-03-2026 | s 153.. | Metodo di Gauss - continuo
+# (10) Lezione 16-03-2026 | s 153..178 | Metodo di Gauss - continuo
 
 ### Eliminazione Gaussiana $-$ Aggiunta sul costo computazionale 
 
@@ -477,7 +477,7 @@ Alternativamente possiamo **riesprimere questo algoritmo come un prodotto matric
 Quindi:
 
 $$
-A\equiv A_1 = \begin{pmatrix}
+A_2 = \begin{pmatrix}
 1       &   &        &        & \\
 -m_{21} & 1 &        &        & \\
 -m_{31} & 0 & 1      &        & \\
@@ -684,4 +684,6 @@ Scegliersi un pivo troppo piccolo, potrebbe portare a instabilità nella fase su
 Conviene quindi non solo controllare che il pivo sia $\ne 0$, ma prendere anche il più grande possibile. Si vede bene a slide 177. Regola: Trovate qualcosa di piccolo e scambiatelo con qualcosa di grande. Per la stabilità. In aritmentica esatta questo discorso non ha senso, ha senso solo che il pivo sia $\ne 0$. Implementato anche da Numpy.
 
 ---
+
+# (11) Lezione 17-03-2026 | s 179.. | Metodo di Gauss - continuo
 
