@@ -447,3 +447,241 @@ $$
 Quindi possiamo sostituire il secondo ciclo con un'operazione che prevede la moltiplicazione della matrice. 
 
 ---
+
+# (10) Lezione 16-03-2026 | s 153.. | Metodo di Gauss - continuo
+
+### Eliminazione Gaussiana $-$ Aggiunta sul costo computazionale 
+
+I costi computazionali di ogni passo dell'algoritmo si calcolano con facilità considerando che:
+
+- Il numero di moltiplicatori e quindi di quozienti è pari al numero di elementi nella matrice diagonale inferiore della matrice originale, quindi:
+
+    $$ \mathcal{O}\Big(\frac{n^2}{2}\Big) = \mathcal{O}\Big(\frac{n(n-1)}{2}\Big) $$
+
+- Per le somme ed i prodotti il metodo di calcolo è l ostesso ma consideriamo il numero totale di iterazioni e quindi di sottomatrici:
+
+    $$ \mathcal{O}\Big(\frac{n^3}{3}\Big) =\mathcal{O}\Big(\frac{n(n-1)(2n-1)}{6}\Big) $$
+
+### Fattorizzazione
+
+E' dimostrabile che, rendendo ad 1 la diagonale principale delle due matrici $U$ ed $L$, e moltiplicate tra loro riotteniamo la matrice orignale $A$
+
+$$ A = L\cdot U. $$
+
+#### Trasformazione elementare di Gauss
+
+L'altra volta abbiamo detto che per passare dalla matrice iniziale $A_1$ vogliamo trovarne un'altra che è quella chiamata $A_2$. Per trovare questa seconda matrice troviamo i moltiplicatori adatti ad annullare le righe sottostanti e eseguire le combinazioni lineari delle righe successive con la prima (formula vista). 
+
+Alternativamente possiamo **riesprimere questo algoritmo come un prodotto matriciale** tra una matrice che ha come diagonale principale degli 1, come colonna interessata i moltiplicatori calcolati e la matrice precedente $A_1$.
+
+Quindi:
+
+$$
+A\equiv A_1 = \begin{pmatrix}
+1       &   &        &        & \\
+-m_{21} & 1 &        &        & \\
+-m_{31} & 0 & 1      &        & \\
+\vdots  &   &        & \ddots & \\
+-m_{n1} & 0 & \cdots & 0      & 1 \\
+\end{pmatrix}\begin{pmatrix}
+a_{11} & a_{12} & a_{13} & \cdots & a_{1n} \\
+a_{21} & a_{22} & a_{23} & \cdots & a_{2n} \\
+a_{31} & a_{32} & a_{33} & \cdots & a_{3n} \\
+\vdots & \vdots & \vdots &        & \vdots \\
+a_{n1} & a_{n2} & a_{n3} & \cdots & a_{nn} \\
+\end{pmatrix} = LA_1
+$$
+
+Questo risultato non ci dice niente di nuovo. L'implementazione non cambia rispetto a quella vista in precedenza (l'algoritmo rimane invariato). Ma è interessante come risultato perchè possiamo vedere l'algoritmo come un prodotto matriciale.
+
+**Esempio**:
+
+Calcolati
+
+$$
+m_{21} = \frac{a_{21}}{a_{11}},\quad m_{31} = \frac{a_{31}}{a_{11}}
+$$
+
+Abbiamo:
+
+$$
+\begin{pmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+a_{31} & a_{32} & a_{33} \\
+\end{pmatrix}\Rightarrow\begin{pmatrix}
+a_{11} & a_{12} & a_{13} \\
+0 & a_{22} - m_{21}a_{12} & a_{23} - m_{21}a_{13} \\
+0 & a_{32} - m_{31}a_{12} & a_{33} - m_{31}a_{13} \\
+\end{pmatrix}
+$$
+
+In modo alternativo ed equivalente:
+
+$$
+\begin{pmatrix}
+1 & & \\
+\tcy{-m_{21}} & \tcy{1} & \\
+-m_{31} & 0 & 1 \\
+\end{pmatrix}\begin{pmatrix}
+\tcy{a_{11}} & a_{12} & a_{13} \\
+\tcy{a_{21}} & a_{22} & a_{23} \\
+\tcy{a_{31}} & a_{32} & a_{33} \\
+\end{pmatrix} = \begin{pmatrix}
+a_{11}               & a_{12} & a_{13} \\
+\tclg{-m_{21}a_{11}+a_{21}} & \tclb{-m_{21}a_{12}+a_{22}} & \tcr{-m_{21}a_{13}+a_{23}} \\
+& & & \\
+\end{pmatrix}
+$$
+
+Sulle slides troviamo il passo generico di questo algoritmo. **Il risultato è quindi un susseguirsi di $\mathbf{n-1}$ prodotti matriciali**.
+
+Le **Trasformazioni Elementari di Gauss** sono le matrici intermedie dell'algoritmo di Fattorizzazione. Otteniamo che:
+
+$$ U = L_{n-1}L_{n-1}\cdots L_2L_1A $$
+
+---
+
+#### Vedere la matrice $L$ come prodotto
+
+Vogliamo vedere la matrice $L$ come **prodotto dell'inversa delle Trasformazioni Elementari di Gauss**. Qiesto moltiplichiamo per le inverse delle trasformazioni elementari entrambi i lati dell'uguaglianza $A=LU$:
+
+$$
+L_{n-1}^{-1}\Big( L_{n-1}L_{n-2}\cdots L_2L_1 \Big)A = L_{n-1}^{-1}U \\
+L_{n-2}^{-1}\Big( L_{n-2}\cdots L_2L_1 \Big)A = L_{n-1}^{-1}L_{n-1}^{-2}U \\
+$$
+
+Ripetendo i passaggi otteniamo:
+
+$$
+A = \underbrace{L_1^{-1}L_2^{-1}\cdots L_{n-2}^{-1}L_{n-1}^{-1}}_{L} U
+$$
+
+---
+
+#### Modo alternativo di vedere le $L_k$
+
+La matrice di Trasformazione $k$-esima la si può vedere come una generalizzazione dei seguenti passaggi (slide 154), esempio:
+
+$$
+\begin{aligned}
+    L_1 =
+    \begin{pmatrix}
+    1 & & \\
+    -m_{21} & 1 & \\
+    -m_{31} & 0 & 1 \\
+    \end{pmatrix}
+    &=
+    \begin{pmatrix}
+    1 & & \\
+    & 1 & \\
+    &   & 1 \\
+    \end{pmatrix}
+    -
+    \begin{pmatrix} 0 \\ m_{21} \\ m_{31} \end{pmatrix}
+    \begin{pmatrix} 1 & 0 & 0 \end{pmatrix}
+    \\
+    &= 
+    \begin{pmatrix}
+    1 & & \\
+    & 1 & \\
+    &   & 1 \\
+    \end{pmatrix} - \begin{pmatrix}
+    0 & 0 & 0 \\
+    m_{21} & 0 & 0 \\
+    m_{31} & 0 & 0 \\
+    \end{pmatrix}
+\end{aligned}
+$$
+
+Si possono scrivere l'Identità meno il Prodotto Diadico (prodotto diade tra due vettori). Segnarsi il caso generico presente sulle slides.
+
+### Risultato dei passaggi
+
+Notiamo che l'inversa di ciascuna delle **Trasformazioni Elementari di Gauss** è uguale alla stessa matrice ma con i moltiplicatori invertiti di segno. Questo è dimostrato sulle slides (slide 153-157).
+
+$$ L_1^{-1} =
+\begin{pmatrix}
+1 & & \\
+-m_{21} & 1 & \\
+-m_{31} & 0 & 1 \\
+\end{pmatrix}^{-1}
+=
+\begin{pmatrix}
+1 & & \\
+m_{21} & 1 & \\
+m_{31} & 0 & 1 \\
+\end{pmatrix}
+$$
+
+Dimostrazione sulle slides.
+
+---
+
+### Fallimento dell'algoritmo $-$ Condizione sui **Minori Principali**
+
+L'ipotesi del problema è che gli elementi perno $a_{ii}$ siano $\ne 0$.
+La matrice su cui applichiamo l'algoritmo abbia tutti i **minori principali** $\ne 0$.
+
+Un minore principale è il determinante della sotto matrice... Esempio:
+
+
+$$
+A =
+\begin{pmatrix}
+\tcr{a_{11}} & \tclg{a_{12}} & \tclb{a_{13}} \\
+\tclg{a_{21}} & \tclg{a_{22}} & \tclb{a_{23}} \\
+\tclb{a_{31}} & \tclb{a_{32}} & \tclb{a_{33}} \\
+\end{pmatrix}
+$$
+
+I determinanti di queste sotto matrici in teori adovrebbero essere calcolati e controllati che siano $\ne 0$. Ma il calcolo di tutti questi determinanti è **molto costoso computazionalmente**. Questa è solamente un'**ipotesi teorica**.
+
+### Modificare Gauss
+
+Come possiamo modificare l'algoritmo di Gauss in modo da renderlo più generico? Da consentire la sua applicazione anche su matrici a cui non sarebbe possibile applicarlo.
+
+#### Scambio delle equazioni
+
+Scambiare le righe della matrice dei coefficienti e di conseguenza quele dei termini noti in modo da ottenere un sistema equivalente ma con valori di perno non nulli.
+
+Questo equivale a scambiare l'ordine delle equazioni.
+
+L'idea è di scambiare solo le righe delle matrici che sono compatibili, in modo da ottenere il perno che mi piace di più ad un passo generico $k$. Vedi slide 165.
+
+Dal punto di vista implementativo è una banalità. Basta prendere l'algoritmo e aggiungere una logica di scambio. Anche i moltiplicatori devono essere scambiati, ma questo viene fatto in automatico dato che sono salvati nella matrice triangolare inferiore.
+
+Dal punto di vista matriciale, anche qua tutto può essere visto come un susseguirsi di prodotto matriciale. Vogliamo tenere affiancati i procedimenti di triangolazione con un susseguirsi di prodotti matriciali. Anche gli scambi tra due righe si possono vedere come prodotti matriciali.
+
+Anche qua solo dal punto di vista formale ci è utile questa informazione. Dal punto di vista algoritmico affettuiamo semplicemente lo scambio.
+
+Dobbiamo introdurre le **Matrici di Permutazione Elementari**. Slide 166. Segnati le cose spiegate a questa slide.
+
+**Procedimento**
+
+Prima di ogni passo di eliminazione gaussiana controlliamo se il perno ci piace. Se non ci piace ne cerchiamo un'altro che ci piaccia di più ($\ne 0$) e se lo troviamo effettuiamo lo scambio di riga.
+
+Avremo quindi Matrici di Permutazioni Elementari (teoricamente) per ogni passo dell'algoritmo ($P_k$).
+
+Teniamo conto che almeno uno elemento diverso da zero ci deve essere, altrimenti la matrice sarebbe singolare. Si può dimostrare ma non l'abbiamo dimostrato, solo citato.
+
+Otteniamo quindi:
+
+$$ A_2 = L_1P_1A_1 $$
+
+Abbiamo aggiunto una permutazione. Questo lo facciamo in tutti i passi successivi:
+
+$$ \begin{aligned} A_k &= L_kP_kA_k \\ &= A_{n-1}\cdot ...\cdot L_2P_2L_1P_1A \end{aligned}$$
+
+### Criterio di scelta del perno $-$ Strategia di Pivoting-Parziale
+
+Scegliere un certo perno aumenta la stabilità dell'algoritmo.
+
+Resoconto slide 175.
+
+Scegliersi un pivo troppo piccolo, potrebbe portare a instabilità nella fase successiva dell'algoritmo.
+
+Conviene quindi non solo controllare che il pivo sia $\ne 0$, ma prendere anche il più grande possibile. Si vede bene a slide 177. Regola: Trovate qualcosa di piccolo e scambiatelo con qualcosa di grande. Per la stabilità. In aritmentica esatta questo discorso non ha senso, ha senso solo che il pivo sia $\ne 0$. Implementato anche da Numpy.
+
+---
+
