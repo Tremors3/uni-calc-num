@@ -685,5 +685,17 @@ Conviene quindi non solo controllare che il pivo sia $\ne 0$, ma prendere anche 
 
 ---
 
-# (11) Lezione 17-03-2026 | s 179.. | Metodo di Gauss - continuo
+# (11) Lezione 17-03-2026 | s 179..182 | Metodo di Gauss - continuo
+
+### Costo e implementazione Pivoting Parziale
+
+Scelta del pivot ad ogni passo dell'algoritmo. Richede di individuare il massimo tra i $n-k+1,\quad per k=1,\dots,n-1$ elementi candidati. Per individuare il massimo effetuiamo la differenza e vedere se il risultato è positivo o negativo. Ciclo che tiene traccia del massimo valore corrente; eventualmente lo aggiorna.
+
+Costo computazionale: $\matcal{O}(\frac{n^2}{2})$. Comunque di una dimensione in meno rispetto al costo di $\matcal{O}(\frac{n^3}{3})$ della fattorizzazione.
+
+Implementazione e appunti in laboratorio.
+
+---
+
+# (12) Lezione 18-03-2026 | s 182.. | Metodo di Gauss - continuo
 
