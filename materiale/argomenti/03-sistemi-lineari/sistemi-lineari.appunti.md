@@ -691,11 +691,239 @@ Conviene quindi non solo controllare che il pivo sia $\ne 0$, ma prendere anche 
 
 Scelta del pivot ad ogni passo dell'algoritmo. Richede di individuare il massimo tra i $n-k+1,\quad per k=1,\dots,n-1$ elementi candidati. Per individuare il massimo effetuiamo la differenza e vedere se il risultato è positivo o negativo. Ciclo che tiene traccia del massimo valore corrente; eventualmente lo aggiorna.
 
-Costo computazionale: $\matcal{O}(\frac{n^2}{2})$. Comunque di una dimensione in meno rispetto al costo di $\matcal{O}(\frac{n^3}{3})$ della fattorizzazione.
+Costo computazionale: $\mathcal{O}(\frac{n^2}{2})$. Comunque di una dimensione in meno rispetto al costo di $\mathcal{O}(\frac{n^3}{3})$ della fattorizzazione.
 
 Implementazione e appunti in laboratorio.
 
 ---
 
-# (12) Lezione 18-03-2026 | s 182.. | Metodo di Gauss - continuo
+# (12) Lezione 18-03-2026 | s 182.. | Varianti della fattorizzazione di Gauss per matrici speciali
 
+### Librerie usate da NumPy
+
+Tutti i metodi di linalg.solve sono basati su una libreria "_gesv". Routine storiche implementate originariamente in fortran. La documentazione riguarda (LAPAK) proprio alle matrici generali (fattorizzazione LU).
+
+Esiste una sezione per la risoluzione di matrici a banda. In generale ci sono librerie suddivise a seconda della tipologia specifica di problema che devono risolvere.
+
+Altre funzioni specifiche per matrici ricorrenti (con proprietà speciali):
+- Matrici simmetriche
+- Matrici simmetriche $-$ definite positive
+- Data filling di un vettore/di una matrice
+
+### Matrici Sparse (data filling/inpainting)
+
+La matrice inpainting ha la diagonale principale, la prima superiore, la prima inferiore, e altre 2 diagonali che non sono adiacenti alle altre, in mezzo ci sono diagonali nulle. Quindi non può essere considerata a banda.
+
+Una matrice quadrata di ordine $n$ si considera *sparsa* se il numero di elementi diversi da zero è una priccola percentuale rispetto ad $n^2$.
+
+Si adottano dei formati di rappresentazione compressi. Compressi per righe o per colonne:
+- CCS: Compressed Column Storage;
+- CRS: Compressed Row Storage.
+
+Vettore destinato a contenere tutti gli elementi diversi da zero della matrice.
+Gli altri due vettori contengono rispettivamente l'indice di riga e di colonna di ogni elemento del primo vettore. Efficiente se il numero elementi non nulli è molto basso rispetto alla dimensione della matrice.
+
+L'informazione può essere compressa ulteriormente raggruppando gli elementi che fanno barte della stessa colonna (o riga per CRS); memorizzando solamente il numero di elementi di ciascun gruppo (dato che gli elementi sono ordinati).
+
+Nel caso dell'inpainting che abbiamo visto in laboratorio la prof traduce la matrice a banda in una matrice sparsa per motivi di efficienza. Dato che la gran parte della matrice a banda era sconosciuta (elementi nulli).
+
+HSL Software Index - Sezione "FORTRAN/LINEAR ALGEBRA": Contiene una libreria di metodi per la risoluzione di matrici sparse.
+
+Algoritmi per far si che non solo il pivot sia scelto con cura, ma in modo che le matrici dei coefficienti ecc... abbiano il maggior numero di zeri.
+
+### Matrici speciali $-$ Specializzazione algoritmi di solving
+
+E' possibile specializzare un algoritmo risolutivo per matrici che si sa avere una certa forma/certe proprietà? SI!
+
+### Matrici speciali $-$ Proprietà di Simmetria
+
+Dal punto di vista della memoria, se le righe e le colonne sono uguali, non c'è bisogno di memorizzarle entrambe. Anche qui il risparmio non è banale, si risparmia la metà. Anche la complessità computazionale si può ridurre alla metà.
+
+Si può dimostrare che nel caso in cui una matrice sia simmetrica/non singolare, e con tutti i minori principali $\ne 0$. La fattorizzazione può diventare:
+
+$$ A = LDL^T $$
+
+Il risparmio è: invece di avere $L$ e $U$, due matrici triangolari i quali elementi sono indipendenti e slegati. Qui abbiamo $L$ e $L^T$, ed una matrice diagonale $D$. 
+
+- **Matrice non simmetrica**: La forma $LU$ ha un costo di $\mathcal{O}(\frac{n^3}{3})$.
+- **Matrice simmetrica**: La forma $LDL^T$ richiede di calcolare solamente la matrice $L$. La complessità si dimezza: $\mathcal{O}(\frac{1}{2}\cdot\frac{n^3}{3})$.
+
+Procedimento algoritmico (*slide 196*):
+
+$$ Ax = b \quad\Leftrightarrow\quad L\underbrace{DL^Tx}_{=z} = b $$
+
+$$
+\begin{cases}
+Lz = b \\
+z = D\underbrace{L^Tx}_{=y} \\
+\end{cases} \quad\Rightarrow\quad
+\begin{cases}\begin{align}
+Lz = b &\to \text{Triangolo inferiore} \\
+Dy = z &\to t_1 = \frac{z_i}{d_{ii}}\quad i=1,\dots,n\quad \\
+L^T = y &\to \text{Triangolo superiore} \\
+\end{align}\end{cases}
+$$
+
+### Matrici speciali $-$ Proprietà di Simmetria + Strettamente positiva
+
+Se una matrice è simmetrica tutti i suoi autovalori sono reali, in più se questi autovalori sono tutti positivi allora la matrice è definita positiva.
+
+- **Simmetria**: La complessità si riduce della metà: $\mathcal{O}(\frac{n^3}{6})$.
+- **Positività**: Algoritmo + stabile di tutti (algoritmo di Cholesky).
+
+Se $A$ è simmetrica e definita positiva, allora esiste una matrice $\mathcal{L}$ triangolare inferiore tale che:
+
+$$ A = \mathcal{LL}^T $$
+
+Sul collab di laboratorio della prof c'è una descrizione dell'algoritmo di Cholesky e della sua derivazione.
+
+#### Algoritmo di Pavimentazione
+
+$$ A = \mathcal{LL}^T \Rightarrow
+\begin{pmatrix}
+a_{11} & a_{21} & a_{31} \\
+a_{21} & a_{22} & a_{32} \\
+a_{31} & a_{32} & a_{33} \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+l_{11} &        &  \\
+l_{21} & l_{22} &  \\
+l_{31} & l_{32} & l_{33} \\
+\end{pmatrix}
+\cdot
+\begin{pmatrix}
+l_{11} & l_{21} & l_{31} \\
+       & l_{22} & l_{32} \\
+       &        & l_{33} \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+l_{11}^2     & \dots & \dots \\
+l_{21}l_{11} & \dots & \dots \\
+l_{31}l_{11} & \dots & \dots \\
+\end{pmatrix}
+$$
+
+- $$ a_{11} = l_{11}^2 \to l_{11} = \sqrt{a_{11}} $$
+- $$ a_{21} = l_{21}l_{11} \to l_{21} = \frac{a_{21}}{l{11}} $$
+- $$ a_{31} = l_{31}l_{11} \to l_{31} = \frac{a_{31}}{l{11}} $$
+- $$ \dots $$
+
+Più stabile e meno costoso computazionalmente.
+
+### Fattorizzazione QR
+
+Matrici ortogonali
+
+Una matrice $Q\in\R^{n\times n}$ si dice **Ortogonale** se:
+
+$$ Q^TQ = QQ^T = I $$
+
+Se una matrice è ortogonale, come diretta conseguenza della definizione, è anche una matrice **non singolare** e $Q^{-1}=Q^T$.
+
+Quindi se dovessimo risolvere un sistema:
+
+$$
+\begin{align}
+Qy &= b \\
+\underbrace{Q^TQ}_{I}y &= Q^Tb \\
+y &= Q^Tb \\
+\end{align}
+$$
+
+La fattorizzazione ha lo scopo di prendere una matrice non singolare e ricavare due matrici, una ortogonale $Q\in\R^{n\times n}$ e una matrice triangolare superiore nonsingolare $R\in\R^{n\times n}$ tali che
+
+$$ A=QR $$
+
+Esistono diversi algoritmi per calcolare le matrici $Q$ ed $R$. L'algoritmo che vedremo noi è il più efficiente e si chiama **algoritmo di Householder**.
+
+### Algoritmo di Householder $-$ Calcolo di $Q$ e $R$
+
+#### Differenza con il metodo di Gauss
+
+- Nella **fattorizzazione di Gauss**:
+
+    $$L_{n-1}\cdots L_2L_1A=U $$
+    
+    Ad ogni passo azzeriamo tutti gli elementi sotto il perno.
+    Lo facciamo per tutti i passi fino ad arrivare ad una matrice triangolare superiore. Per fare questo utilizziamo matrici triangolari inferiori di Gauss.
+    - Matrici L: triangolari inferiori
+    - Matrice U: triangolare superiore
+
+- Nella **trasformazione di Householder**:
+
+    $$U_{n-1}\cdots U_2U_1A=R $$
+
+    Si parte dalla matrice $A$. Si moltiplica la matrice di partenza per una serie di matrici $U_k$ chiamate **Trasformazioni Elementari di Householder**. Queste matrici sono ortogonali (T rovesciata).
+    - Matrici U: ortogonali
+    - Matrice R: triangolare superiore
+
+    Assomiglia a quella del metodo di Gauss.
+
+#### Dal punto di vista geometrico
+
+$$
+A = 
+\begin{pmatrix}
+a_{11} & a_{12} & a_{13} & \dots & a_{1n} \\
+a_{21} & a_{22} & a_{23} & \dots & a_{2n} \\
+\vdots \\
+a_{n1} & a_{n2} & a_{n3} & \dots & a_{nn} \\
+\end{pmatrix}
+$$
+
+Con $U_1$ ortogonale, e
+
+$$ U_1A =
+\begin{pmatrix}
+a_{11}^{(2)} & a_{12}^{(2)} & a_{13}^{(2)} & \dots & a_{1n}^{(2)} \\
+0 & a_{22}^{(2)} & a_{23}^{(2)} & \dots & a_{2n}^{(2)} \\
+\vdots \\
+0 & a_{n2}^{(2)} & a_{n3}^{(2)} & \dots & a_{nn}^{(2)} \\
+\end{pmatrix}
+$$
+
+Riduciamo il ragionamento sulla prima colonna.
+
+$$
+\begin{pmatrix}
+a_{11} \\ a_{21} \\ \vdots \\ a_{n1}
+\end{pmatrix} \qquad
+U_1a_1 = \begin{pmatrix}
+a_{11}^{(2)} \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+$$
+
+Vogliamo effettuare una sorta di rotazione del vettore. Riducendo la dimensione dell'ambiente ad un piano. e abbiamo un vettore di due componenti $t_1,t_2$.
+
+Vogliamo ottenere un altro vettore che abbia il primo componente diverso da zero, ed il successivo a zero (Pivot ed elementi nulli al di sotto). Questo esprime l'idea della rotazione.
+
+Vogliamo ottenere un vettore che abbia la seconda componente del vettore rutotandolo in modo da annullare il primo componente.
+
+$$
+\begin{pmatrix}
+t_1 \\ t_2
+\end{pmatrix} \Rightarrow
+\begin{pmatrix}
+\|t_1\| \\ 0
+\end{pmatrix}
+$$
+
+Rutoato in senso orario.
+
+La rotazione del vettore ci permette di annullare tutte le componenti di un vettore tranne una. Questa stessa operazione la possiamo effettuare su molteplici dimensioni.
+
+#### Algoritmo di Triangolarizzazione
+
+Dato $\underbrace{a_1}_{1° colonna di A}\to U_1$ tale che:
+1. $U_1$ è ortogonale
+2. $U_2a_1 = \begin{pmatrix} -\|a\| \\ 0 \\ \vdots \\ 0\end{pmatrix}$
+
+Passi:
+1. $\sigma_1 = \|a_1\| \ne 0$
+2. $V_1 = a_1 + \sigma_1e_1     \qquad e_1=\text{ primo vettore base canonica}$
+3. $\alpha_1=\frac{1}{2}\|v_1\|_{\text{euclidea}}^2$
+4. $U_1 = I - \frac{1}{\alpha_1}\underbrace{v_1v_1^T}_{\text{matrice }n\times n}$
+
+Effettuata la rotazione del vettore.
