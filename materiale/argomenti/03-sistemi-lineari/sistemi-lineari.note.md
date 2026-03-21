@@ -995,5 +995,15 @@ In questo modo si evita di dividere per numeri troppo piccoli e si riduce la pro
 
 Questa strategia è adottata anche nelle implementazioni pratiche delle librerie numeriche, come ad esempio quelle utilizzate da **NumPy**.
 
+#### Costo computazionale scelta
+
+La scelta del pivot avviene ad ogni passo $k$ dell’algoritmo, individuando il massimo tra i $n-k+1$ elementi candidati nella colonna corrente.
+
+Operativamente si confrontano gli elementi uno alla volta, mantenendo il massimo corrente e aggiornandolo quando si trova un valore maggiore.
+
+Il costo della ricerca del pivot è complessivamente $\mathcal{O}(n^2/2)$, poiché viene ripetuta per ogni colonna su un numero decrescente di elementi.
+
+Questo costo è inferiore rispetto alla fattorizzazione completa, che richiede $\mathcal{O}(n^3/3)$, quindi non è il termine dominante dell’algoritmo.
+
 ---
 
