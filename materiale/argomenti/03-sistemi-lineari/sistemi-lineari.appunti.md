@@ -927,3 +927,5 @@ Passi:
 4. $U_1 = I - \frac{1}{\alpha_1}\underbrace{v_1v_1^T}_{\text{matrice }n\times n}$
 
 Effettuata la rotazione del vettore.
+
+---

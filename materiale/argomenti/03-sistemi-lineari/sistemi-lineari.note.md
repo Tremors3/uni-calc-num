@@ -1007,3 +1007,288 @@ Questo costo è inferiore rispetto alla fattorizzazione completa, che richiede $
 
 ---
 
+### Librerie numeriche utilizzate da NumPy
+
+Le funzioni di risoluzione dei sistemi lineari, come `np.linalg.solve`, si basano su routine numeriche altamente ottimizzate provenienti da librerie storiche sviluppate originariamente in Fortran, in particolare **LAPACK** (Linear Algebra PACKage).
+
+Nel caso di sistemi lineari generali, la routine utilizzata è tipicamente `_gesv`, che implementa la fattorizzazione $LU$ con pivoting per matrici dense. Questo significa che, dietro le quinte, NumPy non calcola l’inversa ma utilizza algoritmi numericamente stabili ed efficienti basati sulla decomposizione della matrice.
+
+LAPACK fornisce diverse routine specializzate a seconda della struttura della matrice. Ad esempio, esistono metodi dedicati per matrici a banda, che sfruttano la presenza di molti zeri per ridurre il costo computazionale e l’uso di memoria.
+
+Inoltre, sono disponibili algoritmi specifici per matrici con proprietà particolari, come matrici simmetriche o simmetriche definite positive. In questi casi si possono utilizzare fattorizzazioni più efficienti (ad esempio la fattorizzazione di Cholesky), migliorando sia le prestazioni che la stabilità numerica.
+
+Questa suddivisione in casi specifici è fondamentale nel calcolo numerico: riconoscere la struttura della matrice permette di scegliere l’algoritmo più adatto e ottenere soluzioni più veloci e affidabili.
+
+---
+
+### Matrici sparse e problemi di inpainting
+
+Nel contesto del *data filling* (o *inpainting*), le matrici che emergono hanno una struttura particolare: oltre alla **diagonale principale** e alle **diagonali immediatamente adiacenti**, possono comparire altre **diagonali più lontane**, separate da blocchi di zeri. Per questo motivo non sempre è corretto considerarle matrici a banda in senso stretto.
+
+Una matrice quadrata di ordine $n$ si dice *sparsa* quando il numero di elementi non nulli è molto piccolo rispetto al totale $n^2$. In questi casi, memorizzare esplicitamente tutti gli zeri è inefficiente sia in termini di memoria che di tempo di calcolo.
+
+Per questo motivo si utilizzano formati di memorizzazione compressa, che conservano solo le informazioni rilevanti. I più comuni sono:
+- **CCS (Compressed Column Storage)**: compressione per colonne
+- **CRS (Compressed Row Storage)**: compressione per righe
+
+L’idea di base è memorizzare in un vettore tutti gli elementi non nulli della matrice. A questo si affiancano strutture ausiliarie che permettono di ricostruire la posizione di ciascun elemento, tipicamente tramite indici di riga e colonna. 
+
+Una ulteriore ottimizzazione consiste nel raggruppare gli elementi per riga o colonna: invece di salvare ogni indice singolarmente, si memorizza la posizione iniziale di ciascun gruppo, sfruttando il fatto che gli elementi sono ordinati. Questo riduce ulteriormente lo spazio necessario.
+
+Nel problema di inpainting visto in laboratorio, la matrice viene convertita in formato sparso proprio per motivi di efficienza: la maggior parte degli elementi è nulla o non informativa, quindi lavorare con una rappresentazione densa sarebbe inutilmente costoso.
+
+Infine, nel caso di matrici sparse, anche la scelta del pivot e l’ordine delle operazioni diventano cruciali. Esistono algoritmi specifici che cercano non solo stabilità numerica, ma anche di preservare la sparsità, evitando la creazione di nuovi elementi non nulli (*fill-in*) durante la fattorizzazione.
+
+Librerie specializzate, come quelle presenti nell’**HSL Software Index**, forniscono metodi avanzati per la risoluzione efficiente di sistemi lineari sparsi, sfruttando queste tecniche.
+
+---
+
+### Matrici speciali e algoritmi di risoluzione
+
+Quando una matrice possiede una struttura o proprietà particolari, è possibile progettare algoritmi di risoluzione più efficienti rispetto al caso generale. L’idea è sfruttare tali proprietà per ridurre sia il costo computazionale sia l’uso di memoria.
+
+---
+
+### Matrici simmetriche
+
+Una matrice $A$ è simmetrica se $A = A^T$. In questo caso, le informazioni contenute sopra e sotto la diagonale principale coincidono, quindi è sufficiente memorizzare solo metà matrice. Questo comporta un risparmio significativo in memoria e, di conseguenza, anche nelle operazioni computazionali.
+
+Se la matrice è simmetrica, non singolare e con tutti i minori principali diversi da zero, allora è possibile utilizzare una fattorizzazione più efficiente della classica $LU$, ovvero:
+
+$$ A = LDL^T $$
+
+dove $L$ è triangolare inferiore con diagonale unitaria e $D$ è una matrice diagonale.
+
+Il vantaggio principale è che non è necessario calcolare una matrice triangolare superiore indipendente: $U$ viene sostituita da $L^T$, riducendo il numero di operazioni. Il costo computazionale passa da $\mathcal{O}\left(\frac{n^3}{3}\right)$ nel caso generale a circa la metà $\mathcal{O}\left(\frac{1}{2}\cdot\frac{n^3}{3}\right)$.
+
+#### Risoluzione del sistema
+
+Dato il sistema $Ax = b$ e la fattorizzazione $A = LDL^T$, si ottiene:
+
+$$ LDL^T x = b $$
+
+Introducendo le variabili intermedie $z$ e $y$, il problema si risolve in tre passi:
+
+$$
+\begin{cases}
+L z = b     &\to \textit{Triangolo inferiore} \\
+D y = z     &\to y_i = \frac{z_i}{d_{ii}}\quad i=1,\dots,n \\
+L^T x = y   &\to \textit{Triangolo superiore} \\
+\end{cases}
+$$
+
+Il primo e il terzo sistema sono triangolari (inferiore e superiore), quindi si risolvono rispettivamente con sostituzione in avanti e all’indietro. Il sistema con $D$ è invece immediato, poiché $D$ è diagonale:
+
+$$ y_i = \frac{z_i}{d_{ii}}, \quad i = 1, \dots, n $$
+
+Questa struttura rende l’algoritmo più efficiente e numericamente stabile rispetto al caso generale, a patto che la matrice soddisfi le ipotesi richieste.
+
+---
+
+### Matrici simmetriche definite positive (fatt. di Cholesky)
+
+Se una matrice $A$ è simmetrica ($A = A^T$), allora i suoi autovalori sono reali. Se inoltre tutti gli autovalori sono positivi, la matrice si dice *definita positiva*. Questa proprietà è molto importante perché garantisce l’esistenza di algoritmi di risoluzione particolarmente efficienti e numericamente stabili.
+
+Nel caso simmetrico, come visto, il costo computazionale si riduce rispetto al caso generale. Se in più la matrice è definita positiva, è possibile utilizzare la **fattorizzazione di Cholesky**, che rappresenta il metodo più efficiente e stabile in questo contesto.
+
+In questo caso, la matrice si fattorizza come:
+
+$$ A = LL^T $$
+
+dove $L$ è una matrice triangolare inferiore con elementi reali e diagonale positiva.
+
+#### Idea dell’algoritmo (costruzione di $L$)
+
+L’algoritmo di Cholesky costruisce la matrice $L$ elemento per elemento, imponendo l’uguaglianza $A = LL^T$. Considerando, ad esempio, il caso $3 \times 3$:
+
+$$
+A =
+\begin{pmatrix}
+a_{11} & a_{21} & a_{31} \\
+a_{21} & a_{22} & a_{32} \\
+a_{31} & a_{32} & a_{33}
+\end{pmatrix}
+=
+L L^T
+$$
+
+con
+
+$$ L L^T =
+\begin{pmatrix}
+l_{11} &        &  \\
+l_{21} & l_{22} &  \\
+l_{31} & l_{32} & l_{33} \\
+\end{pmatrix}
+\cdot
+\begin{pmatrix}
+l_{11} & l_{21} & l_{31} \\
+       & l_{22} & l_{32} \\
+       &        & l_{33} \\
+\end{pmatrix}
+$$
+
+Sviluppando il prodotto $LL^T$, si ottengono relazioni tra gli elementi di $A$ e quelli di $L$. In particolare:
+
+$$ a_{11} = l_{11}^2 \quad \Rightarrow \quad l_{11} = \sqrt{a_{11}} $$
+
+$$ a_{21} = l_{21} l_{11} \quad \Rightarrow \quad l_{21} = \frac{a_{21}}{l_{11}} $$
+
+$$ a_{31} = l_{31} l_{11} \quad \Rightarrow \quad l_{31} = \frac{a_{31}}{l_{11}} $$
+
+e così via per gli elementi successivi, procedendo per colonne.
+
+#### Vantaggi
+
+La fattorizzazione di Cholesky è più efficiente della fattorizzazione $LU$, con un costo computazionale di circa
+
+- **Simmetria**: La complessità si riduce della metà: $\mathcal{O}(\frac{n^3}{6})$.
+- **Positività**: Algoritmo + stabile di tutti (algoritmo di Cholesky).
+
+ovvero circa la metà rispetto al caso generale. Inoltre, è numericamente più stabile, grazie alla struttura della matrice e all’assenza di pivoting.
+
+Per questo motivo, quando una matrice è simmetrica definita positiva, Cholesky è la scelta migliore per la risoluzione del sistema lineare.
+
+---
+
+### Fattorizzazione QR
+
+La fattorizzazione $QR$ è una tecnica che consente di decomporre una matrice $A$ non singolare come prodotto di due matrici:
+
+$$ A = QR $$
+
+dove $Q \in \mathbb{R}^{n \times n}$ è una matrice **ortogonale** e $R \in \mathbb{R}^{n \times n}$ è una matrice **triangolare superiore**.
+
+#### Matrici ortogonali
+
+Una matrice $Q$ si dice ortogonale se soddisfa:
+
+$$ Q^T Q = QQ^T = I $$
+
+Questa proprietà implica che $Q$ è non singolare e che la sua inversa coincide con la trasposta:
+
+$$ Q^{-1} = Q^T $$
+
+Dal punto di vista computazionale, questo è estremamente vantaggioso, perché evitare il calcolo esplicito dell’inversa migliora sia l’efficienza sia la stabilità numerica.
+
+#### Risoluzione di sistemi con matrici ortogonali
+
+Se si considera un sistema del tipo:
+
+$$ Qy = b $$
+
+moltiplicando a sinistra per $Q^T$ si ottiene:
+
+$$ Q^T Q y = Q^T b \quad \Rightarrow \quad y = Q^T b $$
+
+Quindi la soluzione si riduce a un semplice prodotto matrice-vettore.
+
+#### Idea della fattorizzazione QR
+
+1. Applicando la fattorizzazione $A = QR$ al sistema lineare $Ax = b$, si ottiene:
+
+    $$ QRx = b $$
+
+2. Ponendo $y = Rx$, il sistema diventa:
+
+    $$ Qy = b $$
+
+3. che si risolve facilmente moltiplicando a sinistra per $Q^T$:
+
+    $$ y = Q^T b $$
+
+4. A questo punto si risolve il sistema triangolare superiore:
+
+    $$ Rx = y $$
+
+mediante sostituzione all’indietro.
+
+#### Algoritmo di Householder
+
+Esistono diversi metodi per calcolare la fattorizzazione $QR$. Tra questi, l’algoritmo di **Householder** è il più utilizzato in pratica, perché è numericamente stabile ed efficiente.
+
+L’idea è costruire una sequenza di trasformazioni ortogonali che annullano progressivamente gli elementi sotto la diagonale, trasformando la matrice $A$ in una matrice triangolare superiore $R$. La matrice $Q$ è il prodotto delle trasformazioni ortogonali applicate.
+
+---
+
+### Algoritmo di Householder per la fattorizzazione $QR$
+
+L’algoritmo di Householder consente di costruire la fattorizzazione $A = QR$ attraverso una sequenza di trasformazioni ortogonali che riducono progressivamente la matrice $A$ in forma triangolare superiore.
+
+#### Confronto con il metodo di Gauss
+
+Nel metodo di Gauss si applicano trasformazioni elementari triangolari inferiori:
+
+$$ L_{n-1} \cdots L_1 A = U $$
+
+dove ogni passo annulla gli elementi sotto il pivot utilizzando combinazioni lineari di righe. Le matrici $L_k$ sono triangolari inferiori, mentre il risultato finale $U$ è triangolare superiore.
+
+Nel metodo di Householder, invece, si utilizzano trasformazioni ortogonali:
+
+$$ U_{n-1} \cdots U_1 A = R $$
+
+dove le matrici $U_k$ sono ortogonali e il risultato $R$ è triangolare superiore. La differenza fondamentale è che le trasformazioni non sono più combinazioni lineari di righe, ma riflessioni (o rotazioni) nello spazio.
+
+#### Interpretazione geometrica
+
+L’idea alla base dell’algoritmo è trasformare ogni colonna della matrice in modo da annullare tutti gli elementi sotto il primo.
+
+Considerando la prima colonna $a_1$ di $A$:
+
+$$
+a_1 =
+\begin{pmatrix}
+a_{11} \\ a_{21} \\ \vdots \\ a_{n1}
+\end{pmatrix}
+$$
+
+si costruisce una matrice ortogonale $U_1$ tale che:
+
+$$
+U_1 a_1 =
+\begin{pmatrix}
+-\|a_1\| \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+$$
+
+Geometricamente, questa operazione corrisponde a una riflessione che allinea il vettore $a_1$ con il primo asse canonico. In questo modo, tutte le componenti sotto la prima vengono annullate in un solo passo.
+
+#### Costruzione della trasformazione di Householder
+
+Per costruire $U_1$, si procede come segue.
+
+Si calcola la norma del vettore:
+
+$$ \sigma_1 = \|a_1\| $$
+
+Si definisce quindi il vettore:
+
+$$ v_1 = a_1 + \sigma_1 e_1 $$
+
+dove $e_1 = (1,0,\dots,0)^T$ è il primo vettore della base canonica.
+
+Si introduce poi lo scalare:
+
+$$ \alpha_1 = \frac{1}{2} \|v_1\|^2 $$
+
+Infine, la matrice di Householder è definita come:
+
+$$ U_1 = I - \frac{1}{\alpha_1} v_1 v_1^T $$
+
+Questa matrice è ortogonale e simmetrica, e realizza la riflessione desiderata.
+
+#### Idea generale dell’algoritmo
+
+Applicando successivamente trasformazioni analoghe alle sottomatrici ottenute, si annullano progressivamente tutti gli elementi sotto la diagonale. Dopo $n-1$ passi si ottiene una matrice triangolare superiore $R$.
+
+La matrice $Q$ della fattorizzazione si ottiene come prodotto delle trasformazioni ortogonali:
+
+$$ Q = U_1^T U_2^T \cdots U_{n-1}^T $$
+
+Poiché ogni $U_k$ è ortogonale e simmetrica, vale $U_k^T = U_k$, quindi:
+
+$$ Q = U_1 U_2 \cdots U_{n-1} $$
+
+Questo metodo è numericamente molto stabile, perché utilizza solo trasformazioni ortogonali, che preservano le norme e non amplificano gli errori di arrotondamento.
+
+---
