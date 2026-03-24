@@ -697,7 +697,7 @@ Implementazione e appunti in laboratorio.
 
 ---
 
-# (12) Lezione 18-03-2026 | s 182.. | Varianti della fattorizzazione di Gauss per matrici speciali
+# (12) Lezione 18-03-2026 | s 182..200 | Varianti della fattorizzazione di Gauss per matrici speciali
 
 ### Librerie usate da NumPy
 
@@ -929,3 +929,213 @@ Passi:
 Effettuata la rotazione del vettore.
 
 ---
+
+# (13) Lezione 24-03-2026 | s 201.. | Varianti della fattorizzazione di Gauss per matrici speciali
+
+### Fattorizzazione QR
+
+Vogliamo fattorizzare la matrice $A$ nel prodotto di matrici $QR$.
+
+- La matrice $Q$ (**Ortogonale**).
+- La matrice $R$ (**Triangolare superiore**), ha gli elementi diagonali diversi da zero. A seconda di come impostiamo l'algoritmo di fattorizzazione potremo decidere il segno di questi elementi.
+
+Abbiamo citato diversi algoritmi in grado di decomporre A nelle matrici ortogonale e triangolare superiore. Ma quello che abbiamo scelto è Housholder.
+
+Il punto comune della fattorizzazione di Gauss e di Householder è che otteniamo una matrice triangolare superiore. La differenza tra i due metodi l'ho già spiegata.
+
+Partendo da una matrice di forma qualsiasi dobbiamo operare sui suoi elementi per arrivare alla forma $QR$.
+
+---
+
+#### Procedimento fattorizzazione QR
+
+Procediamo con una serie di trasformazioni matriciali allo scopo di ottenere alla fine dele trasformazione una matrice triangolare superiore $R$ e una matrice ortogonale $Q$. Come in Gauss vogliamo annullare tutti gli elementi sotto la diagonale principale di $A$, ma in modo diverso da Gauss.
+
+**Passo 1**
+
+$$ U_1A_1 =
+\begin{pmatrix}
+a_{11}^{(2)} & a_{12}^{(2)} & a_{13}^{(2)} & \dots & a_{1n}^{(2)} \\
+0 & a_{22}^{(2)} & a_{23}^{(2)} & \dots & a_{2n}^{(2)} \\
+0 & a_{32}^{(2)} & a_{33}^{(2)} & \dots & a_{3n}^{(2)} \\
+\vdots & \vdots & \vdots & & \vdots \\
+0 & a_{n2}^{(2)} & a_{n3}^{(2)} & \dots & a_{nn}^{(2)} \\
+\end{pmatrix} = A_2
+$$
+
+dove:
+
+1. $\sigma_1 = \|a_1\| \ne 0$
+2. $V_1 = a_1 + \sigma_1e_1$
+3. $\alpha_1=\frac{1}{2}\|v_1\|_{\text{euclidea}}^2$
+4. $U_1 = I - \frac{1}{\alpha_1}v_1v_1^T$
+
+**Passo 2**
+
+$$ U_2A_2 =
+\begin{pmatrix}
+a_{11}^{(2)} & a_{12}^{(2)} & a_{13}^{(2)} & \dots & a_{1n}^{(2)} \\
+0 & a_{22}^{(3)} & a_{23}^{(3)} & \dots & a_{2n}^{(3)} \\
+0 & 0 & a_{33}^{(3)} & \dots & a_{3n}^{(3)} \\
+\vdots & \vdots & \vdots & & \vdots \\
+\underbrace{0}_{U_1a_1} & \underbrace{0}_{U_2a_2} & \underbrace{a_{n3}^{(3)}}_{\dots} & \dots & a_{nn}^{(3)} \\
+\end{pmatrix} = A_3
+$$
+
+dove:
+
+$$ a_2 = 
+\begin{pmatrix}
+a_{22}^{(2)} \\ a_{32}^{(2)} \\ \vdots \\ a_{n2}^{(2)} \\
+\end{pmatrix} \in \R^{n-1}
+$$
+
+1. $\sigma_2 = \|a_2^{(2)}\| \ne 0$
+2. $v_2 = a_2^{(2)} + \sigma_2e_2$
+3. $\alpha_2=\frac{1}{2}\|v_2\|_{\text{euclidea}}^2$
+4. $\tilde U_2 = I_{n-1} - \frac{1}{\alpha_2}v_2v_2^T$
+
+**Passo 3**
+
+$$
+A_3 = U_2A_2 = \dots
+$$
+
+Matrici sempre più piccole. Le matrici di householder agiscono solo su sotto colonne, e non su tutte.
+
+**Passo n-1 esimo**
+
+$$
+U_{n-1}\cdot U_1A = R
+$$
+
+Utilizzando delle matrici ortogonali $U_i$ otteniamo alla fine una matrice ortogonale $U$ con le proprietà che ne seguono. Mentre la matrice $R$ è naturalmente triangolare superiore.
+
+#### Procedimenti algoritmico
+
+L’idea alla base dell’algoritmo è trasformare ogni colonna della matrice in modo da annullare tutti gli elementi sotto il primo.
+
+Considerando la prima colonna $a_1$ di $A$:
+
+$$
+a_1 =
+\begin{pmatrix}
+a_{11} \\ a_{21} \\ \vdots \\ a_{n1}
+\end{pmatrix}
+$$
+
+si costruisce una matrice ortogonale $U_1$ tale che:
+
+$$
+U_1 a_1 =
+\begin{pmatrix}
+-\|a_1\| \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+$$
+
+Geometricamente, questa operazione corrisponde a una riflessione che allinea il vettore $a_1$ con il primo asse canonico. In questo modo, tutte le componenti sotto la prima vengono annullate in un solo passo.
+
+**Algoritmo di ogni passo ed implementazione in laboratorio**.
+
+---
+
+#### Teoria e dimostrazione dei passaggi visti
+
+La matrice ortogonale $U$ ha forma:
+
+$$ U = I - \frac{1}{\alpha}vv^T = \frac{1}{2}\|v\|^2 \quad\to\quad \|v\|^2 = 2\alpha$$
+
+1. **Simmetria** $\quad U = U^T$
+
+    $$\begin{align}
+    U^T &= (I - \frac{1}{\alpha}vv^T)T \\
+    &= I^T - \frac{1}{\alpha}(vv^T)^T \\
+    &= I - \frac{1}{\alpha}(v^T)^T(v)^T \\
+    &= I - \frac{1}{\alpha}vv^T = U
+    \end{align}$$
+
+    Abbiamo riottenuto la matrice U.
+
+2. **Ortogonalità** $\quad U^TU = I$
+
+    $$
+    \begin{align}
+    &= \Big(I-\frac{1}{\alpha}vv^T\Big)^T \Big(I-\frac{1}{\alpha}vv^T\Big) \\
+    &= I - \frac{1}{\alpha}vv^T - \frac{1}{\alpha}vv^T + \frac{1}{\alpha^2}vv^Tvv^T \\
+    &= I - \frac{2}{\alpha}vv^T + \frac{1}{\alpha^2}v\underbrace{(v^Tv)}_{\text{scalare }\|v\|^2}v^T \\
+    &= I - \frac{2}{\alpha}vv^T + \frac{1}{\alpha^2}\cdot\|v\|^2vv^T \\
+    &= I - \underline{\frac{2}{\alpha}vv^T} + \underline{\frac{2\alpha}{\alpha^2}vv^T} \\
+    &= I
+    \end{align}$$
+
+**Passi**
+
+1. $ \alpha\in\R^n $
+2. $ \sigma = \|a\| $
+3. $ v = a + \sigma e_1 $
+4. $ \alpha = \frac{1}{2} \|v\|^2 $
+5. $ U = I - \frac{1}{\alpha} v v^T $
+
+**Th.**
+
+$$
+U a =
+\begin{pmatrix}
+-\sigma \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+$$
+
+$$\begin{align}
+\alpha &= \frac{1}{2}\|v\|^2 = \frac{1}{2}vv^T \\
+&= \frac{1}{2}(\alpha + \sigma e_1)^T(\alpha + \sigma e_1) \\
+&= \frac{1}{2}(\alpha^T+ \sigma e_1^T)^T(\alpha + \sigma e_1) \\
+&= \frac{1}{2}(\alpha^Te + \sigma\underbrace{\alpha^Te_1}_{=e_1^T\alpha} + \sigma \underbrace{e_1^T\alpha}_{=\alpha^Te_1} + \sigma^2 \underbrace{e_1^T e_1}_{= 1}  ) \\
+&= \frac{1}{2}(\sigma^2 + 2\sigma e_1^T\alpha + \alpha^2)
+\end{align}$$
+
+Abbiamo trovato che:
+
+$$\boxed{
+\alpha = \frac{1}{2}\|v\|^2 = \frac{1}{2}vv^T = \sigma^2 + 2\sigma e_1^T\alpha + \alpha^2
+}$$
+
+Quindi:
+
+$$\begin{align}
+Ua &= (I - \frac{1}{\alpha}vv^T)a = a - \frac{1}{\alpha}vv^Ta \\
+&= a - \frac{1}{\alpha}(a + \sigma e_1)(a+\sigma e_1)^Ta \\
+&= a - \frac{1}{\alpha}(a + \sigma e_1)\underbrace{(\sigma^2 + \sigma e_1^Ta)}_{\alpha} \\
+&= a - \frac{1}{\alpha}(a + \sigma e_1)\alpha \\
+&= - \sigma e_1
+\end{align}$$
+
+---
+
+#### Ortogonalità nella fattorizzazione
+
+$$ \underbrace{U_{n-1}\cdots U_2U_1}_{\text{ortogonali}} = R $$
+
+$$ A = U_1^TU_2^T\cdots U_{n-1}^T = R $$
+
+#### Implementazione dell'algoritmo
+
+Non è necessario utilizzare $n^2$ di spazio per il calcolo della matrice $U$. In realtà la matrice di householder non si vede mai in memoria del computer. Ci bassta riscrivere il prodotto in questo modo (matrix free):
+
+$$ z = Uy = \Big( I - \frac{1}{\alpha}vv^T \Big)y = y - \frac{1}{\alpha}v(v^Ty) $$
+
+dove:
+
+- $\alpha = \frac{1}{2}\|v\|^2 \to\mathcal{O}(n)$
+- $p = v^Ty \to\mathcal{O}(n)$
+- $z = y - v(\frac{p}{\alpha}) \to\mathcal{O}(2n)$
+
+La complessità computazionale ad ogni passo: $\mathcal{O}(4n) \approx \mathcal{O}(n)$.
+Ognuna delle olonne quindi impiega un costo computazionale che si approssima ad $n$.
+
+#### Nota sul costo computazionale
+
+Fattorizzazione:
+- Householder: $\mathcal{O}(\frac{2/3}n^3)$;
+- Gauss: $\mathcal{O}(\frac{1/3}n^3)$.
+
+In teoria la fattorizzazione di Gauss è il doppia più veloce ma ci sono alcuni casi in cui householder conviene.
