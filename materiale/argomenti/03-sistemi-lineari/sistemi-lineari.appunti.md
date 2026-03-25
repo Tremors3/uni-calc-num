@@ -1138,4 +1138,139 @@ Fattorizzazione:
 - Householder: $\mathcal{O}(\frac{2/3}n^3)$;
 - Gauss: $\mathcal{O}(\frac{1/3}n^3)$.
 
-In teoria la fattorizzazione di Gauss è il doppia più veloce ma ci sono alcuni casi in cui householder conviene.
+In teoria la fattorizzazione di Gauss è il doppia più veloce ma ci sono alcuni casi in cui householder conviene. Con il QR possiamo **risolvere in maniera stabile** dei sistemi per i quali l'algoritmo di **Gauss non può fornire delle soluzioni accurate**.
+
+---
+
+# (14) Lezione 25-03-2026 | s .. | Fattorizzazione QR $-$ Metodi Iterativi
+
+#### Gasuss vs QR (Applicabilità)
+
+La fattorizzazione QR può essere applicata anche a matrici non quadrate. Slide 211.
+L'ipotesi è che la matrice a cui noi vogliamo effettuare la fattorizzazione è che:
+- numero di righe maggiore rispetto al numero di colonne (Sia $A\in\R^{m\times n}$, con $m\ge n$);
+- colonne matrice linearmente indipendenti.
+
+$$
+A = \underbrace{\boxed{\begin{matrix} & & \\ & & \\ & & \\ & & \\ & & \\ & & \end{matrix}}}_{m\times n} =
+\underbrace{\boxed{\begin{matrix} & & & &  \\ & & & & \\ & & & & \\ & & & & \\ & & & & \\ & & & & \end{matrix}}}_{Q ^{m\times m}} \space
+\underbrace{\boxed{\begin{matrix} & & \\ & R & \\& & \\\hline & & \\ & O & \\ && \end{matrix}}}_{m-n\times n}
+$$
+
+---
+
+### Tabella confronto implementazioni delle fattorizzazioni
+
+---
+
+### Mateodi iterativi per sistemi lineari
+
+L'idea è quella di generare una succesisone di valori che all'infinito, il limite deve essere uguale alla soluzione del problema che stiamo considerando. Invece di scrivere un algoritmo con un numero finito di operazioni; i metodi iterativi partono con un meccanismo che considerano infiniti elementi della successione. Limite che all'infinito converge alla soluzione del sistema. I metodi iterativi per loro natura forniranno una versione approssimata della soluzione.
+
+#### Nota sulla descrizione formale di una succesisone
+
+Data la successione
+
+$$
+\{a_k\}_{k\in\N} \in R
+$$
+
+abbiamo il seguente limite ad infinito, tale che:
+
+$$
+\lim_{k\to\inf} a_k = a_* \in \R \quad\Leftrightarrow\quad \forall \varepsilon > 0 \space\exists N_\varepsilon : | a_k - a_* | \le \varepsilon \forall k \ge N_\varepsilon
+$$
+
+Per non confondere il numero di componenti di una successione con l'indice della successione rappresenteremo le successioni nel seguente modo:
+
+$$
+\{x^{(k)}\}_{k\in\N} \in \R^n
+$$
+
+$$
+x^{(k)} = \begin{pmatrix} x_1^{(k)} \\ \vdots \\ x_n^{(k)}\end{pmatrix}
+$$
+
+Allora:
+
+$$
+\lim_{k\to\inf} x^{(k)} = x^* \in \R^n
+$$
+
+$$
+\forall \varepsilon > 0 \space\exists N_\varepsilon : \| x^{(k)} - x^* \| \le \varepsilon \forall k \ge N_\varepsilon
+$$
+
+Valore di tolleranza $\varepsilon$. Altro modo per esprimere lo stesso concetto:
+
+$$\begin{align}
+\lim_{k\to\inf} x^{(k)} = x^* &\quad\Leftrightarrow\quad \lim_{k\to\inf} \| x^{(k)} - x^* \| = 0 \\ &\quad\Leftrightarrow\quad \lim_{k\to\inf} x_i^{(k)} = x_i^* \space\forall i=1,\dots,n
+\end{align}$$
+
+La distanza dal vettore limite deve diventare sempre più piccola ($\to 0$).
+
+#### Risoluzione di sistemi con metodi iterativi
+
+I metodi iterativi sono delle formule ricorsive. Che hanno bisogno di un passo di partenza (valori iniziali) e proseguotno ricorsivamente.
+
+$$
+Ax = b \qquad x^* \textit{ soluzione } (Ax^*=b)
+$$
+
+Inputs. Prendiamo l'elemento iniziale della ricorsione:
+
+$$ x^{(0)}\in\R^N   \qquad (\text{INPUT}) $$
+
+Poi proseguiamo con il passo generico:
+
+$$ x^{(k+1)} = G\cdot x^{(k)} + c, \quad k=0,1,\dots   \qquad (\text{GENERICO}) $$
+
+Ad ogni passo moltiplichiamo la soluzione del passo precedente per una matrice $G$. Il risultato sommato per il vettore $c$.
+
+$$ G\in\R^{n\times n}, \space c\in\R^n \leftarrow \text{metodo} $$
+
+#### Nota Implementazione
+
+Questi metodi sono molto efficaci dal punto di vista della memoria. Basta sovrascrivere ad ogni passo il vecchio col nuovo (matrice G e c).
+
+#### Convergenza
+
+La matrice $G$ ed il vettore $c$ devono essere scelti in modo che l'algoritmo converga, quindi:
+
+$$ \lim_{k\to\inf} x^{(k)}  =x^* \quad=\quad  \lim_{k\to\inf} G\cdot x^{(k-1)} + c $$
+
+Vogliamo che questo meccaniscmo ricorsivo funzioni per qualsiasi punto iniziale scelto: $\underline{\forall x^{(0)} \in \R^n}$.
+
+Più il vettore di partenza si avvicina alla soluzione e meglio è. Generalmente si sceglie un vettore standard (come componenti tutte zeri o uni) se non si conosce nulla della soluzione.
+
+#### Ottenimento di un metodo
+
+$$ Ax^*=b \Leftrightarrow 0 = b-Ax^* $$
+
+Introduciamo una matrice $M^{n\times n}$ che sia nonsingolare. Possiamo aggiungere ad entrambi i lati la quantità:
+
+$$ \dots\Leftrightarrow Mx^* = Mx^*+b-Ax^* $$
+
+Moltiplichiamo entrambi i lati per l'inversa di M:
+
+$$ \dots\Leftrightarrow x^* = x^*+M^{-1}b-M^{-1}Ax^* $$
+
+Raccolgo per il vettore $x^*$:$
+
+$$ \dots\Leftrightarrow x^* = \underbrace{(I - M^{-1}A)}_{G}x^*+\underbrace{M^{.1}b}_{c} $$
+
+Identifico la matrice $G$ e il vettore $c$ otteniamo l'espressione:
+
+$$ \boxed{x^* = G\cdot x^* + c} $$
+
+La matrice $G$, possiamo chiamarla **Matrice di Iterazione**. Anche questìultimo set di uguaglianze è corretto perchè riformulazione della forma equivalente originale ($0 = b-Ax^*$). C'è un legame tra la formula ottenuta e i metodi iterativi descritti prima.
+
+Dobiamo studiare la situazione e scegliere $G$ e $c$ in modo da accertare la convergenza del metodo.
+
+#### Aspetti da verificare
+
+- **Analisi di Convergenza**: Problema della convergenza di un metodo iterativo (ipotesi su $G$ e $c$);
+
+- **Criteri di Arresto**: mi fermo quando sono certo che l'ultima soluzione calcolata si avvicini abbastanza (entro un certo parametro di precisione) alla soluzione reale.
+
+---
