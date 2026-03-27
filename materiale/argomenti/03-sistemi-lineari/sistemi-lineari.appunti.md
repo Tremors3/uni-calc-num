@@ -930,7 +930,7 @@ Effettuata la rotazione del vettore.
 
 ---
 
-# (13) Lezione 24-03-2026 | s 201.. | Varianti della fattorizzazione di Gauss per matrici speciali
+# (13) Lezione 24-03-2026 | s 201..214 | Varianti della fattorizzazione di Gauss per matrici speciali
 
 ### Fattorizzazione QR
 
@@ -1087,16 +1087,18 @@ $$
 
 $$\begin{align}
 \alpha &= \frac{1}{2}\|v\|^2 = \frac{1}{2}vv^T \\
-&= \frac{1}{2}(\alpha + \sigma e_1)^T(\alpha + \sigma e_1) \\
-&= \frac{1}{2}(\alpha^T+ \sigma e_1^T)^T(\alpha + \sigma e_1) \\
-&= \frac{1}{2}(\alpha^Te + \sigma\underbrace{\alpha^Te_1}_{=e_1^T\alpha} + \sigma \underbrace{e_1^T\alpha}_{=\alpha^Te_1} + \sigma^2 \underbrace{e_1^T e_1}_{= 1}  ) \\
-&= \frac{1}{2}(\sigma^2 + 2\sigma e_1^T\alpha + \alpha^2)
+&= \frac{1}{2}(a + \sigma e_1)^T(a + \sigma e_1) \\
+&= \frac{1}{2}(a^T+ \sigma e_1^T)^T(a + \sigma e_1) \\
+&= \frac{1}{2}(a^Te + \sigma\underbrace{a^Te_1}_{=e_1^T a} + \sigma \underbrace{e_1^T a}_{= a^Te_1} + \sigma^2 \underbrace{e_1^T e_1}_{= 1}) \\
+&= \frac{1}{2}(\sigma^2 + 2\sigma e_1^T a + \sigma^2) \\
+&= \frac{1}{2}(2\sigma^2 + 2\sigma e_1^T a) \\
+&= \sigma^2 + \sigma e_1^T a \\
 \end{align}$$
 
 Abbiamo trovato che:
 
 $$\boxed{
-\alpha = \frac{1}{2}\|v\|^2 = \frac{1}{2}vv^T = \sigma^2 + 2\sigma e_1^T\alpha + \alpha^2
+\alpha = \frac{1}{2}\|v\|^2 = \frac{1}{2}vv^T = \sigma^2 + \sigma e_1^T a
 }$$
 
 Quindi:
@@ -1142,7 +1144,7 @@ In teoria la fattorizzazione di Gauss è il doppia più veloce ma ci sono alcuni
 
 ---
 
-# (14) Lezione 25-03-2026 | s .. | Fattorizzazione QR $-$ Metodi Iterativi
+# (14) Lezione 25-03-2026 | s 219.. | Fattorizzazione QR $-$ Metodi Iterativi
 
 #### Gasuss vs QR (Applicabilità)
 

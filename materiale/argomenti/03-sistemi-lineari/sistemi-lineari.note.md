@@ -1255,25 +1255,25 @@ Geometricamente, questa operazione corrisponde a una riflessione che allinea il 
 
 #### Costruzione della trasformazione di Householder
 
-Per costruire $U_1$, si procede come segue.
+Per costruire $U$, si procede come segue.
 
 Si calcola la norma del vettore:
 
-$$ \sigma_1 = \|a_1\| $$
+$$ \sigma = \|a\| $$
 
 Si definisce quindi il vettore:
 
-$$ v_1 = a_1 + \sigma_1 e_1 $$
+$$ v = a + \sigma e_1 $$
 
-dove $e_1 = (1,0,\dots,0)^T$ è il primo vettore della base canonica.
+dove $e_1 = (1,0,\dots,0)^T$ è il primo vettore della base canonica. Questo vettore individua la direzione della riflessione.
 
 Si introduce poi lo scalare:
 
-$$ \alpha_1 = \frac{1}{2} \|v_1\|^2 $$
+$$ \alpha = \frac{1}{2} \|v\|^2 $$
 
 Infine, la matrice di Householder è definita come:
 
-$$ U_1 = I - \frac{1}{\alpha_1} v_1 v_1^T $$
+$$ U = I - \frac{1}{\alpha} v v^T $$
 
 Questa matrice è ortogonale e simmetrica, e realizza la riflessione desiderata.
 
@@ -1292,3 +1292,338 @@ $$ Q = U_1 U_2 \cdots U_{n-1} $$
 Questo metodo è numericamente molto stabile, perché utilizza solo trasformazioni ortogonali, che preservano le norme e non amplificano gli errori di arrotondamento.
 
 ---
+
+### Esempio: procedimento di fattorizzazione QR con Householder
+
+L’obiettivo della fattorizzazione $QR$ è trasformare una matrice $A$ in una matrice triangolare superiore $R$ attraverso una sequenza di trasformazioni ortogonali. A differenza del metodo di Gauss, che utilizza combinazioni lineari di righe, qui si applicano trasformazioni di Householder, che sono riflessioni ortogonali.
+
+L’idea è annullare progressivamente tutti gli elementi sotto la diagonale principale, lavorando colonna per colonna.
+
+#### Passo 1
+
+Si considera la prima colonna di $A$, indicata con $a_1$, e si costruisce una matrice ortogonale $U_1$ tale che:
+
+$$ U_1A_1 =
+\begin{pmatrix}
+a_{11}^{(2)} & a_{12}^{(2)} & a_{13}^{(2)} & \dots & a_{1n}^{(2)} \\
+0 & a_{22}^{(2)} & a_{23}^{(2)} & \dots & a_{2n}^{(2)} \\
+0 & a_{32}^{(2)} & a_{33}^{(2)} & \dots & a_{3n}^{(2)} \\
+\vdots & \vdots & \vdots & & \vdots \\
+0 & a_{n2}^{(2)} & a_{n3}^{(2)} & \dots & a_{nn}^{(2)} \\
+\end{pmatrix} = A_2
+$$
+
+In questo modo, tutti gli elementi sotto il primo pivot vengono annullati in un solo passo. La costruzione di $U_1$ avviene nel modo seguente:
+
+$$\begin{aligned}
+\sigma_1 &= \|a_1\| \neq 0 \\
+v_1 &= a_1 + \sigma_1 e_1 \\
+\alpha_1 &= \frac{1}{2} \|v_1\|^2 \\
+U_1 &= I - \frac{1}{\alpha_1} v_1 v_1^T
+\end{aligned}$$
+
+#### Passo 2
+
+A questo punto si lavora sulla sottomatrice ottenuta eliminando la prima riga e la prima colonna. Si considera quindi il vettore:
+
+$$
+a_2 =
+\begin{pmatrix}
+a_{22}^{(2)} \\ a_{32}^{(2)} \\ \vdots \\ a_{n2}^{(2)}
+\end{pmatrix} \in \mathbb{R}^{n-1}
+$$
+
+Si costruisce una nuova trasformazione ortogonale che agisce solo su questa sottomatrice:
+
+$$
+U_2 A_2 =
+\begin{pmatrix}
+a_{11}^{(2)} & a_{12}^{(2)} & a_{13}^{(2)} & \cdots & a_{1n}^{(2)} \\
+0 & a_{22}^{(3)} & a_{23}^{(3)} & \cdots & a_{2n}^{(3)} \\
+0 & 0 & a_{33}^{(3)} & \cdots & a_{3n}^{(3)} \\
+\vdots & \vdots & \vdots & & \vdots \\
+0 & 0 & a_{n3}^{(3)} & \cdots & a_{nn}^{(3)}
+\end{pmatrix}
+= A_3
+$$
+
+La costruzione segue lo stesso schema del passo precedente, ma su dimensione ridotta. Si calcola:
+
+$$\begin{aligned}
+\sigma_2 &= \|a_2\| \neq 0 \\
+v_2 &= a_2 + \sigma_2 e_1 \\
+\alpha_2 &= \frac{1}{2} \|v_2\|^2 \\
+\tilde{U}_2 &= I_{n-1} - \frac{1}{\alpha_2} v_2 v_2^T
+\end{aligned}$$
+
+Questa viene poi estesa a una matrice $U_2 \in \mathbb{R}^{n \times n}$ che agisce solo sulla parte inferiore destra della matrice.
+
+#### Passi successivi
+
+Il procedimento continua in modo analogo, lavorando ogni volta su una sottomatrice sempre più piccola. Ad ogni passo si annullano gli elementi sotto la diagonale nella colonna corrente.
+
+Dopo $n-1$ passi si ottiene:
+
+$$ U_{n-1} \cdots U_2 U_1 A = R $$
+
+dove $R$ è triangolare superiore.
+
+#### Costruzione di $Q$
+
+La matrice ortogonale $Q$ è data dal prodotto delle trasformazioni di Householder:
+
+$$ Q = U_1 U_2 \cdots U_{n-1} $$
+
+Poiché ogni $U_i$ è ortogonale e simmetrica, il prodotto mantiene l’ortogonalità.
+
+#### Osservazione finale
+
+A differenza del metodo di Gauss, dove si modificano direttamente le righe, qui ogni trasformazione agisce come una riflessione nello spazio e viene applicata a blocchi della matrice. Questo rende il metodo più stabile dal punto di vista numerico, soprattutto per matrici mal condizionate.
+
+---
+
+### Teoria delle trasformazioni di Householder
+
+Consideriamo una matrice di Householder nella forma
+
+$$
+U = I - \frac{1}{\alpha} vv^T
+\qquad \text{con} \qquad \alpha = \frac{1}{2}\|v\|^2
+$$
+
+da cui segue immediatamente
+
+$$
+\|v\|^2 = 2\alpha
+$$
+
+#### 1) Simmetria
+
+Verifichiamo che $U$ è simmetrica, cioè $U = U^T$.
+
+$$
+\begin{aligned}
+U^T &= \left(I - \frac{1}{\alpha} vv^T\right)^T \\
+&= I^T - \frac{1}{\alpha}(vv^T)^T \\
+&= I - \frac{1}{\alpha}(v^T)^T v^T \\
+&= I - \frac{1}{\alpha} vv^T \\
+&= U
+\end{aligned}
+$$
+
+Quindi $U$ è **simmetrica**.
+
+---
+
+#### 2) Ortogonalità
+
+Verifichiamo ora che $U$ è ortogonale, cioè $U^T U = I$.
+
+Dato che $U$ è simmetrica, vale $U^T = U$, quindi basta calcolare:
+
+$$
+\begin{aligned}
+U^T U &= \left(I - \frac{1}{\alpha} vv^T\right)\left(I - \frac{1}{\alpha} vv^T\right) \\
+&= I - \frac{1}{\alpha} vv^T - \frac{1}{\alpha} vv^T + \frac{1}{\alpha^2} vv^T vv^T \\
+&= I - \frac{2}{\alpha} vv^T + \frac{1}{\alpha^2} v (v^T v) v^T
+\end{aligned}
+$$
+
+Osserviamo che $v^T v = \|v\|^2$, quindi:
+
+$$
+\begin{aligned}
+U^T U &= I - \frac{2}{\alpha} vv^T + \frac{1}{\alpha^2} \|v\|^2 vv^T \\
+&= I - \frac{2}{\alpha} vv^T + \frac{1}{\alpha^2} (2\alpha) vv^T \\
+&= I - \frac{2}{\alpha} vv^T + \frac{2}{\alpha} vv^T \\
+&= I
+\end{aligned}
+$$
+
+Quindi $U$ è **ortogonale**.
+
+---
+
+#### Osservazione finale
+
+Dalle proprietà dimostrate segue anche che:
+
+$$
+U^{-1} = U^T = U
+$$
+
+cioè la matrice di Householder è **auto-inversa**. Questo è un fatto molto importante dal punto di vista numerico, perché rende queste trasformazioni **stabili ed efficienti**.
+
+---
+
+### Costruzione (dim.) della trasformazione di Householder
+
+Sia $a \in \mathbb{R}^n$, con $\sigma = \|a\| \neq 0$. Definiamo:
+
+$$
+v = a + \sigma e_1, \qquad
+\alpha = \frac{1}{2}\|v\|^2, \qquad
+U = I - \frac{1}{\alpha} vv^T
+$$
+
+#### Obiettivo
+
+$$
+\text{Mostrare che:}\qquad
+Ua =
+\begin{pmatrix}
+-\sigma \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+= -\sigma e_1
+$$
+
+---
+
+#### 1) Calcolo di $\mathbf\alpha$
+
+$$\begin{aligned}
+\alpha &= \frac{1}{2} \|v\|^2 = \frac{1}{2} v^T v \\
+&= \frac{1}{2}(a + \sigma e_1)^T(a + \sigma e_1) \\
+&= \frac{1}{2}\left(a^T a + \sigma a^T e_1 + \sigma e_1^T a + \sigma^2 e_1^T e_1 \right)
+\end{aligned}
+$$
+
+Osservazioni:
+
+- $a^T a = \|a\|^2 = \sigma^2$
+- $e_1^T e_1 = 1$
+- $a^T e_1 = e_1^T a$
+
+Quindi:
+
+$$
+\begin{aligned}
+\alpha &= \frac{1}{2}\left(\sigma^2 + 2\sigma e_1^T a + \sigma^2 \right) \\
+&= \frac{1}{2}\left(2\sigma^2 + 2\sigma e_1^T a \right) \\
+&= \sigma^2 + \sigma e_1^T a
+\end{aligned}
+$$
+
+Abbiamo trovato che:
+
+$$\boxed{
+\alpha = \frac{1}{2}\|v\|^2 = \frac{1}{2}vv^T = \sigma^2 + \sigma e_1^Ta
+}$$
+
+---
+
+#### 2) Applicazione della trasformazione
+
+$$
+\begin{aligned}
+Ua &= \left(I - \frac{1}{\alpha} vv^T\right)a \\
+&= a - \frac{1}{\alpha} v (v^T a)
+\end{aligned}
+$$
+
+Calcoliamo $v^T a$:
+
+$$
+\begin{aligned}
+v^T a &= (a + \sigma e_1)^T a \\
+&= a^T a + \sigma e_1^T a \\
+&= \sigma^2 + \sigma e_1^T a \\
+&= \alpha
+\end{aligned}
+$$
+
+Sostituendo:
+
+$$
+\begin{aligned}
+Ua &= a - \frac{1}{\alpha} v \cdot \alpha \\
+&= a - v \\
+&= a - (a + \sigma e_1) \\
+&= -\sigma e_1
+\end{aligned}
+$$
+
+Abbiamo dimostrato che:
+
+$$ \boxed{Ua=-\sigma e_1} $$
+
+---
+
+#### Interpretazione
+
+La trasformazione di Householder costruita in questo modo **riflette il vettore $a$** lungo una direzione tale da annullare tutte le componenti tranne la prima.
+
+Questo è il cuore dell’algoritmo QR: trasformare colonne in vettori della forma
+
+$$
+(\pm \|a\|, 0, \dots, 0)^T
+$$
+
+---
+
+### Ortogonalità nella fattorizzazione QR
+
+Le trasformazioni di Householder $U_k$ sono tutte **ortogonali**, quindi anche il loro prodotto lo è. Definiamo:
+
+$$
+Q = U_1^T U_2^T \cdots U_{n-1}^T
+\qquad \text{e} \qquad
+R = U_{n-1} \cdots U_2 U_1 A
+$$
+
+Poiché $U_k^T = U_k^{-1}$, otteniamo la fattorizzazione:
+
+$$
+A = QR
+$$
+
+dove $Q$ è ortogonale e $R$ è triangolare superiore.
+
+---
+
+#### Implementazione efficiente (matrix-free)
+
+Nella pratica **non si costruiscono mai esplicitamente le matrici $U_k$**. Si utilizza invece la forma operativa:
+
+$$
+z = Uy = \left(I - \frac{1}{\alpha} vv^T \right)y = y - \frac{1}{\alpha} v (v^T y)
+$$
+
+Questo permette di evitare il costo di memorizzazione $O(n^2)$.
+
+I passi computazionali sono:
+
+- $\alpha = \frac{1}{2}\|v\|^2 \quad \Rightarrow \mathcal{O}(n)$
+- $p = v^T y \quad \Rightarrow \mathcal{O}(n)$
+- $z = y - v \frac{p}{\alpha} \quad \Rightarrow \mathcal{O}(n)$
+
+Quindi ogni applicazione di Householder costa $\mathcal{O}(n)$.
+
+---
+
+#### Costo computazionale
+
+La fattorizzazione completa ha costo:
+
+- **Householder (QR)**: $\qquad\mathcal{O}\left(\frac{2}{3}n^3\right)$
+
+- **Gauss (LU)**: $\qquad\qquad\;\;\mathcal{O}\left(\frac{1}{3}n^3\right)$
+
+Gauss è quindi circa **2 volte più veloce**.
+
+---
+
+#### Osservazione sulla stabilità
+
+Nonostante il costo maggiore, la fattorizzazione QR è **numericamente più stabile**.
+
+In particolare è preferibile quando:
+
+- la matrice è mal condizionata  
+- il pivoting in Gauss non è sufficiente  
+- si vogliono evitare errori numerici amplificati  
+
+Per questo motivo, nella pratica, QR è spesso usata nei problemi più delicati (ad esempio minimi quadrati).
+
+---
+
