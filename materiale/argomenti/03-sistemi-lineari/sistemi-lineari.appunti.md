@@ -1144,7 +1144,7 @@ In teoria la fattorizzazione di Gauss è il doppia più veloce ma ci sono alcuni
 
 ---
 
-# (14) Lezione 25-03-2026 | s 219.. | Fattorizzazione QR $-$ Metodi Iterativi
+# (14) Lezione 25-03-2026 | s 219..231 | Fattorizzazione QR $-$ Metodi Iterativi
 
 #### Gasuss vs QR (Applicabilità)
 
@@ -1180,7 +1180,7 @@ $$
 abbiamo il seguente limite ad infinito, tale che:
 
 $$
-\lim_{k\to\inf} a_k = a_* \in \R \quad\Leftrightarrow\quad \forall \varepsilon > 0 \space\exists N_\varepsilon : | a_k - a_* | \le \varepsilon \forall k \ge N_\varepsilon
+\lim_{k\to\infin} a_k = a_* \in \R \quad\Leftrightarrow\quad \forall \varepsilon > 0 \space\exists N_\varepsilon : | a_k - a_* | \le \varepsilon \forall k \ge N_\varepsilon
 $$
 
 Per non confondere il numero di componenti di una successione con l'indice della successione rappresenteremo le successioni nel seguente modo:
@@ -1196,7 +1196,7 @@ $$
 Allora:
 
 $$
-\lim_{k\to\inf} x^{(k)} = x^* \in \R^n
+\lim_{k\to\infin} x^{(k)} = x^* \in \R^n
 $$
 
 $$
@@ -1206,7 +1206,7 @@ $$
 Valore di tolleranza $\varepsilon$. Altro modo per esprimere lo stesso concetto:
 
 $$\begin{align}
-\lim_{k\to\inf} x^{(k)} = x^* &\quad\Leftrightarrow\quad \lim_{k\to\inf} \| x^{(k)} - x^* \| = 0 \\ &\quad\Leftrightarrow\quad \lim_{k\to\inf} x_i^{(k)} = x_i^* \space\forall i=1,\dots,n
+\lim_{k\to\infin} x^{(k)} = x^* &\quad\Leftrightarrow\quad \lim_{k\to\infin} \| x^{(k)} - x^* \| = 0 \\ &\quad\Leftrightarrow\quad \lim_{k\to\infin} x_i^{(k)} = x_i^* \space\forall i=1,\dots,n
 \end{align}$$
 
 La distanza dal vettore limite deve diventare sempre più piccola ($\to 0$).
@@ -1239,7 +1239,7 @@ Questi metodi sono molto efficaci dal punto di vista della memoria. Basta sovras
 
 La matrice $G$ ed il vettore $c$ devono essere scelti in modo che l'algoritmo converga, quindi:
 
-$$ \lim_{k\to\inf} x^{(k)}  =x^* \quad=\quad  \lim_{k\to\inf} G\cdot x^{(k-1)} + c $$
+$$ \lim_{k\to\infin} x^{(k)}  =x^* \quad=\quad  \lim_{k\to\infin} G\cdot x^{(k-1)} + c $$
 
 Vogliamo che questo meccaniscmo ricorsivo funzioni per qualsiasi punto iniziale scelto: $\underline{\forall x^{(0)} \in \R^n}$.
 
@@ -1276,3 +1276,260 @@ Dobiamo studiare la situazione e scegliere $G$ e $c$ in modo da accertare la con
 - **Criteri di Arresto**: mi fermo quando sono certo che l'ultima soluzione calcolata si avvicini abbastanza (entro un certo parametro di precisione) alla soluzione reale.
 
 ---
+
+# (15) Lezione 30-03-2026 | s 231.. | Continuo Metodi Iterativi
+
+### Mateodi iterativi per sistemi lineari
+
+#### Ripasso Metodi Iterativi
+
+Successione di vettori che converge alla soluzione del sistema.
+
+Un metodo iterativo consiste in una formula che viene appliceta ricorsivamente. Serve un punto di partenza. La formula ricorsiva prende l'ultimo vettore calcolato, lo trasforma tramite la moltiplicazione per una matrice e la somma con un nuovo vettore ottenendo il nuovo vettore per il prossimo passo.
+
+#### Riformulazione del sistema
+
+Conviene riformulare il problema da risolvere
+
+$$ Ax^* = b \quad\Leftrightarrow\quad x^* = Gx^* + c $$
+
+Dove la matrice:
+
+$$ G = I - M^{-1}A, \qquad c = M^{-1}b $$
+
+Abbiamo semplicemente riscritto il sistema in un'altra forma. Il vantaggio è che questa forma contiene l'elemento $M^{-1}$ che è quasi a nostra libera scelta (qualsiasi matrice purchè sia non-singolare).
+
+#### Formula generica metodi iterativi
+
+I metodi iterativi che vedremo si baseranno tutti su questa formula ricorsiva:
+
+$$ x^{(k+1)} = Gx^{(k)} + c $$
+
+Dal punto di vista dell'implementazione questi metodi sono molto semplici. Comprendono una moltiplicazione tra matrice fissata $M$ e il vettore $x$ più vettore $c$.
+$$
+    x^{(0)}\in\R^n \\
+    x^{(tk)} = Gx^{(n)} + c \qquad 
+$$
+
+$$\begin{aligned}
+    \lim_{k\to+\infin} x^{(k)} =  x^*
+    &\Leftrightarrow
+    \lim_{k\to+\infin} \underbrace{x^{(k)} - x^*}_{e^{(k)}} = 0 \\
+    &\Leftrightarrow \lim_{k\to+\infin} \|e^{(k)}\| = 0
+\end{aligned}$$
+
+Per studiare la convergenza introduciamo un vettore che è la differenza tra l'**iterato k-esimo** (vettore calcolato al passo k) e **la soluzione** a cui ci vogliamo avvicinare.
+
+Convergenza:
+
+$$\begin{aligned}
+    e^{(k)} &= x^{(k)} - x^* \\
+    &= Gx^{(k-1)} + c - Gx^* - c \\
+    &= Gx^{(k-1)} - Gx^* \\
+    &= G(x^{k-1} - x*) \\
+    &= Ge^{(k-1)} \\
+    &= \dots\textit{ potrei procedere allo stesso modo per } e^{k-1} \dots \\
+    &= GGe^{(k-2)} = G^2e^{(k-2)} \\
+    &= \dots \\
+    &= G^{k-1}e^{(0)} \qquad e^{(0)} = x^{(0)} - x^*
+\end{aligned}$$
+
+$$\boxed{ e^{(k)} = G^{k-1}e^{(0)} }$$
+
+Ogni volta che scelgo un punto iniziale diverso, anche se la soluzione è la stessa, le iterazioni dovranno convergere verso la soluzione $x^*$. Il metodo converge solamente se si arriva sempre alla soluzione se si parte da un qualsiasi punto iniziale.
+
+$$\begin{aligned}
+\lim_{k\to\infin} \|e^{(k)}\| &= \lim_{k\to\infin} \|G^{k-1}e^{(0)}\| \\
+&\le \underbrace{\left(\lim_{k\to\infin} \|G^{k-1}\|\right)}_{\text{condizione sufficiente}} \cdot \|e^{(0)}\| 
+\end{aligned}$$
+
+Condizione sufficiente alla convergenza. Il limite degli errori è $\le$ della distanza del punto iniziale $e^{(0)}$ per il limite delle potenze della matrice $G$. Supponendo che $\lim_{k\to\infin} \|G^{k-1}\|$ va a 0 allora abbiamo che:
+
+$$
+\lim_{k\to\infin} \|G^{k-1}\| \Rightarrow \lim_{k\to\infin} \|e^{(0)}\| = 0
+$$
+
+- Dal teorema dei due carabinieri.
+
+Quand'è che la successione di matrici va a 0? Per arrivare ad ottenere la condizione sufficiente per la convergenza di una successione, possiamo osservare i coefficienti della matrice 
+
+Abbiamo la norma di una potenza della matrice $G$. Possiamo applicare la proprietà per cui il prodotto delle norme è minore o uguale del limite delle potenze della norma (Proprietà sub-moltiplicativa).
+
+$$\begin{aligned}
+\lim_{k\to\infin} \|G^{k-1}\| &\le \lim_{k\to\infin} \|G\|^{k-1} \\
+&\Leftrightarrow \|G\| < 1
+\end{aligned}$$
+
+**Riepilogando**: se la norma della matrice di iterazione è $< 1$, allora il limite per k che tende ad infinito della successione delle iterate $x^{(k)}$ = $x^*$ e questo è vero qualsiasi sia il punto iniziale da cui siamo partiti.
+
+$$ \|G\| < 1 \qquad\Leftrightarrow\qquad \lim_{k\to\infin} x^{(k)} = x^* \quad\forall  $$
+
+#### Altro modo per dimostrare la convergenza (cond. necessaria e sufficiente)
+
+Sulle slides è spiegato un ulteriore metodo che fa uso del raggio spettrale e degli autovalori. Il raggio spettrale condensa l'informazione dell'intera matrice in un'unico numero.
+
+Si ottiene un vettore di autovalori partendo dalla matrice originale. Poi si condensa l'informazione degli autovalori in uno scalare chiamato raggio spettrale.
+
+Il metodo iterativo è convergente solamente se: $p(G) < 1$.
+
+Riprendiamo i passaggi di prima:
+
+$$\begin{aligned}
+\lim_{k\to\infin} \|e^{(k)}\| &= \lim_{k\to\infin} \|G^{k-1}e^{(0)}\| \\
+&\le \left(\lim_{k\to\infin} \|G^{k-1}\|\right) \cdot \|e^{(0)}\| \\
+&\le \left(\lim_{k\to\infin} \|G\|^{k-1}\right) \cdot \|e^{(0)}\| 
+\end{aligned}$$
+
+Da queste disuguaglianze possiamo avere informazione riguardo alla velocità di convergenza. Sono tutte disuguaglianze, però le possiamo interpretare come dei $\approx$.
+
+La convergenza a zero sarà tanto più veloce quand la norma di $G$ sia minore di uno. La velocità con cui $\|e^{(k)}\|$ va a zero:
+
+$$ \|e^{(k)}\| \approx \|G\|^{k-1} \cdot \|e^{(0)}\| $$
+
+In maniera analoga si può dimostrare con il raggio spettrale, ottenendo:
+
+$$ \|e^{(k)}\| \approx p(G)^k \cdot \|e^{(0)}\| $$
+
+#### Passando da metodo ad algoritmo (slide 227) - Criterio d'arresto
+
+L'algoritmo di passi deve avere un numero finito. Per adesso abbiamo parlato di metodi che generano infiniti vettori. L'idea è quella di prendere un metodo iterativo e quindi una formula iterativa ed arrestarla ad un qualche punto. Di iterate ne effettueremo quindi un numero finito.
+
+Il punto che decidiamo andare bene per fermare le iterazioni si chiama tolleranza $\epsilon$. In altre parole dato un $\epsilon$ abbiamo che l'errore:
+
+$$ \| x^{(k)} - x^* \| \le\epsilon $$
+
+Fermiamoci quando l'ultima iterata non può essere più lontana rispetto all'$\epsilon$ che abbiamo calcolato. Occorre **stimare la distanza** $\| x^{(k)} - x^* \|$ tra la k'esima iterazione e la soluzione. Ma naturalmente non abbiamo $x^*$ la soluzione. Dobbiamo stimare questa quantità che non può essere nota.
+
+#### Implementazione
+
+```py
+INPUT: xcorr,A,b,G,c,t
+for k = 0,1,...
+    r       ← b − Ax^corr
+    xnext   ← Gx^corr + c
+    if ∥x_next − x_corr∥ / ∥x_next∥ < t
+        return x_corr
+    else
+        x_corr ← x_next
+    endif
+endif
+```
+
+Idealmente vorremmo metterci la distanza tra la k-esima soluzione e la soluzione reale. Ma non possiamo. Allora mettiamo la **distanza relativa tra due iterate successive**:
+
+1) Quando abbiamo una qualsiasi soluzione convergente, più si va avanti più la distanza diventa piccola. Se la successione ha un limite più le iterate stallano sul valore limite.
+
+    Allora quando le iterate si avvicinano e cominciano ad assomigliarsi l'una all'altra vuol dire che siamo vicini alla soluzione. Immagina il grafico.
+
+2) Altra spiegazione più dettagliata:
+
+    $$ x^{(k+1)} - x^{(k)} = Gx^{(k)} + c - x^{(k)}$$
+
+    Ma abbiamo che:
+
+    $$ x^* = Gx^* + c \to c = x^* - gx^* $$
+
+    Che sostituisco nella formula prima:
+
+    $$\begin{aligned}
+        x^{(k+1)} - x^{(k)} &= Gx^{(k)} + c - x^{(k)} \\
+        &= Gx^{(k)} + x^* - Gx^* - x^{(k)} \\
+        &= G(x^{(k)} - x^*) - (x^{(k)} - x^*) \\
+        &= (G - I)(x^{(k)} - x^*) \\
+    \end{aligned}$$
+
+    Espresso la differenza tra due iterate successive in relazione alla differenza tra l'iterata k-esima e la soluzione.
+
+    $$ p(G) < 1 \Rightarrow G \cdot I \text{ è nonsingolare} $$
+
+    $$ \boxed{ x^{(k+1)} - x^{(k)} = (G - I)(x^{(k)} - x^*) } $$
+
+    Questa vale sempre. E' una diretta conseguenza di come è definito il metodo.
+
+    Passando alle norme possiamo dire che la distanza tra l'iterata k-esima e la soluzione è $\le$ della norma della matrice:
+
+    $$ \|x^{(k)} - x^*\| \le \|(G - I)^{-1}\|\cdot\|(x^{(k+1)} - x^k)\| $$
+
+    Possiamo dire della distanza dell'iterato k-esimo
+
+    $$ \|x^{(k)} - x^*\| \le \|(G - I)^{-1}\|\cdot\epsilon $$
+
+    Nella pratica non sapremo nulla sul valore di amplificazione $\|G - I\|$. Ma se $\|G - I\|$ non è troppo grande $\Rightarrow \|(x^{(k)} - x^*)\| \approx \epsilon$.
+
+    Speriamo che non sia troppo più grande rispetto all'$\epsilon$ scelto.
+
+    Questo è il primo di uno dei possibili modi di fermare un metodo iterativo.
+
+#### Altro criterio d'arresto $-$ Residuo di un problema
+
+Si usano solitamente due condizioni d'arresto. La prima è quella che abbiamo visto, la secondo è definito a partire dal **residuo di un problema**.
+
+E' sempre possibile definire una quantità che si annulla solo in corrispondenza della soluzione. La soluzione di un sistema lineare è un vettore che ha la proprietà per cui:
+
+$$ Ax^* = b \\ b - Ax^* = 0 $$
+
+Se invece della soluzione $x^*$ abbiamo un altro vettore ha senso andare a calcolare il **vettore residuo**:
+
+$$ r^{(k)} = b - Ax^{(k)} $$
+
+Se siamo fortunati e il vettore residuo è 0 allora abbiamo la soluzione.
+Ma questo non possiamo aspettarcelo. Se però la norma del vettore residuo è abbastanza piccola allora siamo abbastanza vicini alla soluzione:
+
+$$ \|r^{(k)}\| \le \epsilon $$
+
+Il residuo si annulla nella soluzione.
+
+Come la distanza tra due iterazioni successive mi da una stima sulla distanza dalla soluzione, anche la differenza tra due vettori residuo ci da una stima sulla distanza dalla soluzione.
+
+#### Residuo e condizionamento
+
+Sulle slide vediamo che ad amplificare la tolleranza che abbiamo impostato $\tau$ ci troviamo l'indice di condizionamento del problema.
+
+Conviene abbinare il criterio d'arresto basato sul residuo con l'altro sulla distanza delle iterazioni successive. Si compensano i due metodi.
+
+#### Implementazione con entrambi i criteri d'arresto
+
+```py
+INPUT: xcorr,A,b,G,c,t
+for k = 0,1,...
+    r       ← b − Ax^corr
+    xnext   ← Gx^corr + c
+    if ∥x_next − x_corr∥ / ∥x_next∥ < t    AND    ∥r∥ / ∥b∥ < t
+        return x_corr
+    else
+        x_corr ← x_next
+    endif
+endif
+```
+
+#### Terzo criterio d'arresto
+
+E' molto facile da ricordare. Si imposta semplicemente un massimo numero di iterazioni:
+
+```py
+INPUT: xcorr,A,b,G,c,t,N_max
+for k = 0,1,...,N_max
+    r       ← b − Ax^corr
+    xnext   ← Gx^corr + c
+    if ∥x_next − x_corr∥ / ∥x_next∥ < t    AND    ∥r∥ / ∥b∥ < t
+        return x_corr
+    else
+        x_corr ← x_next
+    endif
+if k == N_max
+    print warning message
+endif
+```
+
+Si tratta solamente di un parametro di salvaguardia.
+
+Le condizioni d'arresto presuppongono che la condizione delle iterate converga: prima o poi le due iterate successive abbiano una distanza minore di $\epsilon$ o di $\tau$ nel caso del residuo.
+
+---
+
+#### Nota sulle norme
+
+Quello che abbiamo detto vale per qualsiasi norma scelta.
+
+---
+
