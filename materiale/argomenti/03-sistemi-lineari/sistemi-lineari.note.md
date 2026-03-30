@@ -1627,3 +1627,634 @@ Per questo motivo, nella pratica, QR è spesso usata nei problemi più delicati 
 
 ---
 
+## Metodi iterativi per sistemi lineari
+
+L’idea dei metodi iterativi è costruire una **successione di vettori** che approssima progressivamente la soluzione del sistema lineare. Invece di ottenere la soluzione con un numero finito di operazioni (come nei metodi diretti), si genera una sequenza che, al crescere delle iterazioni, **converge** alla soluzione esatta.
+
+In pratica si parte da una stima iniziale $x^{(0)}$ e si costruiscono i successivi $x^{(1)}, x^{(2)}, \dots$ con una **regola ricorsiva**. Il risultato finale non è mai esatto in senso teorico, ma **un’approssimazione** controllata tramite una tolleranza.
+
+---
+
+### Richiamo: convergenza di una successione
+
+Sia una successione scalare:
+
+$$
+\{a_k\}_{k \in \mathbb{N}} \subset \mathbb{R}
+$$
+
+Diciamo che converge a $a^* \in \mathbb{R}$ se:
+
+$$
+\lim_{k \to \infty} a_k = a^*
+\quad \Leftrightarrow \quad
+\forall \varepsilon > 0 \;\; \exists N_\varepsilon \;:\; |a_k - a^*| \le \varepsilon \;\; \forall k \ge N_\varepsilon
+$$
+
+Questo significa che i termini della successione diventano **arbitrariamente vicini** al valore limite.
+
+---
+
+### Successioni di vettori
+
+Nel caso dei sistemi lineari lavoriamo con vettori:
+
+$$
+\{x^{(k)}\}_{k \in \mathbb{N}} \subset \mathbb{R}^n
+$$
+
+dove ogni elemento della successione è un vettore:
+
+$$
+x^{(k)} =
+\begin{pmatrix}
+x_1^{(k)} \\
+\vdots \\
+x_n^{(k)}
+\end{pmatrix}
+$$
+
+La convergenza è definita tramite una norma:
+
+$$
+\lim_{k \to \infty} x^{(k)} = x^*
+\quad \Leftrightarrow \quad
+\forall \varepsilon > 0 \;\; \exists N_\varepsilon \;:\; \|x^{(k)} - x^*\| \le \varepsilon \;\; \forall k \ge N_\varepsilon
+$$
+
+---
+
+### Interpretazioni equivalenti
+
+La definizione di convergenza può essere espressa in modi equivalenti:
+
+$$
+\lim_{k \to \infty} x^{(k)} = x^*
+\;\;\Leftrightarrow\;\;
+\lim_{k \to \infty} \|x^{(k)} - x^*\| = 0
+$$
+
+oppure, componente per componente:
+
+$$
+\lim_{k \to \infty} x_i^{(k)} = x_i^*
+\quad \forall i = 1,\dots,n
+$$
+
+Quindi la distanza tra il vettore iterato e la soluzione tende a zero.
+
+---
+
+### Osservazione pratica
+
+Nei metodi iterativi non si arriva mai al limite infinito: si arresta l’algoritmo quando
+
+$$
+\|x^{(k)} - x^{(k-1)}\| \le \varepsilon
+\quad \text{oppure} \quad
+\|Ax^{(k)} - b\| \le \varepsilon
+$$
+
+dove $\varepsilon$ è una **tolleranza scelta**. Questo rappresenta un compromesso tra accuratezza e costo computazionale.
+
+---
+
+### Risoluzione di sistemi lineari con metodi iterativi
+
+I metodi iterativi si basano sull’idea di costruire una successione di vettori che, iterazione dopo iterazione, si avvicina alla soluzione del sistema lineare. A differenza dei metodi diretti (come Gauss), non producono la soluzione esatta in un numero finito di passi, ma una successione che converge alla soluzione.
+
+Consideriamo il sistema:
+
+$$
+Ax = b, \qquad x^* \text{ soluzione tale che } Ax^* = b
+$$
+
+Un metodo iterativo parte da una stima iniziale:
+
+$$
+x^{(0)} \in \mathbb{R}^n
+$$
+
+e genera una successione tramite una formula ricorsiva del tipo:
+
+$$
+x^{(k+1)} = G x^{(k)} + c, \qquad k = 0,1,2,\dots
+$$
+
+dove $G \in \mathbb{R}^{n \times n}$ e $c \in \mathbb{R}^n$ dipendono dal metodo scelto (ad esempio Jacobi, Gauss-Seidel, ecc.).
+
+L’idea è semplice: ad ogni passo si aggiorna la soluzione precedente applicando una trasformazione lineare e aggiungendo un termine noto. Dal punto di vista implementativo questo è molto efficiente, perché basta sovrascrivere il vettore corrente senza memorizzare tutta la successione.
+
+### Convergenza del metodo
+
+Affinché il metodo sia utile, la successione deve convergere alla soluzione esatta:
+
+$$
+\lim_{k \to \infty} x^{(k)} = x^*
+$$
+
+Sostituendo nella formula iterativa, la soluzione deve soddisfare:
+
+$$
+x^* = G x^* + c
+$$
+
+cioè è un punto fisso della trasformazione iterativa.
+
+Un aspetto fondamentale è che vogliamo la convergenza **per ogni scelta del dato iniziale**:
+
+$$
+\forall x^{(0)} \in \mathbb{R}^n
+$$
+
+Questo impone condizioni sulla matrice $G$ (in particolare sul suo raggio spettrale, che deve essere minore di 1, anche se questo verrà formalizzato più avanti).
+
+### Scelta del punto iniziale
+
+La scelta di $x^{(0)}$ può influenzare la velocità di convergenza. In pratica:
+
+- se non si hanno informazioni, si usa spesso $x^{(0)} = 0$ oppure un vettore di tutti 1;
+- se si ha una stima iniziale migliore, il metodo converge più rapidamente.
+
+In ogni caso, un buon metodo iterativo deve convergere indipendentemente dalla scelta iniziale, anche se con velocità diverse.
+
+---
+
+### Ottenimento di un metodo iterativo
+
+Partiamo dal sistema lineare:
+
+$$
+Ax^* = b
+$$
+
+che possiamo riscrivere in forma equivalente come:
+
+$$
+0 = b - Ax^*
+$$
+
+L’idea è trasformare questa equazione in una forma adatta a generare una successione iterativa. Per farlo, introduciamo una matrice $M \in \mathbb{R}^{n \times n}$ **nonsingolare**, scelta opportunamente. Aggiungiamo $Mx^*$ a entrambi i membri:
+
+$$
+Mx^* = Mx^* + b - Ax^*
+$$
+
+Ora moltiplichiamo per $M^{-1}$:
+
+$$
+x^* = x^* + M^{-1}b - M^{-1}Ax^*
+$$
+
+Riorganizzando i termini e raccogliendo rispetto a $x^*$ otteniamo:
+
+$$
+x^* = (I - M^{-1}A)x^* + M^{-1}b
+$$
+
+A questo punto possiamo identificare:
+
+$$
+G = I - M^{-1}A, \qquad c = M^{-1}b
+$$
+
+e quindi scrivere:
+
+$$
+\boxed{x^* = G x^* + c}
+$$
+
+Questa è esattamente la forma dei metodi iterativi vista in precedenza. La matrice $G$ prende il nome di **matrice di iterazione**, mentre $c$ è il termine noto del metodo.
+
+È importante capire che questa non è una nuova equazione, ma solo una **riformulazione equivalente** del problema originale. Il vantaggio è che ora possiamo definire una successione:
+
+$$
+x^{(k+1)} = G x^{(k)} + c
+$$
+
+che, sotto opportune condizioni, converge proprio a $x^*$.
+
+### Ruolo della matrice $M$
+
+La scelta di $M$ è cruciale: determina sia la forma del metodo iterativo (Jacobi, Gauss-Seidel, ecc.), sia le proprietà di convergenza. In generale, $M$ deve essere:
+
+- **facile da invertire** (o da usare per risolvere sistemi);
+- scelta in modo da rendere il metodo **convergente**.
+
+### Aspetti fondamentali da verificare
+
+Quando si costruisce un metodo iterativo, ci sono due problemi principali da affrontare.
+
+1) L’**analisi di convergenza** serve a garantire che la successione $x^{(k)}$ converga a $x^*$ per ogni scelta iniziale. Questo dipende dalla matrice $G$ (in particolare dal fatto che le sue potenze tendano a zero).
+
+2) I **criteri di arresto** sono invece legati all’implementazione pratica. Poiché non possiamo iterare all’infinito, dobbiamo fermarci quando la soluzione approssimata è sufficientemente accurata. Tipicamente si usa una tolleranza $\varepsilon$ e si arresta il metodo quando:
+
+    $$
+    \|x^{(k+1)} - x^{(k)}\| \le \varepsilon
+    \quad \text{oppure} \quad
+    \|b - Ax^{(k)}\| \le \varepsilon
+    $$
+
+    cioè quando la variazione tra iterazioni (o il residuo) è abbastanza piccola.
+
+---
+
+### Formula generica dei metodi iterativi
+
+I metodi iterativi per la risoluzione di sistemi lineari si basano sulla relazione ricorsiva:
+
+$$
+x^{(k+1)} = G x^{(k)} + c
+$$
+
+dove $G \in \mathbb{R}^{n \times n}$ è la **matrice di iterazione** e $c \in \mathbb{R}^n$ è un vettore noto. A partire da un’approssimazione iniziale:
+
+$$
+x^{(0)} \in \mathbb{R}^n
+$$
+
+si genera una successione $\{x^{(k)}\}$ che, idealmente, converge alla soluzione esatta $x^*$.
+
+Dal punto di vista computazionale, ogni iterazione richiede essenzialmente un prodotto matrice-vettore e una somma vettoriale, quindi è molto efficiente in memoria.
+
+---
+
+### Studio della convergenza
+
+Per analizzare la convergenza, introduciamo l’**errore al passo $k$**:
+
+$$
+e^{(k)} = x^{(k)} - x^*
+$$
+
+Sostituendo nella formula iterativa:
+
+$$
+\begin{aligned}
+e^{(k)} 
+&= x^{(k)} - x^* \\
+&= (G x^{(k-1)} + c) - (G x^* + c) \\
+&= G(x^{(k-1)} - x^*) \\
+&= G e^{(k-1)}
+\end{aligned}
+$$
+
+Iterando il ragionamento:
+
+$$
+e^{(k)} = G^k e^{(0)}, \qquad \text{con } e^{(0)} = x^{(0)} - x^*
+$$
+
+Questa relazione è fondamentale: **l’errore dipende dalle potenze della matrice $\mathbf G$**.
+
+---
+
+#### Condizione di convergenza
+
+Il metodo converge se:
+
+$$
+\lim_{k \to \infty} e^{(k)} = 0
+\quad \Leftrightarrow \quad
+\lim_{k \to \infty} G^k = 0
+$$
+
+In norma:
+
+$$
+\|e^{(k)}\| = \|G^k e^{(0)}\| \le \|G^k\| \cdot \|e^{(0)}\|
+$$
+
+Quindi è sufficiente che:
+
+$$
+\lim_{k \to \infty} \|G^k\| = 0
+$$
+
+Utilizzando la proprietà sub-moltiplicativa della norma:
+
+$$
+\|G^k\| \le \|G\|^k
+$$
+
+si ottiene una **condizione sufficiente di convergenza**:
+
+$$
+\boxed{\|G\| < 1}
+$$
+
+Infatti, se $\|G\| < 1$, allora:
+
+$$
+\lim_{k \to \infty} \|G\|^k = 0
+\quad \Rightarrow \quad
+\lim_{k \to \infty} e^{(k)} = 0
+$$
+
+---
+
+#### Interpretazione
+
+Se $\|G\| < 1$, ogni iterazione “riduce” l’errore: la matrice $G$ agisce come una contrazione. Questo garantisce che la successione $x^{(k)}$ converga a $x^*$ **per qualunque scelta di $x^{(0)}$**.
+
+In pratica:
+
+$$
+\boxed{
+\|G\| < 1 \;\Longrightarrow\; x^{(k)} \to x^* \quad \forall x^{(0)}
+}
+$$
+
+Questa è una condizione sufficiente (non sempre necessaria), ma molto importante per progettare metodi iterativi convergenti.
+
+---
+
+### Convergenza tramite raggio spettrale
+
+Un altro modo (più preciso) per studiare la convergenza dei metodi iterativi utilizza gli **autovalori** della matrice di iterazione $G$.
+
+Il **raggio spettrale** di $G$ è definito come:
+
+$$
+\rho(G) = \max_i |\lambda_i|
+$$
+
+dove $\lambda_i$ sono gli autovalori di $G$. Questo numero riassume il comportamento asintotico delle potenze della matrice.
+
+Il risultato fondamentale è:
+
+$$
+\boxed{
+\text{Il metodo iterativo converge} \;\Longleftrightarrow\; \rho(G) < 1
+}
+$$
+
+Questa è una **condizione necessaria e sufficiente**, a differenza di $\|G\| < 1$ che è solo sufficiente.
+
+---
+
+#### Collegamento con l’errore
+
+Ripartendo dalla relazione:
+
+$$
+e^{(k)} = G^k e^{(0)}
+$$
+
+si ottiene:
+
+$$
+\|e^{(k)}\| \le \|G^k\| \cdot \|e^{(0)}\|
+\le \|G\|^k \cdot \|e^{(0)}\|
+$$
+
+Queste disuguaglianze permettono di stimare la velocità di convergenza, anche se non sono esatte.
+
+---
+
+#### Velocità di convergenza
+
+In pratica, il comportamento dell’errore è ben descritto da:
+
+$$
+\|e^{(k)}\| \approx \|G\|^k \cdot \|e^{(0)}\|
+$$
+
+Ancora più precisamente, usando il raggio spettrale:
+
+$$
+\boxed{
+\|e^{(k)}\| \approx \rho(G)^k \cdot \|e^{(0)}\|
+}
+$$
+
+Questo significa che:
+
+- se $\rho(G)$ è molto minore di 1 → convergenza **rapida**;
+- se $\rho(G)$ è vicino a 1 → convergenza **lenta**;
+- se $\rho(G) \ge 1$ → il metodo **non converge**.
+
+---
+
+#### Osservazione importante
+
+Le stime con la norma sono utili per garantire la convergenza, ma il raggio spettrale descrive meglio il comportamento reale dell’errore. Per questo motivo è lo strumento teorico più importante nello studio dei metodi iterativi.
+
+---
+
+### Dal metodo all’algoritmo: criterio d’arresto
+
+I metodi iterativi generano, in teoria, una successione infinita di vettori $\{x^{(k)}\}$. In pratica però dobbiamo fermarci dopo un numero finito di iterazioni, trasformando quindi il metodo in un **algoritmo**.
+
+L’idea ideale sarebbe fermarsi quando:
+
+$$
+\|x^{(k)} - x^*\| \le \varepsilon
+$$
+
+dove $\varepsilon$ è una tolleranza prefissata. Tuttavia questo criterio **non è utilizzabile direttamente**, perché la soluzione esatta $x^*$ è sconosciuta.
+
+---
+
+### Criterio pratico: differenza tra iterate
+
+Per questo motivo si utilizza un criterio basato sulla distanza tra due iterate successive:
+
+$$
+\frac{\|x^{(k+1)} - x^{(k)}\|}{\|x^{(k+1)}\|} < \varepsilon
+$$
+
+L’idea è che, se il metodo converge, le iterate diventano sempre più simili tra loro. Quando la differenza è molto piccola, significa che ci stiamo avvicinando al punto fisso (cioè alla soluzione).
+
+---
+
+#### Interpretazione teorica
+
+Partiamo dalla differenza tra due iterate:
+
+$$
+x^{(k+1)} - x^{(k)} = Gx^{(k)} + c - x^{(k)}
+$$
+
+Usando il fatto che $x^* = Gx^* + c$, otteniamo:
+
+$$
+\begin{aligned}
+x^{(k+1)} - x^{(k)} 
+&= Gx^{(k)} + x^* - Gx^* - x^{(k)} \\
+&= G(x^{(k)} - x^*) - (x^{(k)} - x^*) \\
+&= (G - I)(x^{(k)} - x^*)
+\end{aligned}
+$$
+
+cioè:
+
+$$
+\boxed{
+x^{(k+1)} - x^{(k)} = (G - I)(x^{(k)} - x^*)
+}
+$$
+
+Questa relazione collega direttamente:
+
+- la differenza tra iterate successive  
+- l’errore rispetto alla soluzione
+
+---
+
+#### Stima dell’errore
+
+Se $(G - I)$ è invertibile (cosa vera se $\rho(G) < 1$), possiamo scrivere:
+
+$$
+x^{(k)} - x^* = (G - I)^{-1}(x^{(k+1)} - x^{(k)})
+$$
+
+e quindi, passando alle norme:
+
+$$
+\|x^{(k)} - x^*\| \le \|(G - I)^{-1}\| \cdot \|x^{(k+1)} - x^{(k)}\|
+$$
+
+Questo giustifica il criterio pratico: la differenza tra iterate è una **stima dell’errore**.
+
+In pratica non conosciamo il fattore $\|(G - I)^{-1}\|$, ma se non è troppo grande possiamo assumere:
+
+$$
+\|x^{(k)} - x^*\| \approx \|x^{(k+1)} - x^{(k)}\|
+$$
+
+---
+
+#### Schema algoritmico
+
+Un possibile algoritmo è:
+
+```py
+Input: x_corr, A, b, G, c, tolleranza t
+
+for k = 0,1,...
+    x_next = G x_corr + c
+
+    if ||x_next - x_corr|| / ||x_next|| < t
+        return x_next
+    else
+        x_corr = x_next
+end
+```
+
+---
+
+#### Osservazione finale
+
+Questo criterio di arresto è molto usato perché semplice ed economico. Tuttavia è solo una stima indiretta dell’errore, quindi in alcuni casi può essere troppo ottimista o troppo conservativo.
+
+---
+
+### Altro criterio d’arresto: il residuo
+
+Un secondo criterio di arresto molto usato nei metodi iterativi si basa sul **residuo** del sistema lineare.
+
+Per il sistema:
+
+$$
+Ax = b
+$$
+
+la soluzione esatta $x^*$ soddisfa:
+
+$$
+Ax^* = b \;\;\Longleftrightarrow\;\; b - Ax^* = 0
+$$
+
+Questo suggerisce di definire, per un’iterata qualsiasi $x^{(k)}$, il **vettore residuo**:
+
+$$
+r^{(k)} = b - Ax^{(k)}
+$$
+
+Il residuo misura quanto l’iterata corrente soddisfa il sistema. Se:
+
+$$
+r^{(k)} = 0
+$$
+
+allora abbiamo trovato esattamente la soluzione. In pratica questo non accade, ma possiamo fermarci quando:
+
+$$
+\|r^{(k)}\| \le \varepsilon
+$$
+
+cioè quando il residuo è sufficientemente piccolo.
+
+---
+
+#### Interpretazione
+
+Il residuo fornisce una misura indiretta dell’errore: se $x^{(k)}$ è vicino a $x^*$, allora anche $Ax^{(k)}$ sarà vicino a $b$, quindi il residuo sarà piccolo.
+
+Come per il criterio basato sulle iterate successive, anche il residuo è una **stima pratica** della distanza dalla soluzione.
+
+---
+
+#### Residuo e condizionamento
+
+La relazione tra residuo ed errore è influenzata dal **condizionamento del problema**. In generale si ha una stima del tipo:
+
+$$
+\frac{\|x^{(k)} - x^*\|}{\|x^*\|} \le \kappa(A)\,\frac{\|r^{(k)}\|}{\|b\|}
+$$
+
+dove $\kappa(A)$ è l’indice di condizionamento della matrice $A$.
+
+Questo significa che, se il problema è mal condizionato, anche un residuo piccolo può corrispondere a un errore relativamente grande. Per questo motivo il criterio sul residuo va interpretato con attenzione.
+
+---
+
+#### Uso combinato dei criteri
+
+Nella pratica si utilizzano spesso entrambi i criteri:
+
+- differenza tra iterate successive  
+- norma del residuo  
+
+Ad esempio:
+
+$$
+\frac{\|x^{(k+1)} - x^{(k)}\|}{\|x^{(k+1)}\|} < \varepsilon
+\quad \text{e} \quad
+\frac{\|r^{(k)}\|}{\|b\|} < \varepsilon
+$$
+
+Questo permette di controllare sia la stabilizzazione delle iterate sia la qualità della soluzione rispetto al sistema originale.
+
+---
+
+#### Terzo criterio: numero massimo di iterazioni
+
+Per sicurezza si impone anche un numero massimo di iterazioni $N_{\max}$, utile per evitare loop infiniti in caso di mancata convergenza:
+
+```py
+for k = 0,1,...,N_max
+    r = b - A x_corr
+    x_next = G x_corr + c
+
+    if criterio_iterate AND criterio_residuo
+        return x_next
+    else
+        x_corr = x_next
+
+if k == N_max
+    warning: metodo non convergente o tolleranza non raggiunta
+```
+
+Questo criterio non riguarda la matematica della convergenza, ma è una misura di **sicurezza implementativa**.
+
+---
+
+#### Osservazione finale
+
+I criteri d’arresto assumono implicitamente che il metodo sia convergente: solo in quel caso le iterate si stabilizzano e il residuo tende a zero. Se il metodo non converge, nessun criterio d’arresto sarà soddisfatto (a meno del limite sulle iterazioni).
+
+---
+
