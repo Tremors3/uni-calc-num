@@ -1144,7 +1144,7 @@ In teoria la fattorizzazione di Gauss è il doppia più veloce ma ci sono alcuni
 
 ---
 
-# (14) Lezione 25-03-2026 | s 219..231 | Fattorizzazione QR $-$ Metodi Iterativi
+# (14) Lezione 25-03-2026 | s 219.. | Fattorizzazione QR $-$ Metodi Iterativi
 
 #### Gasuss vs QR (Applicabilità)
 
@@ -1277,7 +1277,7 @@ Dobiamo studiare la situazione e scegliere $G$ e $c$ in modo da accertare la con
 
 ---
 
-# (15) Lezione 30-03-2026 | s 231.. | Continuo Metodi Iterativi
+# (15) Lezione 30-03-2026 | s ..231 | Continuo Metodi Iterativi
 
 ### Mateodi iterativi per sistemi lineari
 
@@ -1532,4 +1532,183 @@ Le condizioni d'arresto presuppongono che la condizione delle iterate converga: 
 Quello che abbiamo detto vale per qualsiasi norma scelta.
 
 ---
+
+# (16) Lezione 31-03-2026 | s 231.. | Continuo Metodi Iterativi
+
+### Mateodi iterativi per sistemi lineari
+
+#### Complessità computazionale
+
+Come si misura la complessità computazionale di un metodo iterativo? Differisce sicuramente rispetto ai metodi diretti. Perchè non possiamo sapere a priori il numero di iterazione reale dell'algoritmo (a causa dei tre metodi di arresto). Allora la complessità viene misurata a partire di quanto costa una singola iterazione (della funzione ricorsiva).
+
+Ad ogni passo chiedono un prodotto matric evettore. Il costo computazionale di un prodotto matrice vettore è di
+
+$$ \mathcal{O}(n^2) $$
+
+per il numero di $m$ iterazioni: $\mathcal{O}(m\cdot n^2) \approx \mathcal{O}(n^3) $. Comparabile con i metodi diretti. Allora $m$ dipenderà dalla tolleranza e dal punto di partenza che sceglieremo.
+
+Un metodo iterativo non lo misuriamo solamente dal punto di vista computazionale ma anche sul risparmio di memoria. Esistono delle funzioni che applicano la moltiplicazione matrice vettore ma che non richiedono la memorizzazione esplicita della matrice.
+
+Anche il costo computazionale matrice e vettore si può ridurre oltre alla efficienza della memoria. Quindi si può semplificare il costo computazionale riscrivendo l'algoritmo del prodotto ad esempio tenendo conto degli elementi che non sono nulli.
+
+Quando il problema è di grandi dimensioni (matrice sparsa) la matrice sparsa potrebbe non essere comunque rappresentabile in memoria. Qui ad esempio è utile il metodo iterativo.
+
+Per un qualche problema che non richiede un risultato esatto ma una stima allora un metodo iterativo potrebbe essere migliore dei diretti.
+
+#### Scelta della matrice di iterazione
+
+Abbiamo:
+
+$$ x^{(k+1)} = Gx^{(k)} + c $$
+
+$$ G = I - M^{-1}A, \qquad c = M^{-1}b $$
+
+**Esempio**: Supponiamo di prendere come matrice del metodo proprio la matrice $A$:
+
+$$\begin{aligned}
+    M = A \quad\Rightarrow\quad G &= I - M^{-1}A = 0 \\
+    c &= M^{-1}b = A^{-1}b
+\end{aligned}$$
+
+abbiamo quindi
+
+$$ x^{(0)}\in\R^n \to x^{(1)} = Gx^{(0)} + c = \boxed{A^{-1}}b = x^* $$
+
+Otteniamo un metodo ideale che in una singola iterazione mi da la soluzione del sistema. Ma questa si tratta solamente di un'osservazione. Perchè così facendo dovremmo calcolarci $A^{-1}$, e ricadere quindi nel caso delle fattorizzazioni (perchè il calcolo dell'inversa è costoso e instabile).
+
+Abbiamo capito che la scelta della matrice dei Metodi sarà orientata a qualcosa che assomigli alla matrice dei coefficienti ma che abbia una **struttura più semplice**. Andremo a parare a delle matrici del metodo che saranno diagonali o triangolari che assomigliano alla matrice $A$.
+
+#### Decomposizione
+
+Questa tipologia di metodi si basa su ua decomposizione di $A$ nella differenza di due matrici, $M$, $N$:
+
+$$ A = M - N $$
+
+La decomposizione che utilizzeremo prevede che ogni matrice (quadrata nel nostro caso) la si può vedere come la somma di 3 matrici (per adesso). Che corrispondono alle sotto matrici definite dagli elementi del **triangolo superiore**, **inferiore** e **diagonale principale**.
+
+$$A = \begin{pmatrix}
+\color{red}{a_{11}}&\color{green}{a_{12}}&\color{green}{a_{13}} &\color{green}{a_{14}} &\color{green}{\cdots}  &\color{green}{\cdots}   &\color{green}{a_{1n}}  \\
+{\color{blue}{a_{21}}}&\color{red}{a_{22}}&\color{green}{a_{23}} &\color{green}{a_{24}} &\color{green}{\cdots} &\color{green}{\cdots} &\color{green}{a_{2n}}   \\
+\color{blue}{a_{31}}&\color{blue}{a_{32}} &\color{red}{a_{33}}&\color{green}{a_{34}} & & & \color{green}{a_{3n}}   \\
+ \color{blue}{\cdots} & \color{blue}{\cdots}&   &\color{red}{\ddots}&\color{green}{\cdots}& \color{green}{\cdots}& \\
+\color{blue}{a_{i1}}& \color{blue}{\cdots}& &\color{blue}{a_{ii-1}}&\color{red}{a_{ii}}&\color{green}{a_{ii+1}} &\color{green}{a_{in}} \\
+ \color{blue}{\cdots} &\color{blue}{\cdots} &\color{blue}{\cdots}      && &\color{red}{\ddots}  \\
+\color{blue}{a_{n-11}}  &\color{blue}{\cdots} &\color{blue}{\cdots}&\color{blue}{\cdots} & \color{blue}{{a_{n-1n-2}}}&\color{red}{a_{n-1n-1}}&\color{green}{a_{n-1n}}\\
+\color{blue}{a_{n1}}  & \color{blue}{\cdots}&  \color{blue}{\cdots}&\color{blue}{\cdots} &\color{blue}{\cdots} &\color{blue}{ {a_{nn-1}}}    &\color{red}{a_{nn}}
+\end{pmatrix}
+$$
+
+$$E = \begin{pmatrix}
+0&0&0 &0 &{\cdots}  &0  &0 \\
+-{\color{blue}{a_{21}}}&0&0 &0 &{\cdots} &{\cdots} &0  \\
+-\color{blue}{a_{31}}&-\color{blue}{a_{32}} &0&0& & & 0   \\
+ -\color{blue}{\cdots} & -\color{blue}{\cdots}&   &0&{\cdots}& 0& \\
+-\color{blue}{a_{i1}}& \color{blue}{\cdots}& &-\color{blue}{a_{ii-1}}&0&0 &0\\
+ \color{blue}{\cdots} &\color{blue}{\cdots} &\color{blue}{\cdots}      && &0  \\
+-\color{blue}{a_{n-11}}  &\color{blue}{\cdots} &\color{blue}{\cdots}&\color{blue}{\cdots} & -\color{blue}{{a_{n-1n-2}}}&0&0\\
+-\color{blue}{a_{n1}}  & \color{blue}{\cdots}&  \color{blue}{\cdots}&\color{blue}{\cdots} &\color{blue}{\cdots} &-\color{blue}{ {a_{nn-1}}}    &0
+\end{pmatrix}$$
+$$F=\begin{pmatrix}
+0&-\color{green}{a_{12}}&\color{green}{a_{13}} &-\color{green}{a_{14}} &\color{green}{\cdots}  &\color{green}{\cdots}   &-\color{green}{a_{1n}}  \\
+0&0&-\color{green}{a_{23}} &-\color{green}{a_{24}} &\color{green}{\cdots} &\color{green}{\cdots} &-\color{green}{a_{2n}}   \\
+0&0&0&-\color{green}{a_{34}} & & & -\color{green}{a_{3n}}   \\
+ 0& 0&   & {\ddots}&\color{green}{\cdots}& \color{green}{\cdots}& \\
+0& {\cdots}& &0&0&-\color{green}{a_{ii+1}} &-\color{green}{a_{in}} \\
+ {\cdots} &{\cdots} &{\cdots}      && &{\ddots}  \\
+0  &0 &0&{\cdots} & 0&0&-\color{green}{a_{n-1n}}\\
+0 & 0&  {\cdots}&{\cdots} &{\cdots} &0    &0
+\end{pmatrix}$$
+
+
+$$D = \begin{pmatrix}
+\color{red}{a_{11}}&0&0 &0 & {\cdots}  & {\cdots}   &0\\
+0&\color{red}{a_{22}}&0 & 0& {\cdots} & {\cdots} &0 \\
+0&0 &\color{red}{a_{33}}&0 & & & 0   \\
+  {\cdots} &  {\cdots}&   &\color{red}{\ddots}& {\cdots}&  {\cdots}& \\
+0&  {\cdots}& &0&\color{red}{a_{ii}}&0 &0\\
+  {\cdots} & {\cdots} & {\cdots}      && &\color{red}{\ddots}  \\
+0 & {\cdots} & {\cdots}& {\cdots} & 0&\color{red}{a_{n-1n-1}}&0\\
+0 &  {\cdots}&   {\cdots}& {\cdots} & {\cdots} &0    &\color{red}{a_{nn}}
+\end{pmatrix} $$
+
+Quindi:
+
+$$ A = D-E-F $$
+
+Per ritornare all'idea della decomposizione in realtà da questa decomposizione a tre elementi conviene **ricondursi ad una decomposizione a due termini**. Abbiamo due scelte per fare questo:
+
+1) **Metodo di Jacobi**
+
+    $$ A = \underbrace{D}_{M} - \underbrace{(E + F)}_{N} $$
+
+2) **Metodo di Gauss-Seidel**
+
+    $$ A = \underbrace{(D - E)}_{M} - \underbrace{F}_{N} $$
+
+#### 
+
+Vediamo come si può adattare il metodo iterativo (la formula) nel caso in cui la matrice del metodo sia ottenuta a partire dall'idea di una decomposizione.
+
+Noi abbiamo sempre espresso le iterazioni nella forma
+
+$$ \textbf{Metodi iterativi} \\ x^{(k+1)} = Gx^{(k)} + c $$
+
+con decomposizione la $G$ diventa
+
+$$\begin{aligned}
+G &= I - M^{-1}A \\ 
+&= I - M^{-1}(M - N) \\
+&= I - M^{-1}M + M^{-1}N \\
+&= M^{-1}N
+\end{aligned}$$
+
+la formula del metodo iterativo riscritta è
+
+$$ \textbf{Metodi di decomposizione} \\ x^{(k+1)} = M^{-1}Mx^{(k)} + M^{-1}b $$
+
+Vedremo che in realtà non servirà calcolare l'inversa della matrice del metodo. Sarà più conventiente riscrivere la formula come:
+
+$$ Mx^{(k+1)} = Nx^{(k)} + b $$
+
+equivalente alla precedente ma più efficiente.
+
+#### Specializzazione
+
+Specializziamo la scelta della formula di decomposizione in base al problema:
+
+1) **Metodo di Jacobi** $A = D - (E + F)$
+
+    $$ x^{(k+1)} = \underbrace{D^{-1}(E + F)}_{f}x^{k} + D^{-1}b $$
+
+    Che riscriviamo come:
+
+    $$ Xx^{(k+1)} = (E + F)x^{k} + b $$
+
+    Condizione necessaria e sufficiente:
+
+    $$ \text{convergenza} \Leftrightarrow p(f) < 1 \Leftarrow \|f\| < 1 $$
+
+2) **Metodo di Gauss-Seidel** $A = (D - E) - F$
+
+    $$ x^{(k+1)} = \underbrace{(D - E)^{-1}F}_{g}x^{(k)} + (D - E)^{-1}b $$
+
+    Che riscriviamo come:
+
+    $$ (D - E)x^{(k+1)} = Fx^{(k)} + b $$
+
+    Condizione necessaria e sufficiente:
+
+    $$ \text{convergenza} \Leftrightarrow p(g) < 1 \Leftarrow \|g\| < 1 $$
+
+#### Convergenza per matrici con **diagonale principale dominante**
+
+Sono matrici che capitano abbastanza spesso. Sono matrici in cui gli elementi sulla diagonale sono molto più grossi degli altri, inteso come valore assoluto.
+
+Deve succedere che ogni riga della matrice, l'elemento diagonale in valore assoluto è $\ge$ della somma degli altri elementi che si trovano sulla stessa riga.
+
+E' anche facile controllare che la matrice goda di questa proprietà. Per ogni riga si seleziona l'elemento diagonale e la somma degli altri elementi e si fa il controllo.
+
+Se aggiungiamo l'avverbio *strettamente* (matrice con diagonale strettamente diagonale) vuol di re che ci deve essere almeno una riga in cui il $>$ è stretto.
+
+Non è difficile vedere che se una matrice ha questa **dominanza stretta** allora nel metodo di Gauss-Seidel $\|g\| < 1$ e quindi la condizione necessaria e sufficiente è soddisfatta. *Dimostrazione sulle slides*.
 
