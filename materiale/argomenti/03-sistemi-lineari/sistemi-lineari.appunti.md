@@ -1684,6 +1684,10 @@ Specializziamo la scelta della formula di decomposizione in base al problema:
 
     $$ Xx^{(k+1)} = (E + F)x^{k} + b $$
 
+    o anche:
+
+    $$ x^{(k+1)} = D^{-1}((E+F)x^{(k)} + b) $$
+
     Condizione necessaria e sufficiente:
 
     $$ \text{convergenza} \Leftrightarrow p(f) < 1 \Leftarrow \|f\| < 1 $$
@@ -1710,5 +1714,41 @@ E' anche facile controllare che la matrice goda di questa proprietà. Per ogni r
 
 Se aggiungiamo l'avverbio *strettamente* (matrice con diagonale strettamente diagonale) vuol di re che ci deve essere almeno una riga in cui il $>$ è stretto.
 
-Non è difficile vedere che se una matrice ha questa **dominanza stretta** allora nel metodo di Gauss-Seidel $\|g\| < 1$ e quindi la condizione necessaria e sufficiente è soddisfatta. *Dimostrazione sulle slides*.
+Non è difficile vedere che se una matrice ha questa **dominanza stretta** allora nel metodo di Gauss-Seidel $\|f\| < 1$ e quindi la condizione necessaria e sufficiente è soddisfatta. *Dimostrazione sulle slides*. Anche la dimostrazione per Jacobi è sulle slides, ma non l'abbiamo fatta.
+
+#### Velocità di convergenza di Jacobi e Gauss-Seidel a confronto
+
+Jacobi richiede molte più iterate di Gauss-Seidel. Un metodo tanto è più veloce quanto il raggio spettrale è piccolo. Ma non si può dimostrare in pratica che Gauss-Seidel è più veloce a convergere.
+
+---
+
+#### Implementazione dei metodi iterativi
+
+Implementazione sul laboratorio.
+
+---
+
+#### Implementazione metodo Gauss-Seiden per componente (meglio sulle slides)
+
+$$\begin{cases}
+    A_{11}x_1 + A_{12}x_2 + \dots + A_{1n}x_n = b_1 \\
+    A_{21}x_1 + A_{22}x_2 + \dots + A_{2n}x_n = b_2 \\
+    A_{31}x_1 + A_{32}x_2 + \dots + A_{3n}x_n = b_3 \\
+    \dots \\
+    A_{n1}x_1 + A_{n2}x_2 + \dots + A_{nn}x_n = b_n \\
+\end{cases}$$
+
+diventa
+
+$$\begin{cases}
+    x_1 = \frac{b_1 - a_{12}x_2 - \dots - a_{1n}x_n}{a_{11}} \\
+    x_2 = \frac{b_2 - a_{21}x_1 - a_{23}x_3 - \dots - a_{2n}x_n}{a_{22}} \\
+    \dots \\
+    x_i^{k+1} = \frac{b_i - a_{i1}x_1^{(k)} - \dots - a_{i,i-1}x_{i-1}^{(k)} - a_{i,i+1}x_{i+1}^{(k)} - a_{in}x_n^{(k)}}{a_{11}} \\
+\end{cases}$$
+
+Queste sono le vere formule di aggiornamento sulle singole componenti.
+Noi le abbiamo implementate sulla base delle matrici e funzionalità di python.
+
+---
 
