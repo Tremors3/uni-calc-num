@@ -1752,3 +1752,223 @@ Noi le abbiamo implementate sulla base delle matrici e funzionalità di python.
 
 ---
 
+# (17) Lezione 01-04-2026 | s 240..246 | Applicazione Metodi Iterativi
+
+### Correzione definizione delle slides
+
+A è strettamente diagonale dominante per righe solo e solo se
+
+$$ 
+|a_{ii}| > \sum_{i = 1 \\ j \ne 1}^n |a_{ij}| \quad\forall i=1,\dots,n
+$$
+
+### Applicazione dei metodi lineari - Esempio Diffusione del Calore
+
+**(Teoria in laboratorio)**
+
+Visualizziamo la barra come un segmento che sta sull'asse delle ascisse.
+
+```
+|-------------------|
+0                   L
+```
+
+Suddividiamo la barra in un certo numero di punti che fissiamo noi dal momento in cui discretizziamo il problema. Fissiamo un certo numero di punti sulla barra a distanza costante l'uno dall'altro:
+
+```
+|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-->
+0             <->                       L
+s0, s1, ...   ds
+```
+
+$$
+\Delta i = i\delta s, \quad i = 0,\dots,n
+$$
+
+Questa formula fornisce il valore dell'ascissa di ciascuno dei punti associati al partizionamento della barra:
+
+$$
+\Delta s = \frac{L}{n}
+$$
+
+Avremo bisogno di un altro asse per rappresentare la temperatura della barra ad ogni punto della partizione costruita. Avremo un profilo di temperatura ad ogni istante
+
+```
+        ^
+        |
+Temp sx |\
+        | \
+        |  \
+        |   \
+        |    \
+Temp dx |- - -\ - - - - - - - - - - -__- - -
+        |      \_______-------------/ 
+        |-------|---|-|-|-|-|-|-|-|-|-|---->
+        0             <-> = ds        L
+        s0, s1, ...              ..., sn
+```
+
+Definiamo un intervallo di partizione
+
+$$
+[0,T] \quad t_j = j\Delta t, \quad j=0,\dots,m
+$$
+
+Vogliamo studiare la situazione della temperatura della barra a tutti gli istanti successivi a quello iniziale.
+
+$$
+U_i(t_j) = \text{ Temperatura nel punto } s_i \text{ all'istante } t_j
+$$
+
+Vogiamo trovare $n + 1$ numeri ciascuno dei quali rappresenta il valore di temperatura della barra in un certo istante temporale.
+
+Un'assunzione che facciamo è che quando cominciamo a riscaldare la barra, assumiamo che i valori di temperatura all'estremità sinistra e all'estremità destra rimangano costanti e noti per tutto l'intervallo di osservazione:
+
+$$
+U_0(t_j), U_n(T_j) \text{ noti e costanti } \quad \forall j=0,\dots,n
+$$
+
+Inoltre, sono noti anche:
+
+$$
+U_i(t_0) \text{ noti} \quad \forall i=0,\dots,n
+$$
+
+La temperatura in un punto ad un certo istante dipende dalla temperatura precedente in quel punto e anche dalla temperatura nei punti adiacenti (nei punti vicini).
+
+Applicando la legge di diffusione del calore nel discreto, la temperatura $U_i(t_j)$ dipende dalla temperatura nello stesso punto all'istante precedente e dai valori della temperatura nei due punti adiacenti nello stesso istante secondo la formula seguente:
+
+$$\frac{U_i(t_j) - U_i(t_{j-1})}{\Delta t} = \alpha \frac{U_{i-1}(t_j)-2U_i(t_j) +U_{i+1}(t_j)}{\Delta s^2} $$
+
+Parametri:
+- $\Delta t$ = intervallo tra due punti di osservazione temporale adiacenti
+- $\Delta s$ = intervallo tra due punti di osservazione spaziale differenti
+- $\alpha$ = coefficiente relativo al materiale di cui è fatta la barra. Assumiamo che sia noto ed uguale per tutti i punti della barra.
+
+Obiettivo:
+Estrarre gli $U_i(t_j)$. Per farlo possiamo riformulare il problema come un sistema di equazioni.
+
+Sappiamo che i valori $U_i(t_1)$ per $i=0,\dots,n$ sono noti. Anche $U_0(t_1), U_n(t_i)$ sono noti. Quello che dobbiamo ricavare è tutto il resto.
+
+Moltiplichiamo tutto quanto per $\Delta t$:
+
+$$U_i(t_j) - U_i(t_{j-1}) = \underbrace{\frac{\alpha\Delta t}{\Delta s^2}}_{a}\left( U_{i-1}(t_j)-2U_i(t_j) +U_{i+1}(t_j) \right) $$
+
+Abbiamo quindi:
+
+$$
+-a\underbrace{U_{i-1}(t_1)}_{x_1} + (1 + 2a)\underbrace{U_i(t_1)}_{x_2} - a\underbrace{U_{i+1}(t_1)}_{x_3} = U_i(t_0) \quad i=0,\dots,n-1
+$$
+
+Questo è un sistema che possiamo esprimere come si nota in forma compatta.
+Quelle sottolineate sono le incognite del sistema; alcune in realtà le conosciamo già.
+
+**Primo step del procedimento**. Parto dalla situazione allo step $t_0$ e voglio conoscere le temperature all'istante $t_1$:
+
+$$
+\begin{pmatrix}
+U_1(t_0) \\ U_2(t_0) \\ \vdots \\ U_n(t_0)
+\end{pmatrix} \to
+\begin{pmatrix}
+U_1(t_1) \\ U_2(t_1) \\ \vdots \\ U_n(t_1)
+\end{pmatrix} \to \dots \to
+\begin{pmatrix}
+U_1(t_m) \\ U_2(t_m) \\ \vdots \\ U_n(t_m)
+\end{pmatrix}
+$$
+
+Si procede finchè non si sono calcolati i campioni di temperature al tempo $t_m$ in tutti i punti.
+
+Traduzione di questo concetto nel sistema:
+
+$$\begin{aligned}
+(1 + 2a)U_1(t_1) - aU_2(t_1) &= U_1(t_0) + aU_0(t_1) \\
+(1 + 2a)x_2 - ax_3 &= U_1(t_0) + ax_1 \\
+\dots
+\end{aligned}$$
+
+In laboratorio si nota la formula di aggiornamento per singola componente.
+
+---
+
+# (17) Lezione 01-04-2026 | s 247.. | Metodi per la soluzione di equazioni nonlineari
+
+### Introduzione ai metodi per equazioni nonlineari
+
+Sia $\mathcal{f} : [a,b] \to\R$, l'obiettivo è trovare $x_*\in[a,b]$ tale che $\mathcal{f}(x_*) = 0$. Questi punti vengono chiamati anche radici di una funzione o zeri di una funzione.
+
+Una semplificazione che inizialmente facciamo è che consideriamo una sola espressione con una sola incognita.
+
+#### Teorema del valor medio
+
+Si applica a funzioni continue (ipotesi minima che faremo), definita in un intervallo. Se il segno che la funzione assume agli esptremi dell'intervallo è discorde, allora il teorema ci garantisce che esiste almeno un punto nell'intervallo in cui la funzione si annulla. Si tratta di una condizione sufficiente.
+
+Se la funzione è **strettamente monotona allora la radice sarà unica**.
+
+#### Quattro metodi che studieremo
+
+Due tipologie di metodi differenti:
+
+- Metodi dicotomici
+
+    1) Metodo di bisezione
+    2) Metodo di regula fasi
+
+- ...
+
+Si tratta sempre di metodi iterativi.
+
+---
+
+### Metodo di Bisezione
+
+Richiede come punto di partenza del metodo l'intervallo in cui cercare una radice. L'input del metodo sono l'estremo dx e sx.
+
+Assumiamo che la funzione a cui vogliamo applicare il metodo soddisfi il teorema del valor medio.
+
+Procedimento:
+
+1) L'algoritmo individua ad ogni iterazione il punto medio $c_i$ nel sotto intervallo considerato.
+
+2) In quale dei due sottointervalli considerati è ancora vero il teorema del valor medio? Considero il sotto intervallo in cui è valida. Itero il procedimento logaritmicamente; andando a prendere un intervallo sempre più piccolo.
+
+3) Notiamo che ci stringiamo sempre di più verso una delle radici della funzione.
+
+Quando c'è più di una radice non possiamo sapere verso quale radice ci stiamo dirigendo.
+
+#### Fattore di interruzione del metodo
+
+E' linico metodo che ci permette di controllare la distanza dalla soluzione reale. Fattore di Tolleranza. Ogni volta che facciamo un passo sul metodo di bisezione stiamo dimezzando l'intervallo fino a che non è abbastanza piccolo (sotto la tolleranza). La radice si troverà sicuramente in quell'intervallo.
+
+Abbiamo che:
+
+$$
+\{[a_k,b_k]\}_{k=1}^\infin
+$$
+
+$$
+{c_k}_{k=1}^\infin \qquad c_k = \frac{a_k + b_k}{2}
+$$
+
+Per le proprietà del metodo, esiste sicuramente una radice
+
+$$ \exists x_* \text{radice} : x_* \in{a_k,b_k} $$
+
+Ora, qual'è la distanza massima tra $c_k$ e la soluzione dell'intervallo $x_*$?
+
+$$
+|c_k - x_*| \le \frac{a_k + b_k}{2} = \frac{b - a}{2^k}
+$$
+
+Per il metodo di bisezione siamo in grado di stabilire quale sarà il numero totale di iterazioni da effettuare.
+
+$$
+\frac{b - a}{2^k} \le \tau
+$$
+
+$$
+2^k \ge \frac{b - a}{\tau} \\
+k \ge \log_2(\frac{b - a}{\tau})
+$$
+
+---
