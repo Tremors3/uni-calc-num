@@ -2258,3 +2258,419 @@ I criteri d’arresto assumono implicitamente che il metodo sia convergente: sol
 
 ---
 
+### Complessità computazionale
+
+A differenza dei metodi diretti, nei metodi iterativi non è possibile conoscere **a priori** il numero esatto di operazioni necessarie, perché il numero di iterazioni dipende dal criterio di arresto (tolleranza, residuo, numero massimo di iterazioni).  
+
+Per questo motivo, la complessità si valuta considerando il **costo di una singola iterazione**.
+
+Ad ogni passo dell’algoritmo si esegue principalmente un prodotto matrice-vettore:
+$$
+x^{(k+1)} = Gx^{(k)} + c
+$$
+
+Il costo di un prodotto matrice-vettore, per una matrice densa $A \in \mathbb{R}^{n \times n}$, è:
+$$
+\mathcal{O}(n^2)
+$$
+
+Se il metodo richiede $m$ iterazioni, il costo complessivo diventa:
+$$
+\mathcal{O}(m \cdot n^2)
+$$
+
+Nel caso peggiore, se $m \approx n$, si ottiene:
+$$
+\mathcal{O}(n^3)
+$$
+che è confrontabile con i metodi diretti.
+
+Tuttavia, questa stima è spesso pessimistica. Infatti:
+
+- se la matrice è **sparsa**, il prodotto matrice-vettore può costare molto meno di $\mathcal{O}(n^2)$;
+- non è necessario memorizzare tutta la matrice, ma solo gli elementi non nulli;
+- è possibile implementare operatori “matrix-free”, cioè funzioni che calcolano $Ax$ senza costruire esplicitamente $A$.
+
+Per problemi di grandi dimensioni (ad esempio in ambito scientifico o di immagini), i metodi iterativi risultano quindi **molto più efficienti in memoria** e spesso anche più veloci.
+
+Inoltre, quando non è richiesta una soluzione esatta ma solo una buona approssimazione, i metodi iterativi diventano particolarmente vantaggiosi.
+
+---
+
+#### Scelta della matrice di iterazione
+
+La forma generale di un metodo iterativo è:
+$$
+x^{(k+1)} = Gx^{(k)} + c
+$$
+
+dove:
+$$
+G = I - M^{-1}A, \qquad c = M^{-1}b
+$$
+
+La scelta della matrice $M$ è cruciale, perché determina sia la **convergenza** che il **costo computazionale** del metodo.
+
+Per capire meglio, consideriamo un caso limite:
+
+Se scegliamo:
+$$
+M = A
+$$
+
+allora:
+$$
+G = I - M^{-1}A = I - A^{-1}A = 0
+$$
+$$
+c = M^{-1}b = A^{-1}b
+$$
+
+Il metodo diventa:
+$$
+x^{(1)} = Gx^{(0)} + c = A^{-1}b = x^*
+$$
+
+cioè la soluzione esatta viene ottenuta **in una sola iterazione**.
+
+Questo è però solo un risultato teorico: calcolare $A^{-1}$ è costoso e numericamente instabile, quindi non è una scelta praticabile. Di fatto, equivale a risolvere il sistema con un metodo diretto.
+
+---
+
+Nella pratica, la matrice $M$ viene scelta in modo che:
+
+- sia **facile da invertire** (ad esempio diagonale o triangolare);
+- sia una buona **approssimazione di $A$**, così da garantire la convergenza.
+
+L’idea fondamentale è quindi trovare un compromesso:
+
+- $M$ deve essere semplice → costo basso per iterazione  
+- $M$ deve essere “vicina” ad $A$ → convergenza veloce  
+
+Questa filosofia porta ai metodi classici come **Jacobi**, **Gauss-Seidel** e varianti più avanzate.
+
+---
+
+### Decomposizione della matrice
+
+I metodi iterativi classici si basano sull’idea di riscrivere la matrice del sistema nella forma:
+
+$$
+A = M - N
+$$
+
+Questa decomposizione permette di ricondurre il sistema $Ax = b$ alla forma iterativa:
+
+$$
+x^{(k+1)} = M^{-1}N x^{(k)} + M^{-1}b
+$$
+
+dove la matrice di iterazione è:
+$$
+G = M^{-1}N, \qquad c = M^{-1}b
+$$
+
+---
+
+Per costruire $M$ e $N$, si parte da una decomposizione naturale della matrice $A$ come somma di tre componenti. Formalmente:
+
+$$
+A = D - E - F
+$$
+
+dove:
+
+- $D$ contiene gli **elementi diagonali** di $A$  
+- $E$ contiene gli **elementi sotto la diagonale** (con *segno cambiato*)  
+- $F$ contiene gli **elementi sopra la diagonale** (anch’essi con *segno cambiato*)  
+
+Questa scelta dei segni è utile perché semplifica le formule dei metodi iterativi.
+
+
+$$A = \begin{pmatrix}
+\color{red}{a_{11}}&\color{green}{a_{12}}&\color{green}{a_{13}} &\color{green}{a_{14}} &\color{green}{\cdots}  &\color{green}{\cdots}   &\color{green}{a_{1n}}  \\
+{\color{blue}{a_{21}}}&\color{red}{a_{22}}&\color{green}{a_{23}} &\color{green}{a_{24}} &\color{green}{\cdots} &\color{green}{\cdots} &\color{green}{a_{2n}}   \\
+\color{blue}{a_{31}}&\color{blue}{a_{32}} &\color{red}{a_{33}}&\color{green}{a_{34}} & & & \color{green}{a_{3n}}   \\
+ \color{blue}{\cdots} & \color{blue}{\cdots}&   &\color{red}{\ddots}&\color{green}{\cdots}& \color{green}{\cdots}& \\
+\color{blue}{a_{i1}}& \color{blue}{\cdots}& &\color{blue}{a_{ii-1}}&\color{red}{a_{ii}}&\color{green}{a_{ii+1}} &\color{green}{a_{in}} \\
+ \color{blue}{\cdots} &\color{blue}{\cdots} &\color{blue}{\cdots}      && &\color{red}{\ddots}  \\
+\color{blue}{a_{n-11}}  &\color{blue}{\cdots} &\color{blue}{\cdots}&\color{blue}{\cdots} & \color{blue}{{a_{n-1n-2}}}&\color{red}{a_{n-1n-1}}&\color{green}{a_{n-1n}}\\
+\color{blue}{a_{n1}}  & \color{blue}{\cdots}&  \color{blue}{\cdots}&\color{blue}{\cdots} &\color{blue}{\cdots} &\color{blue}{ {a_{nn-1}}}    &\color{red}{a_{nn}}
+\end{pmatrix}
+$$
+
+$$E = \begin{pmatrix}
+0&0&0 &0 &{\cdots}  &0  &0 \\
+-{\color{blue}{a_{21}}}&0&0 &0 &{\cdots} &{\cdots} &0  \\
+-\color{blue}{a_{31}}&-\color{blue}{a_{32}} &0&0& & & 0   \\
+ -\color{blue}{\cdots} & -\color{blue}{\cdots}&   &0&{\cdots}& 0& \\
+-\color{blue}{a_{i1}}& \color{blue}{\cdots}& &-\color{blue}{a_{ii-1}}&0&0 &0\\
+ \color{blue}{\cdots} &\color{blue}{\cdots} &\color{blue}{\cdots}      && &0  \\
+-\color{blue}{a_{n-11}}  &\color{blue}{\cdots} &\color{blue}{\cdots}&\color{blue}{\cdots} & -\color{blue}{{a_{n-1n-2}}}&0&0\\
+-\color{blue}{a_{n1}}  & \color{blue}{\cdots}&  \color{blue}{\cdots}&\color{blue}{\cdots} &\color{blue}{\cdots} &-\color{blue}{ {a_{nn-1}}}    &0
+\end{pmatrix}$$
+$$F=\begin{pmatrix}
+0&-\color{green}{a_{12}}&\color{green}{a_{13}} &-\color{green}{a_{14}} &\color{green}{\cdots}  &\color{green}{\cdots}   &-\color{green}{a_{1n}}  \\
+0&0&-\color{green}{a_{23}} &-\color{green}{a_{24}} &\color{green}{\cdots} &\color{green}{\cdots} &-\color{green}{a_{2n}}   \\
+0&0&0&-\color{green}{a_{34}} & & & -\color{green}{a_{3n}}   \\
+ 0& 0&   & {\ddots}&\color{green}{\cdots}& \color{green}{\cdots}& \\
+0& {\cdots}& &0&0&-\color{green}{a_{ii+1}} &-\color{green}{a_{in}} \\
+ {\cdots} &{\cdots} &{\cdots}      && &{\ddots}  \\
+0  &0 &0&{\cdots} & 0&0&-\color{green}{a_{n-1n}}\\
+0 & 0&  {\cdots}&{\cdots} &{\cdots} &0    &0
+\end{pmatrix}$$
+
+
+$$D = \begin{pmatrix}
+\color{red}{a_{11}}&0&0 &0 & {\cdots}  & {\cdots}   &0\\
+0&\color{red}{a_{22}}&0 & 0& {\cdots} & {\cdots} &0 \\
+0&0 &\color{red}{a_{33}}&0 & & & 0   \\
+  {\cdots} &  {\cdots}&   &\color{red}{\ddots}& {\cdots}&  {\cdots}& \\
+0&  {\cdots}& &0&\color{red}{a_{ii}}&0 &0\\
+  {\cdots} & {\cdots} & {\cdots}      && &\color{red}{\ddots}  \\
+0 & {\cdots} & {\cdots}& {\cdots} & 0&\color{red}{a_{n-1n-1}}&0\\
+0 &  {\cdots}&   {\cdots}& {\cdots} & {\cdots} &0    &\color{red}{a_{nn}}
+\end{pmatrix} $$
+
+---
+
+A partire da questa decomposizione a tre termini, si costruisce una decomposizione a due termini $A = M - N$, scegliendo opportunamente $M$ (facile da invertire) e $N$.
+
+Le due scelte fondamentali portano ai metodi classici:
+
+---
+
+**Metodo di Jacobi**
+
+Si sceglie come matrice del metodo solo la diagonale:
+
+$$
+A = \underbrace{D}_{M} - \underbrace{(E + F)}_{N}
+$$
+
+Il metodo iterativo diventa:
+
+$$
+x^{(k+1)} = D^{-1}(E + F)x^{(k)} + D^{-1}b
+$$
+
+In questo caso ogni componente di $x^{(k+1)}$ dipende **solo dai valori della iterazione precedente**, quindi il metodo è completamente disaccoppiato.
+
+---
+
+**Metodo di Gauss-Seidel**
+
+Si include anche la parte inferiore nella matrice del metodo:
+
+$$
+A = \underbrace{(D - E)}_{M} - \underbrace{F}_{N}
+$$
+
+Il metodo iterativo diventa:
+
+$$
+x^{(k+1)} = (D - E)^{-1}F x^{(k)} + (D - E)^{-1}b
+$$
+
+Qui la matrice $M$ è triangolare inferiore, quindi il sistema si risolve con **sostituzione in avanti**.  
+
+A differenza di Jacobi, ogni componente di $x^{(k+1)}$ utilizza **anche i valori appena aggiornati**, rendendo il metodo generalmente più veloce nella convergenza.
+
+---
+
+### Adattamento del metodo iterativo alla decomposizione
+
+Partiamo dalla forma generale dei metodi iterativi:
+
+$$
+x^{(k+1)} = Gx^{(k)} + c
+$$
+
+Se utilizziamo una decomposizione della matrice:
+
+$$
+A = M - N
+$$
+
+la matrice di iterazione diventa:
+
+$$
+\begin{aligned}
+G &= I - M^{-1}A \\
+  &= I - M^{-1}(M - N) \\
+  &= I - M^{-1}M + M^{-1}N \\
+  &= M^{-1}N
+\end{aligned}
+$$
+
+Di conseguenza, il metodo iterativo si può riscrivere come:
+
+$$
+x^{(k+1)} = M^{-1}N x^{(k)} + M^{-1}b
+$$
+
+Dal punto di vista computazionale, è importante osservare che **non conviene mai calcolare esplicitamente l’inversa** $M^{-1}$.  
+
+È molto più efficiente riscrivere il metodo nella forma equivalente:
+
+$$
+\boxed{M x^{(k+1)} = N x^{(k)} + b}
+$$
+
+In questo modo, ad ogni iterazione si risolve un sistema lineare con matrice $M$, che è scelto apposta per essere semplice (diagonale o triangolare).
+
+---
+
+#### Specializzazione dei metodi
+
+A partire dalla decomposizione $A = D - E - F$, otteniamo i metodi classici.
+
+---
+
+**Metodo di Jacobi**
+
+Si sceglie:
+$$
+A = D - (E + F)
+$$
+
+Il metodo diventa:
+
+$$
+x^{(k+1)} = D^{-1}(E + F)x^{(k)} + D^{-1}b
+$$
+
+oppure, in forma più operativa:
+
+$$
+D x^{(k+1)} = (E + F)x^{(k)} + b
+$$
+
+cioè:
+
+$$
+x^{(k+1)} = D^{-1}\big((E + F)x^{(k)} + b\big)
+$$
+
+La matrice di iterazione è:
+$$
+G_J = D^{-1}(E + F)
+$$
+
+Condizione di convergenza:
+$$
+\rho(G_J) < 1 \quad \Leftarrow \quad \|G_J\| < 1
+$$
+
+---
+
+**Metodo di Gauss-Seidel**
+
+Si sceglie:
+$$
+A = (D - E) - F
+$$
+
+Il metodo diventa:
+
+$$
+x^{(k+1)} = (D - E)^{-1}F x^{(k)} + (D - E)^{-1}b
+$$
+
+oppure:
+
+$$
+(D - E)x^{(k+1)} = F x^{(k)} + b
+$$
+
+La matrice di iterazione è:
+$$
+G_{GS} = (D - E)^{-1}F
+$$
+
+Condizione di convergenza:
+$$
+\rho(G_{GS}) < 1 \quad \Leftarrow \quad \|G_{GS}\| < 1
+$$
+
+---
+
+#### Convergenza: matrici a diagonale dominante
+
+Una classe importante di matrici per cui i metodi iterativi convergono è quella delle **matrici a diagonale dominante**.
+
+Una matrice $A$ è diagonalmente dominante se, per ogni riga:
+
+$$
+|a_{ii}| \ge \sum_{j \ne i} |a_{ij}|
+$$
+
+Se la disuguaglianza è stretta per almeno una riga (o per tutte, nella forma più forte), si parla di **dominanza diagonale stretta**.
+
+Questa proprietà è molto utile perché:
+
+- garantisce la convergenza del metodo di **Gauss-Seidel**;
+- garantisce anche la convergenza di **Jacobi** (anche se la dimostrazione è più tecnica).
+
+In pratica, se gli elementi diagonali “dominano” gli altri, il metodo tende a stabilizzarsi.
+
+---
+
+#### Velocità di convergenza
+
+La velocità di convergenza dipende dal **raggio spettrale** della matrice di iterazione:
+
+$$
+\rho(G)
+$$
+
+Più $\rho(G)$ è piccolo, più il metodo converge velocemente.
+
+In generale:
+
+- Jacobi è più semplice ma **più lento**;
+- Gauss-Seidel sfrutta i valori aggiornati e quindi è **più veloce nella pratica**.
+
+---
+
+#### Forma per componenti (Gauss-Seidel)
+
+Scriviamo il sistema:
+
+$$
+Ax = b
+$$
+
+in forma esplicita:
+
+$$
+\begin{cases}
+a_{11}x_1 + a_{12}x_2 + \dots + a_{1n}x_n = b_1 \\
+a_{21}x_1 + a_{22}x_2 + \dots + a_{2n}x_n = b_2 \\
+\vdots \\
+a_{n1}x_1 + a_{n2}x_2 + \dots + a_{nn}x_n = b_n
+\end{cases}
+$$
+
+Nel metodo di Gauss-Seidel, ogni componente viene aggiornata usando **i valori più recenti disponibili**:
+
+$$
+x_i^{(k+1)} =
+\frac{1}{a_{ii}}
+\left(
+b_i
+- \sum_{j=1}^{i-1} a_{ij} x_j^{(k+1)}
+- \sum_{j=i+1}^{n} a_{ij} x_j^{(k)}
+\right)
+$$
+
+Qui si vede chiaramente la differenza con Jacobi:
+
+- per $j < i$ uso i valori **già aggiornati** ($k+1$),
+- per $j > i$ uso i valori **della vecchia iterazione** ($k$).
+
+Questo “riutilizzo immediato” dell’informazione è ciò che rende Gauss-Seidel più efficiente nella pratica.
+
+---
+
+In sintesi, i metodi iterativi basati su decomposizione trasformano il problema in una sequenza di sistemi semplici, sfruttando strutture (diagonali o triangolari) che rendono il calcolo efficiente sia in termini di tempo che di memoria.
