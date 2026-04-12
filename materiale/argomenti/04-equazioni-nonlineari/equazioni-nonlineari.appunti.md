@@ -81,7 +81,7 @@ $$
 
 ---
 
-# (18) Lezione 08-04-2026 | s 253.. | Ripasso; Implementazione metodo di Bisezione; Metodo di Newton
+# (18) Lezione 08-04-2026 | s 253..268 | Ripasso; Implementazione metodo di Bisezione; Metodo di Newton
 
 ### Metodo di Bisezione
 
@@ -117,11 +117,11 @@ Qua**le delle due formule è conveniente utilizzare?** La formula più intuitiva
 
 ---
 
-#### Implementazione (slide 259)
+#### Nota sul costo computazionale (slide 259)
 
-Pensata per ridurre al minimo necessario il costo computazionale.
+L'implementazione è pensata per ridurre al minimo necessario il costo computazionale.
 
-Un'operazione non lineare (come ad esempio una funzione come sin/cos/...) viene tradotta in un polinomio che approssima il risultato reale della funzione.
+Un'operazione non lineare (come ad esempio una funzione come sin/cos/...) può essere tradotta in un polinomio che approssima il risultato reale della funzione.
 
 Così facendo riusciamo ad ottenere una stima del costo computazionale del metodo. Infatti sarà la funzione scelta che comprenderà la maggior parte del costo computazionale. Dobbiamo considerare la funzione $f()$ come una sequenza di passi elementari che hanno un certo costo.
 
@@ -137,7 +137,7 @@ Dunque per aumentare l'efficienza del metodo dobbiamo cercare di chiamare il min
 
 Ha proprietà simili al metodo di bisezione. I metodi di bisezione e regula falsi si dicono **metodi dicotomici**.
 
-Il metodo di regula falsi, invece del punto medio dell'intervallo, prende il punto di intersezione dell'asse delle ascisse con il segmento che parte dal punto della funzione sull'asse ordinata di a con quello di b. La relativa formula è:
+Il metodo di regula falsi, invece del punto medio dell'intervallo, definisce $c_k$ come il punto di intersezione tra l'asse delle ascisse e la retta che passa per i punti del piano $(a_k, f(a_k)),\;(b_k,f(b_k)) $. La relativa formula è:
 
 $$
 c = b - \frac{f(b)}{\frac{f(b)-f(a)}{b-a}}
@@ -166,7 +166,7 @@ $$
 
 La distanza dell'iterata $k+1$ esima è circa **la metà rispetto all'iterata precedente**.
 
-Aggiungiamo una cifra decinale ogni 3 o 4 iterate. Se vogliamo allora un numero ingente di cifre decimali dovremmo iterare molto tempo.
+Aggiungiamo una cifra decimale ogni 3 o 4 iterate. Se vogliamo allora un numero ingente di cifre decimali dovremmo iterare molto tempo.
 
 Il metodo di bisezione richiede poco sia in termini di ipotesi iniziali, sia in termini di complessità. Ma se vogliamo un risultato preciso, dovremo fare molte iterazioni.
 
@@ -194,13 +194,25 @@ In generale, per un metodo iterativo convergente, possiamo applicare il teorema.
 
 #### Alcune tipologie di convergenza p
 
-- Convergenza Lineare $p = 1, C \in (0,1)$
+- Convergenza quadratica $p=2$
 
     $$
-    \lim_{k\to\infin} \frac{x_{k+1}-x_*}{{x_k-x_*}^p} = C
+    \lim_{k\to\infin} \frac{|x_{k+1}-x_*|}{|{x_k-x_*}|^2} = C
     $$
 
-    Il **metodo di bisezione ha convergenza lineare**.
+- Convergenza lineare $p = 1, C \in (0,1)$
+
+    $$
+    \lim_{k\to\infin} \frac{|x_{k+1}-x_*|}{|{x_k-x_*}|} = C
+    $$
+
+    Il metodo di bisezione fa parte di questa categoria.
+
+- Convergenza superlineare $p = 1, C = 0$
+
+    $$
+    \lim_{k\to\infin} \frac{|x_{k+1}-x_*|}{|{x_k-x_*}|} = 0
+    $$
 
 ---
 
@@ -208,9 +220,9 @@ In generale, per un metodo iterativo convergente, possiamo applicare il teorema.
 
 Il metodo di bisezione non può essere applicato a delle funzioni in più incognite ed in più equazioni (sistemi). Viene in soccorso il metodo di Newton.
 
-Dato un punto, il nuovo punto è l'intersezione tra l'asse delle ascisse e la retta tangente di coordinate $x_k, f(x_k)$ nell'intervallo $[a, b]$.
+Dato un punto, il nuovo punto è l'intersezione tra l'asse delle ascisse e la retta tangente di coordinate $(x_k, f(x_k))$ nell'intervallo $[a, b]$.
 
-Possiamo ottenere la formula dal ragionamento geometrico. Dobbiamo ricordare la formula della tangente del grafico della funzione $f$ nel suo punto di coordinate $x_k, f(x_k)$.
+Possiamo ottenere la formula dal ragionamento geometrico. Dobbiamo ricordare la formula della tangente del grafico della funzione $f$ nel suo punto di coordinate $(x_k, f(x_k))$.
 
 $$\begin{cases}
 y &= 0 \\
@@ -269,3 +281,8 @@ Il metodo di Newton effettua un numero molto minore di iterazioni rispetto al me
 Se il metodo di newton per una funzione converge, allora lo fa in modo quadratico.
 
 ---
+
+# (19) Lezione 13-04-2026 | s 268.. | Continuo metodo di Newton
+
+### Metodo di Newton
+
