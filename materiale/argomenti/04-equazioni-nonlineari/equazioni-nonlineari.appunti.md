@@ -1,4 +1,11 @@
 
+$$
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcy}[1]{\textcolor{yellow}{#1}}
+\newcommand{\tclg}[1]{\textcolor{lightgreen}{#1}}
+\newcommand{\tclb}[1]{\textcolor{lightblue}{#1}}
+$$
+
 # (17) Lezione 01-04-2026 | s 247..252 | Metodi per la soluzione di equazioni nonlineari
 
 ### Introduzione ai metodi per equazioni nonlineari
@@ -285,4 +292,213 @@ Se il metodo di newton per una funzione converge, allora lo fa in modo quadratic
 # (19) Lezione 13-04-2026 | s 268.. | Continuo metodo di Newton
 
 ### Metodo di Newton
+
+#### Risultato analisi di convergenza del metodo
+
+Slide 269. Il metodo converge se applicato ad un'intervallo in cui è rispettata una delle quattro regole spiegate sulle slides. In generale serve che la funzione, nell'intervallo scelto, debbe essere localmente monotona e deve contenere una radice. Oltre a rispettare le assunzioni già viste (es. $f'(x) \ne 0$). Vedi slides per chiarimento.
+
+#### Dimostrazione convergenza quadratica Newton
+
+**Hp.** $f \in C^2([a,b]), \qquad f'(x) \ne 0 \; \forall x\in[a,b], f(a)\cdot f(b) < 0, x_0 \in [a,b]$
+
+$$\begin{aligned}
+x_{k+1} &= x_k - \frac{f(x_k)}{f'(x_k)} \\
+&\to \exists! x_*\in[a,b] : f(x_*) = 0, \quad \lim_{k\to\infin} x_k = x_*
+\end{aligned}$$
+
+$$
+
+$$
+
+**Th.** Vogliamo far vedere che:
+
+$$
+\lim_{k\to\infin} \frac{|x_{k+1} - x_*|}{|x_k - x_*|^2} = C \in\R
+$$
+
+Dimostrabile con il teorema e sviluppi di Taylor. Sviluppo di taylor centrato in $x_*$:
+
+$$
+f(x) = f(x_k) + f'(x_k)(x - x_k) + \frac{1}{2}f''(\xi_k)(x-x_k)^2
+$$
+
+Sappiamo che il valore $\xi_k \in [x,x_k]$. In particolare utilizziamo questa formula ponendo $x = x_*$:
+
+$$
+\underbrace{f(x)}_{0} = f(x_k) + \underbrace{f'(x_k)}_{\ne 0}(x_* - x_k) + \frac{1}{2}f''(\xi_k)(x_*-x_k)^2
+$$
+
+Quindi ora $\xi_k \in [x_*,x_k]$. Cominciamo ad osservare che il punto $x_*$ non è un punto qualsiasi dell'intervallo ma una radice. Quindi $x_* = 0$:
+
+$$
+0 = \underbrace{\frac{f(x_k)}{f'(x_k)} - x_k}_{- x_{*}} + x_* + \frac{1}{2}\frac{f''(\xi_k)}{f'(x_k)}(x_k - x_*)^2
+$$
+
+quindi:
+
+$$
+0 = x_* - x_k  + \frac{1}{2}\frac{f''(\xi_k)}{f'(x_k)}(x_k - x_*)^2
+$$
+
+dividiamo tutto per il quadrato:
+
+$$
+0 = \frac{x_* - x_k}{(x_k - x_*)^2} + \frac{1}{2}\frac{f''(\xi_k)}{f'(x_k)}
+$$
+
+Siamo praticamente arrivati. Adesso ricaviamo il primo quoziente:
+
+$$
+\frac{x_* - x_k}{(x_k - x_*)^2} = + \frac{1}{2}\frac{f''(\xi_k)}{f'(x_k)}
+$$
+
+Passiamo poi al valore assoluto ad entrambi i lati dell'uguaglianza:
+
+$$
+\frac{|x_* - x_k|}{|x_k - x_*|^2} = + \frac{1}{2}\frac{|f''(\xi_k)|}{|f'(x_k)|}
+$$
+
+Passiamo al limite ad entrambi i lati:
+
+$$
+\lim_{k\to\infin} \frac{|x_* - x_k|}{|x_k - x_*|^2} =  \lim_{k\to\infin} \frac{1}{2}\frac{|f''(\xi_k)|}{|f'(x_k)|}
+$$
+
+Dato che $x_* < \xi_k < x_k$ e abbiamo che $x_k \to x_*$ allora abbiamo che
+
+$$
+\lim_{k\to\infin} \xi_k = x_*
+$$
+
+Allora:
+
+$$
+\lim_{k\to\infin} \frac{|x_* - x_k|}{|x_k - x_*|^2} =
+\lim_{k\to\infin} \frac{1}{2}\frac{|f''(\xi_k)|}{|f'(x_k)|}
+= \underbrace{\boxed{\frac{1}{2}\frac{|f''(\xi_k)|}{|f'(x_k)|}}}_{C} \in\R
+$$
+
+In laboratorio abbiamo notato che Newton batte i metodi dicotomici in termini di velocità di convergenza. Con questa dimostrazione siamo arrivati alla conclusione che Newton converge quadraticamente. Rispetto ai metodi dicotomici che convergono linearmente.
+
+#### Condizionamento problemi della ricerca degli zeri
+
+Quanto il residuo riesce a darci informazione riguardo alla lontananza dalla soluzione.
+
+Se riusciamo a trovare un punto $\tilde x$ (una delle $x_k$ calcolate) come approssimazione se il valore della funzione in quel punto sta sotto una certa tolleranza $\delta$.
+
+$$
+|f(\tilde x)| \le \delta \qquad(\text{tol = 1e-4})
+$$
+
+Vogliamo trovare un valore per cui:
+
+$$
+f(x_*) = 0 \qquad \tilde x \approx x_*
+$$
+
+Ma non è possibile trovare $x_*$, dobiamo accontentarci di un valore di $x$ che per la funzione ci da qualcosa di piccolo ma non proprio 0. Una approssimazione.
+
+La domanda è:
+
+$$
+|f(\tilde x)| \le \delta \quad\xRightarrow{?}\quad x \approx x_*
+$$
+
+Questa condizione garantisce effettivamente che ci troviamo vicino ad una radice? Dipende se alcune condizioni sulla funzione $f$ sono rispettate.
+
+$$
+f'(x_*) = \lim_{x\to x_*} \frac{f(x) - f(x_*)}{x - x_*}
+$$
+
+Supponiamo che per tutte le $x$ "vicine" a $x_*$, possiamo approssimare la derivata prima col rapporto incrementale:
+
+$$
+f'(x_*) \approx \frac{f(x) - f(x_*)}{x - x_*} \qquad x \text{ "vicine" a } x_*
+$$
+
+L'idea è quella di moltiplicare e dividere entrambi i lati dell'uguaglianza per $f'(x_*),\; (x - x_*)$:
+
+$$
+x - x_* \approx \frac{f(x) - \overbrace{f(x_*)}^{0}}{f'(x_*)}
+= \frac{f(x)}{f'(x_*)}
+$$
+
+Questa circa uguaglianza mette in relazione la distanza di un punto dalla radice, con il rapporto tra il valore della funzione in quel punto diviso il valore della derivata prima di $f$ in $x_*$.
+
+$$
+|x - x_*| \approx \frac{|f(x)|}{|f'(x_*)|} \le \frac{\delta}{|f'(x_*)|} = \Big(\tcy{\frac{1}{|f'(x_*)|}}\Big) \cdot \delta
+$$
+
+Quel punto $x$ quanto è vicino ad $x_*$? Circa come il valore della funzione in $\tilde x$ diviso la derivata prima di $f$ in $x_*$.
+
+Non è vero quindi in generale che se il valore della funzione è piccolo la distanza della radice sia altrattanto piccola. Perchè del fattore di amplificazione presente al denominatore.
+
+$$
+\frac{1}{|f'(x_*)|}
+$$
+
+Quando il residuo è piccolo non è detto che la distanza sia altrettanto piccola.
+
+**Visione Grafica slide 251 del mal condizionamento.**
+
+Il problema è mal condizionato quando $|f'(x_*)|$ **è piccolo** perchè fattore di aplificazione che sta al denominatore. Quando il valore della derivata prima di $f$ in $x_*$ è piccola? **Quando la funzione è molto piatta (quasi parallela all'asse delle ascisse)** nel punto dell'intersezione con l'asse; ma non completamente altrimenti la derivata prima avrebbe valore zero.
+
+Più la funzione è "appiattita" nel punto dell'intersezione con l'asse delle ascisse. Più il valore della derivata sarà grande ed il problema mal condizionato.
+
+---
+
+### Metodo delle Secanti
+
+Variante del metodo di Newton. Invece della derivata prima utilizziamo il rapporto incrementale.
+
+$$
+x_{k+1} = x_l - \frac{f(x_k)}{\frac{f(x_k) - f(x_{k-1})}{x_k - x_{k-1}}}
+$$
+
+Ha una formula di ricorrenza a tre termini:
+- Iterata nuova
+- Iterata precedente
+- Iterata ancora precedente
+
+Il nuovo punto è l'intersezione tra l'asse delle ascisse e la retta per i punti di coordinate $(x_{k-1}, f(x_{k-1}), (x_k, f(x_k)))$.
+
+- Può essere applicabile a funzioni anche solo continue dato che nella formula non compare la derivata prima al denominatore.
+- La sua velocità è sublineare.
+
+---
+
+### Estensione ai sistemi di equazioni nonlineari (Newton e Secanti)
+
+Esteso al caso in cui abbiamo sistemi di equazioni non lineari in altrettante incognite (prenderemo tante incognite quante saranno le equazioni non lineari).
+
+#### Derivate parziali
+
+Quando uno ha una funzione in $n$ variabili. Es $n = 2$:
+
+$$
+f(x_1, x_2) = x_1^2 + x_2
+$$
+
+$$
+\frac{a}{ax_1}f(x_1, x_2) = \text{Derivata parziale f rispetto ad } x_1 = 2x
+$$
+
+Calcolare la derivata rispetto solamente alla variabile $x_1$. Consideriamo la variabile $x_2$ come una costante, che non da constributo.
+
+$$
+\frac{a}{ax_2}f(x_1, x_2) = 1
+$$
+
+Relativo gradiente:
+
+$$
+\Delta f(x_1. x_2) = \begin{pmatrix}
+\frac{a}{ax_1}f(x_1, x_2) \\
+\frac{a}{ax_2}f(x_1, x_2)
+\end{pmatrix}
+$$
+
+Dobbiamo trovare il vettore $(x_1, \dots, x_n)$ tale che ciascuna funzione ad $n$ variabili si annulli (all'interno del vettore di funzioni).
+
+---
 
