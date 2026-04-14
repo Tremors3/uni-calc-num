@@ -289,7 +289,7 @@ Se il metodo di newton per una funzione converge, allora lo fa in modo quadratic
 
 ---
 
-# (19) Lezione 13-04-2026 | s 268.. | Continuo metodo di Newton
+# (19) Lezione 13-04-2026 | s 268..273 | Continuo metodo di Newton
 
 ### Metodo di Newton
 
@@ -299,11 +299,11 @@ Slide 269. Il metodo converge se applicato ad un'intervallo in cui è rispettata
 
 #### Dimostrazione convergenza quadratica Newton
 
-**Hp.** $f \in C^2([a,b]), \qquad f'(x) \ne 0 \; \forall x\in[a,b], f(a)\cdot f(b) < 0, x_0 \in [a,b]$
+**Hp.** $f \in C^2([a,b]), \quad f'(x) \ne 0 \; \forall x\in[a,b], f(a)\cdot f(b) < 0, x_0 \in [a,b]$
 
 $$\begin{aligned}
 x_{k+1} &= x_k - \frac{f(x_k)}{f'(x_k)} \\
-&\to \exists! x_*\in[a,b] : f(x_*) = 0, \quad \lim_{k\to\infin} x_k = x_*
+&\Rightarrow \nexists x_*\in[a,b] : f'(x_*) = 0, \quad \lim_{k\to\infin} x_k = x_*
 \end{aligned}$$
 
 $$
@@ -467,6 +467,8 @@ Il nuovo punto è l'intersezione tra l'asse delle ascisse e la retta per i punti
 
 ---
 
+# (20) Lezione 15-04-2026 | s 274.. | Estensione ai sistemi di equazioni nonlineari
+
 ### Estensione ai sistemi di equazioni nonlineari (Newton e Secanti)
 
 Esteso al caso in cui abbiamo sistemi di equazioni non lineari in altrettante incognite (prenderemo tante incognite quante saranno le equazioni non lineari).
@@ -480,25 +482,24 @@ f(x_1, x_2) = x_1^2 + x_2
 $$
 
 $$
-\frac{a}{ax_1}f(x_1, x_2) = \text{Derivata parziale f rispetto ad } x_1 = 2x
+\frac{\partial}{\partial x_1}f(x_1, x_2) = \text{Derivata parziale f rispetto ad } x_1 = 2x
 $$
 
 Calcolare la derivata rispetto solamente alla variabile $x_1$. Consideriamo la variabile $x_2$ come una costante, che non da constributo.
 
 $$
-\frac{a}{ax_2}f(x_1, x_2) = 1
+\frac{\partial}{\partial x_2}f(x_1, x_2) = 1
 $$
 
 Relativo gradiente:
 
 $$
-\Delta f(x_1. x_2) = \begin{pmatrix}
-\frac{a}{ax_1}f(x_1, x_2) \\
-\frac{a}{ax_2}f(x_1, x_2)
+\nabla f(x_1, x_2) = \begin{pmatrix}
+\frac{\partial}{\partial x_1}f(x_1, x_2), &
+\frac{\partial}{\partial x_2}f(x_1, x_2)
 \end{pmatrix}
 $$
 
 Dobbiamo trovare il vettore $(x_1, \dots, x_n)$ tale che ciascuna funzione ad $n$ variabili si annulli (all'interno del vettore di funzioni).
 
 ---
-

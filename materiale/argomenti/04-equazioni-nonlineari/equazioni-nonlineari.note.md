@@ -419,3 +419,284 @@ Il metodo di Newton è molto più veloce rispetto ai metodi dicotomici: quando c
 Tuttavia, a differenza della bisezione, il metodo **non garantisce sempre la convergenza**: una scelta non adeguata del punto iniziale o particolari caratteristiche della funzione (ad esempio derivata molto piccola o nulla) possono causare divergenza o comportamenti instabili.
 
 ---
+
+### Dimostrazione della convergenza quadratica del metodo di Newton
+
+Consideriamo il metodo di Newton definito da:
+
+$$
+x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)}
+$$
+
+Vogliamo studiarne la velocità di convergenza verso una radice $x_*$ della funzione $f$, cioè un punto tale che $f(x_*) = 0$.
+
+---
+
+#### Ipotesi
+
+Si assumono le seguenti condizioni:
+
+$$
+f \in C^2([a,b]), \quad f'(x) \neq 0 \;\; \forall x \in [a,b], \quad f(a)\cdot f(b) < 0, \quad x_0 \in [a,b]
+$$
+
+Sotto queste ipotesi (e assumendo che il metodo converga), esiste una radice $x_* \in [a,b]$ tale che:
+
+$$
+\lim_{k \to \infty} x_k = x_*
+$$
+
+---
+
+#### Obiettivo
+
+Vogliamo dimostrare che la convergenza è **quadratica**, cioè:
+
+$$
+\lim_{k \to \infty} \frac{|x_{k+1} - x_*|}{|x_k - x_*|^2} = C \in \mathbb{R}
+$$
+
+---
+
+#### Sviluppo di Taylor
+
+Consideriamo lo sviluppo di Taylor della funzione $f$ centrato in $x_k$, valutato nel punto $x_*$:
+
+$$
+f(x_*) = f(x_k) + f'(x_k)(x_* - x_k) + \frac{1}{2}f''(\xi_k)(x_* - x_k)^2
+$$
+
+dove $\xi_k$ è un punto compreso tra $x_k$ e $x_*$.
+
+Poiché $x_*$ è una radice, si ha $f(x_*) = 0$, quindi:
+
+$$
+0 = f(x_k) + f'(x_k)(x_* - x_k) + \frac{1}{2}f''(\xi_k)(x_* - x_k)^2
+$$
+
+---
+
+#### Manipolazione dell’espressione
+
+Isoliamo il termine $\dfrac{f(x_k)}{f'(x_k)}$:
+
+$$
+\frac{f(x_k)}{f'(x_k)} = (x_k - x_*) - \frac{1}{2}\frac{f''(\xi_k)}{f'(x_k)}(x_k - x_*)^2
+$$
+
+Sostituendo nella formula del metodo di Newton:
+
+$$
+x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)}
+$$
+
+si ottiene:
+
+$$
+x_{k+1} = x_k - \left[(x_k - x_*) - \frac{1}{2}\frac{f''(\xi_k)}{f'(x_k)}(x_k - x_*)^2 \right]
+$$
+
+Semplificando:
+
+$$
+x_{k+1} - x_* = \frac{1}{2}\frac{f''(\xi_k)}{f'(x_k)}(x_k - x_*)^2
+$$
+
+---
+
+#### Conclusione
+
+Prendendo il valore assoluto:
+
+$$
+|x_{k+1} - x_*| = \frac{1}{2}\left|\frac{f''(\xi_k)}{f'(x_k)}\right| |x_k - x_*|^2
+$$
+
+Dividendo per $|x_k - x_*|^2$:
+
+$$
+\frac{|x_{k+1} - x_*|}{|x_k - x_*|^2} = \frac{1}{2}\left|\frac{f''(\xi_k)}{f'(x_k)}\right|
+$$
+
+Poiché $\xi_k$ è compreso tra $x_k$ e $x_*$ e $x_k \to x_*$, segue che:
+
+$$
+\lim_{k \to \infty} \xi_k = x_*
+$$
+
+Usando la continuità di $f'$ e $f''$, si ottiene:
+
+$$
+\lim_{k \to \infty} \frac{|x_{k+1} - x_*|}{|x_k - x_*|^2}
+= \frac{1}{2}\left|\frac{f''(x_*)}{f'(x_*)}\right| = C
+$$
+
+con $C \in \mathbb{R}$.
+
+---
+
+#### Interpretazione
+
+Questo risultato dimostra che il metodo di Newton ha **convergenza quadratica**: l’errore al passo successivo è proporzionale al quadrato dell’errore corrente.
+
+In termini pratici, quando si è sufficientemente vicini alla soluzione, il numero di cifre corrette raddoppia ad ogni iterazione, rendendo il metodo estremamente efficiente rispetto ai metodi dicotomici.
+
+---
+
+### Condizionamento del problema della ricerca degli zeri
+
+Nel contesto dei metodi numerici per la ricerca degli zeri, una questione fondamentale è capire quanto il **residuo** $|f(\tilde{x})|$ fornisca informazione sulla distanza dalla soluzione esatta $x_*$.
+
+In pratica, dato un punto $\tilde{x}$ (ad esempio una iterata del metodo) tale che:
+
+$$
+|f(\tilde{x})| \le \delta
+$$
+
+con $\delta$ tolleranza fissata, ci si chiede se questo implichi che $\tilde{x}$ sia effettivamente vicino alla radice $x_*$, cioè:
+
+$$
+|f(\tilde{x})| \le \delta \quad \Rightarrow \quad \tilde{x} \approx x_*
+$$
+
+La risposta, in generale, è **no**: questa implicazione dipende dal comportamento della funzione $f$ in prossimità della radice.
+
+---
+
+#### Relazione tra errore e residuo
+
+Per chiarire questo aspetto, consideriamo la definizione di derivata:
+
+$$
+f'(x_*) = \lim_{x \to x_*} \frac{f(x) - f(x_*)}{x - x_*}
+$$
+
+Poiché $f(x_*) = 0$, per $x$ sufficientemente vicino a $x_*$ possiamo approssimare:
+
+$$
+f'(x_*) \approx \frac{f(x)}{x - x_*}
+$$
+
+Da cui si ottiene:
+
+$$
+x - x_* \approx \frac{f(x)}{f'(x_*)}
+$$
+
+Passando ai valori assoluti:
+
+$$
+|x - x_*| \approx \frac{|f(x)|}{|f'(x_*)|}
+$$
+
+Se $|f(x)| \le \delta$, allora:
+
+$$
+|x - x_*| \lesssim \frac{\delta}{|f'(x_*)|}
+$$
+
+---
+
+#### Interpretazione
+
+Questa relazione mostra che la distanza dalla radice dipende non solo dal residuo, ma anche dal valore della derivata prima nel punto $x_*$. In particolare, compare un fattore di amplificazione:
+
+$$
+\frac{1}{|f'(x_*)|}
+$$
+
+Se $|f'(x_*)|$ è grande, allora il residuo è un buon indicatore della distanza dalla soluzione: piccoli valori di $|f(x)|$ implicano piccoli errori $|x - x_*|$.
+
+Se invece $|f'(x_*)|$ è piccolo, allora il fattore $\frac{1}{|f'(x_*)|}$ diventa grande e può amplificare l’errore: anche un residuo molto piccolo può corrispondere a una distanza significativa dalla radice.
+
+---
+
+#### Problema ben condizionato e mal condizionato
+
+Il problema della ricerca degli zeri si dice:
+
+- **ben condizionato** se $|f'(x_*)|$ non è troppo piccolo  
+- **mal condizionato** se $|f'(x_*)|$ è vicino a zero
+
+Dal punto di vista geometrico, il problema è mal condizionato quando la funzione è **molto piatta** in prossimità della radice, cioè quando il grafico è quasi parallelo all’asse delle ascisse nel punto di intersezione.
+
+In questo caso, piccole variazioni nei valori della funzione corrispondono a variazioni molto più grandi nella variabile $x$, rendendo difficile ottenere una buona approssimazione della radice.
+
+---
+
+#### Conclusione
+
+Il residuo $|f(\tilde{x})|$ da solo non è sempre un indicatore affidabile dell’errore $|\tilde{x} - x_*|$. La qualità dell’approssimazione dipende dal condizionamento del problema, cioè dal valore della derivata prima nel punto di soluzione.
+
+In sintesi, un residuo piccolo garantisce una buona approssimazione solo se il problema è ben condizionato.
+
+---
+
+
+
+
+
+
+
+
+### Metodo delle secanti
+
+Il metodo delle secanti può essere visto come una variante del metodo di Newton in cui la derivata prima $f'(x_k)$ viene approssimata tramite un rapporto incrementale. In questo modo si evita il calcolo esplicito della derivata, rendendo il metodo applicabile anche quando essa non è facilmente disponibile.
+
+La formula iterativa è:
+
+$$
+x_{k+1} = x_k - \frac{f(x_k)}{\dfrac{f(x_k) - f(x_{k-1})}{x_k - x_{k-1}}}
+$$
+
+che può essere riscritta in forma più compatta come:
+
+$$
+x_{k+1} = x_k - f(x_k)\,\frac{x_k - x_{k-1}}{f(x_k) - f(x_{k-1})}
+$$
+
+---
+
+#### Interpretazione geometrica
+
+Il metodo si basa su un’idea geometrica simile a quella della regula falsi: invece di utilizzare la tangente (come in Newton), si considera la **retta secante** passante per i punti:
+
+$$
+(x_{k-1}, f(x_{k-1})) \quad \text{e} \quad (x_k, f(x_k))
+$$
+
+Il nuovo punto $x_{k+1}$ è l’intersezione tra questa retta e l’asse delle ascisse.
+
+---
+
+#### Struttura iterativa
+
+A differenza del metodo di Newton, che utilizza una sola iterata precedente, il metodo delle secanti ha una **ricorrenza a tre termini**, poiché ogni nuovo valore dipende da:
+
+- $x_{k+1}$ (nuova iterata)
+- $x_k$ (iterata precedente)
+- $x_{k-1}$ (iterata ancora precedente)
+
+Per questo motivo, il metodo richiede due valori iniziali $x_0$ e $x_1$.
+
+---
+
+#### Proprietà e osservazioni
+
+Il metodo delle secanti non richiede il calcolo della derivata, quindi può essere applicato anche a funzioni semplicemente continue. Tuttavia, è comunque necessario che il denominatore:
+
+$$
+f(x_k) - f(x_{k-1}) \neq 0
+$$
+
+per evitare problemi numerici.
+
+Dal punto di vista della velocità di convergenza, il metodo è più rapido del metodo di bisezione ma, in generale, meno efficiente del metodo di Newton. La sua convergenza è **superlineare** (con ordine circa $p \approx 1.618$), quindi migliore della convergenza lineare ma inferiore a quella quadratica.
+
+---
+
+#### Conclusione
+
+Il metodo delle secanti rappresenta un buon compromesso tra costo computazionale e velocità di convergenza: elimina la necessità della derivata mantenendo una velocità di convergenza elevata, anche se non garantisce sempre la stessa robustezza dei metodi dicotomici.
+
+---
