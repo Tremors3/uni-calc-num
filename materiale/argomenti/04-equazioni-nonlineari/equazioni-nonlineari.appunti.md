@@ -467,8 +467,6 @@ Il nuovo punto è l'intersezione tra l'asse delle ascisse e la retta per i punti
 
 ---
 
-# (20) Lezione 15-04-2026 | s 274.. | Estensione ai sistemi di equazioni nonlineari
-
 ### Estensione ai sistemi di equazioni nonlineari (Newton e Secanti)
 
 Esteso al caso in cui abbiamo sistemi di equazioni non lineari in altrettante incognite (prenderemo tante incognite quante saranno le equazioni non lineari).
@@ -503,3 +501,137 @@ $$
 Dobbiamo trovare il vettore $(x_1, \dots, x_n)$ tale che ciascuna funzione ad $n$ variabili si annulli (all'interno del vettore di funzioni).
 
 ---
+
+# (20) Lezione 15-04-2026 | s 274.. | Estensione ai sistemi di equazioni nonlineari
+
+Ripasso derivate parziali, gradienti, jacobiani:
+
+$$\begin{aligned}
+f:\R^2&\to\R \\
+(x_1, x_2) &\to f(x_1, x_2)
+\end{aligned}$$
+
+$$
+\frac{\partial f}{\partial x_1}(x_1, x_2) \lim_{h\to\infin}\frac{f(x_1 + h, x_2) - f(x_1, x_2)}{h}
+$$
+
+$$
+\frac{\partial f}{\partial x_1}(x_1, x_2) \lim_{h\to\infin}\frac{f(x_1, x_2 + h) - f(x_1, x_2)}{h}
+$$
+
+Ed il rispettivo gradiente, come vettore colonna:
+
+$$
+\nabla f(x_1, x_2) = \begin{pmatrix}
+\frac{\partial f}{\partial x_1}(x_1, x_2) \\
+\frac{\partial f}{\partial x_2}(x_1, x_2)
+\end{pmatrix}\in\R^2
+$$
+
+Aumentando la dimensione dello spazio, del dominio della funzione, possiamo parlare di gradiente di $f$. In questo primo passaggio abiamo aumentato lo spazio che contiene il dominio della funzione.
+
+Ci serve considerare delle funzioni che sono definite come: 
+
+$$\begin{aligned}
+F:\R^2&\to\R^2 \\
+(x_1, x_2)&\to\begin{pmatrix}f_1(x_1,x_2) \\ f_2(x_1,x_2)\end{pmatrix}
+\end{aligned}$$
+
+In questo caso avremo bisogno di due funzioni che definiscono le singole componenti del vettore immagine:
+
+$$\begin{aligned}
+f_1:\R^2\to\R &\quad\Rightarrow\quad \nabla f_1(x_1, x_2) \in\R^2\\
+f_2:\R^2\to\R &\quad\Rightarrow\quad \nabla f_2(x_1, x_2) \in\R^2
+\end{aligned}$$
+
+Ciascuna di queste due funzioni avrà un graduente. Stiamo cercando un equivalente della derivata prima anche per funzioni che vanno da $\R^2\to\R^2$.
+
+La definizoine di dello Jacoiano è una matrice che dipende da n variabili. In questo caso con due variabili:
+
+$$\begin{aligned}
+JF(x_1,x_2) &= \begin{pmatrix}\nabla f_1(x_1, x_2)^T \\ \nabla f_1(x_1, x_2)^T\end{pmatrix} \in\R^{2\times 2} \\
+&=\begin{pmatrix}\frac{\partial f_1}{\partial x_1}f(x_1, x_2) & \frac{\partial f_1}{\partial x_2}f(x_1, x_2) \\ \frac{\partial f_2}{\partial x_1}f(x_1, x_2) & \frac{\partial f_2}{\partial x_2}f(x_1, x_2) \end{pmatrix}
+\end{aligned}$$
+
+---
+
+### Esercizio suo gradienti in laboratorio
+
+In laboratorio, abbiamo definito il campo F:
+
+$$F(x) = \begin{pmatrix} 
+L_1 \cos(x_1) + L_2 \cos(x_1 + x_2) - P_1 \\
+L_1 \sin(x_1) + L_2 \sin(x_1 + x_2) - P_2
+\end{pmatrix}$$
+
+Proviamo a calcolare lo Jacobiano di questo vettore.
+
+Gradiente della prima funzione:
+
+$$\begin{aligned}
+\frac{\partial f_1}{\partial x_1}(x_1, x_2) &= L_1\sin(x_1) - L_2\sin(x_1 + x_2) \\
+\frac{\partial f_1}{\partial x_2}(x_1, x_2) &= - L_2\sin(x_1 + x_2)
+\end{aligned}$$
+
+Gradiente della seconda funzione:
+
+$$\begin{aligned}
+\frac{\partial f_2}{\partial x_1}(x_1, x_2) &= L_1\cos(x_1) - L_2\cos(x_1 + x_2) \\
+\frac{\partial f_2}{\partial x_2}(x_1, x_2) &= - L_2\cos(x_1 + x_2)
+\end{aligned}$$
+
+Vogliamo trovare la coppia $x_1,x_2$ che ci consenta di annullare queste quantità.
+
+---
+
+Formula del metodo di newton aggiornata per funzionare su più dimensioni:
+
+$$
+d_k = -\frac{f(x_k)}{f'(x_k)} = - \underbrace{(f'(x_k))^{-1}}_{JF(x_k)^{-1}} \cdot \underbrace{f(x_k)}_{F(x^{(k)})}
+$$
+
+Riformuliamo la formula come:
+
+$$\begin{aligned}
+d^{(k)} &= - JF(x^{(k)})^{-1} \cdot F(x^{(k)}) \\
+x^{(k+1)} &= x^{(k)} + d^{(k)}
+\end{aligned}$$
+
+Quando ho l'iterato k-esimo, è in realtà un vettore con n componenti.
+Quindi $F(x^{(k)})$ si può calcolare ed è semplicemente un vettore di numeri. Mentre $JF(x^{(k)})$ è una matrice di numeri che posso calcolare.
+
+Scritto in questo modo, il vettore $d^{(k)}$, è il vettore che risolve il sistema:
+
+$$
+JF(x^{(k)})\cdot d^{(k)} = - F(x^{(k)})
+$$
+
+E' la soluzione di un sistema lineare che ha come:
+- $JF(x^{(k)})$: matrice dei coefficienti;
+- $d^{(k)}$: vettore delle incognite;
+- $F(x^{(k)})$: vettore dei termini noti.
+
+---
+
+#### Da sistema nonlineare a sistema lineare
+
+Il sistema da cui siamo partiti $F(x) = 0$ è nonlineare.
+
+Dato $x^{(0)}\in\R^2$:
+$$ \text{for } k=0,1,\dots \\
+\qquad JF(x^{k}), F(x^{k}) \\
+\qquad\qquad\qquad\qquad d^{(k)} = - JF(x^{(k)})^{-1} \cdot F(x^{(k)}) \\
+\qquad\qquad x^{(k+1)} = x^{(k)} + d^{(k)}
+$$
+
+Come visto. Ad ogni passo del metodo di Newton è richiesta la risoluzione di un sistema lineare.
+
+---
+
+#### Implemetazione del metodo di Newton per i sistemi di equazioni nonlineari
+
+In laboratorio.
+
+---
+
+# (21) Lezione 20-04-2026 | s .. | Interpolazione

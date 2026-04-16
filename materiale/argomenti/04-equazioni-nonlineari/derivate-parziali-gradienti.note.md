@@ -1,5 +1,5 @@
 
-## Derivate parziali e gradiente: introduzione intuitiva
+## Derivate parziali e gradiente
 
 Quando si studiano le derivate in una variabile, si considera una funzione del tipo $f(x)$ e si analizza come cambia il valore della funzione al variare di $x$. La derivata misura quindi la **velocità di variazione della funzione rispetto a quella variabile**.
 
