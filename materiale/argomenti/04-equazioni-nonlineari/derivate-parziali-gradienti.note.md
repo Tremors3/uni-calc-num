@@ -39,10 +39,13 @@ Dal punto di vista intuitivo, $\frac{\partial f}{\partial x}$ rappresenta quanto
 
 Tuttavia, spesso non è sufficiente studiare una direzione alla volta. Se vogliamo capire in quale direzione la funzione cresce più velocemente, dobbiamo considerare tutte le direzioni contemporaneamente. Questo porta alla definizione di **gradiente**.
 
-Il gradiente di una funzione è un vettore che raccoglie tutte le derivate parziali:
+Il gradiente di una funzione è un vettore colonna che raccoglie tutte le derivate parziali:
 
 $$
-\nabla f(x, y) = \left( \frac{\partial f}{\partial x}, \frac{\partial f}{\partial y} \right)
+\nabla f(x, y) = \begin{pmatrix}
+    \frac{\partial f}{\partial x} \\
+    \frac{\partial f}{\partial y}
+\end{pmatrix}
 $$
 
 Nel caso dell’esempio precedente, il gradiente è:
@@ -66,3 +69,107 @@ dove $\alpha$ è un parametro che controlla la dimensione del passo.
 In sintesi, le derivate parziali permettono di studiare come una funzione varia lungo singole direzioni, mentre il gradiente combina queste informazioni per descrivere il comportamento complessivo della funzione e individuare la direzione di variazione più significativa. Questi strumenti sono alla base di molti metodi numerici utilizzati per risolvere problemi di ottimizzazione e analisi di funzioni multivariate.
 
 ---
+
+## Appunti presi a lezione: derivate parziali, gradiente e Jacobiano
+
+Consideriamo una funzione scalare di due variabili:
+
+$$
+\begin{aligned}
+f: \mathbb{R}^2 &\to \mathbb{R} \\
+(x_1, x_2) &\mapsto f(x_1, x_2)
+\end{aligned}
+$$
+
+Le **derivate parziali** misurano la variazione della funzione rispetto a una variabile, mantenendo fissa l’altra. Sono definite come:
+
+$$
+\frac{\partial f}{\partial x_1}(x_1, x_2) = \lim_{h \to 0} \frac{f(x_1 + h, x_2) - f(x_1, x_2)}{h}
+$$
+
+$$
+\frac{\partial f}{\partial x_2}(x_1, x_2) = \lim_{h \to 0} \frac{f(x_1, x_2 + h) - f(x_1, x_2)}{h}
+$$
+
+Queste quantità rappresentano le pendenze della funzione nelle direzioni degli assi coordinati.
+
+---
+
+### Gradiente
+
+Il **gradiente** di $f$ è il vettore che raccoglie tutte le derivate parziali ed è definito come:
+
+$$
+\nabla f(x_1, x_2) =
+\begin{pmatrix}
+\frac{\partial f}{\partial x_1}(x_1, x_2) \\
+\frac{\partial f}{\partial x_2}(x_1, x_2)
+\end{pmatrix}
+\in \mathbb{R}^2
+$$
+
+Il gradiente generalizza il concetto di derivata prima alle funzioni di più variabili: indica la direzione di massima crescita della funzione e la sua intensità.
+
+---
+
+### Funzioni vettoriali
+
+Per trattare sistemi di equazioni non lineari, è necessario considerare funzioni vettoriali del tipo:
+
+$$
+\begin{aligned}
+F: \mathbb{R}^2 &\to \mathbb{R}^2 \\
+(x_1, x_2) &\mapsto
+\begin{pmatrix}
+f_1(x_1, x_2) \\
+f_2(x_1, x_2)
+\end{pmatrix}
+\end{aligned}
+$$
+
+In questo caso, ogni componente $f_i$ è una funzione scalare:
+
+$$
+f_1, f_2 : \mathbb{R}^2 \to \mathbb{R}
+$$
+
+e ciascuna di esse ha il proprio gradiente:
+
+$$
+\nabla f_1(x_1, x_2), \quad \nabla f_2(x_1, x_2) \in \mathbb{R}^2
+$$
+
+---
+
+### Jacobiano
+
+Per generalizzare il concetto di derivata alle funzioni vettoriali, si introduce lo **Jacobiano**, che è una matrice contenente tutte le derivate parziali delle componenti di $F$.
+
+Nel caso $F : \mathbb{R}^2 \to \mathbb{R}^2$, lo Jacobiano è:
+
+$$
+J_F(x_1, x_2) =
+\begin{pmatrix}
+\frac{\partial f_1}{\partial x_1}(x_1, x_2) & \frac{\partial f_1}{\partial x_2}(x_1, x_2) \\
+\frac{\partial f_2}{\partial x_1}(x_1, x_2) & \frac{\partial f_2}{\partial x_2}(x_1, x_2)
+\end{pmatrix}
+\in \mathbb{R}^{2 \times 2}
+$$
+
+Equivalentemente, lo Jacobiano può essere visto come la matrice che ha per righe i gradienti trasposti delle singole componenti:
+
+$$
+J_F(x_1, x_2) =
+\begin{pmatrix}
+\nabla f_1(x_1, x_2)^T \\
+\nabla f_2(x_1, x_2)^T
+\end{pmatrix}
+$$
+
+---
+
+### Interpretazione
+
+Lo Jacobiano rappresenta la migliore approssimazione lineare della funzione vettoriale $F$ in un punto, ed è l’analogo multidimensionale della derivata prima nel caso scalare.
+
+Questo concetto è fondamentale per estendere metodi come quello di Newton al caso di sistemi non lineari.

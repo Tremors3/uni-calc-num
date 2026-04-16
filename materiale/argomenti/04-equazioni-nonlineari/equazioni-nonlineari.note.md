@@ -700,3 +700,126 @@ Dal punto di vista della velocità di convergenza, il metodo è più rapido del 
 Il metodo delle secanti rappresenta un buon compromesso tra costo computazionale e velocità di convergenza: elimina la necessità della derivata mantenendo una velocità di convergenza elevata, anche se non garantisce sempre la stessa robustezza dei metodi dicotomici.
 
 ---
+
+### Metodo di Newton per sistemi nonlineari *(vedi file su gradienti e jacobiani)*
+
+Per estendere il metodo di Newton al caso multidimensionale, consideriamo una funzione vettoriale:
+
+$$
+F : \mathbb{R}^n \to \mathbb{R}^n
+$$
+
+e vogliamo trovare un vettore $x_* \in \mathbb{R}^n$ tale che:
+
+$$
+F(x_*) = 0
+$$
+
+---
+
+#### Formula iterativa
+
+Nel caso scalare, il metodo di Newton utilizza la derivata prima. Nel caso multidimensionale, questa viene sostituita dallo **Jacobiano** $J_F(x)$.
+
+La formula del metodo diventa:
+
+$$
+d^{(k)} = - J_F(x^{(k)})^{-1} \, F(x^{(k)})
+$$
+
+$$
+x^{(k+1)} = x^{(k)} + d^{(k)}
+$$
+
+Qui $x^{(k)} \in \mathbb{R}^n$ è un vettore, quindi anche:
+
+- $F(x^{(k)}) \in \mathbb{R}^n$ è un vettore (valutazione della funzione),
+- $J_F(x^{(k)}) \in \mathbb{R}^{n \times n}$ è una matrice (Jacobiano),
+- $d^{(k)} \in \mathbb{R}^n$ è il vettore di aggiornamento.
+
+---
+
+#### Interpretazione come sistema lineare
+
+In pratica, non si calcola esplicitamente l’inversa dello Jacobiano (operazione costosa e numericamente instabile). Si riformula invece il problema come un sistema lineare:
+
+$$
+J_F(x^{(k)}) \cdot d^{(k)} = -F(x^{(k)})
+$$
+
+In questo modo:
+
+- $J_F(x^{(k)})$ è la matrice dei coefficienti,
+- $d^{(k)}$ è il vettore delle incognite,
+- $-F(x^{(k)})$ è il vettore dei termini noti.
+
+Ad ogni iterazione si risolve quindi un sistema lineare per determinare la direzione di aggiornamento $d^{(k)}$.
+
+---
+
+#### Interpretazione
+
+Il metodo può essere visto come una generalizzazione naturale del caso scalare: si sostituisce la funzione non lineare con la sua approssimazione lineare (tramite lo Jacobiano) e si risolve il problema linearizzato.
+
+Questo rende il metodo molto potente, ma anche più costoso computazionalmente, poiché ad ogni iterazione è necessario:
+
+- calcolare lo Jacobiano,
+- risolvere un sistema lineare.
+
+---
+
+#### Conclusione
+
+Il metodo di Newton multidimensionale mantiene le stesse proprietà teoriche del caso scalare: quando converge, lo fa tipicamente con **convergenza quadratica**, ma richiede buone condizioni iniziali e un Jacobiano non singolare.
+
+È uno strumento fondamentale per la risoluzione di sistemi non lineari.
+
+---
+
+#### Da sistema non lineare a sistema lineare: implementazione
+
+Il problema iniziale consiste nel risolvere un sistema non lineare:
+
+$$
+F(x) = 0, \quad x \in \mathbb{R}^n
+$$
+
+Il metodo di Newton trasforma questo problema in una successione di sistemi lineari. A partire da un’approssimazione iniziale $x^{(0)}$, ad ogni iterazione si costruisce e si risolve il sistema:
+
+$$
+J_F(x^{(k)}) \, d^{(k)} = -F(x^{(k)})
+$$
+
+ottenendo così la direzione di aggiornamento $d^{(k)}$, e si aggiorna la soluzione:
+
+$$
+x^{(k+1)} = x^{(k)} + d^{(k)}
+$$
+
+Questo processo viene ripetuto fino a soddisfare un criterio di arresto (ad esempio $\|F(x^{(k)})\|$ sufficientemente piccolo o variazione tra iterate trascurabile).
+
+---
+
+#### Pseudocodice del metodo di Newton multidimensionale
+
+L’implementazione del metodo può essere descritta in forma compatta come segue:
+
+```py
+Input: funzione F, Jacobiano JF, punto iniziale x^(0), tolleranza tol
+for k = 0,1,2,...
+    calcola F(x^(k)) e JF(x^(k))
+
+    risolvi il sistema lineare:
+        JF(x^(k)) * d^(k) = -F(x^(k))
+
+    aggiorna:
+        x^(k+1) = x^(k) + d^(k)
+
+    se ||F(x^(k+1))|| < tol:
+        termina
+
+    Output: approssimazione x^(k+1)
+```
+
+---
+
