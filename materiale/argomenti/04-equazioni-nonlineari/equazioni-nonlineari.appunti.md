@@ -797,7 +797,7 @@ Anche con l'algoritmo più stabile che possiamo utilizzare, questo metodo è ins
 
 ---
 
-### Metodo dei coefficienti inve
+### Metodo dei coefficienti inve...
 
 L'idea è di trovare un altro algoritmo alternativo per ricavare il polinomio interpolante.
 

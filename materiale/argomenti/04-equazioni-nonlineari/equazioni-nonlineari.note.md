@@ -1,7 +1,7 @@
 
 # Metodi Non-Lineari
 
-## Introduzione ai metodi per equazioni non lineari
+## Metodi per equazioni nonlineari
 
 Sia $f : [a,b] \to \mathbb{R}$. L’obiettivo è determinare un punto $x_* \in [a,b]$ tale che $f(x_*) = 0$. Un tale punto viene detto radice (o zero) della funzione.
 
@@ -632,13 +632,6 @@ In sintesi, un residuo piccolo garantisce una buona approssimazione solo se il p
 
 ---
 
-
-
-
-
-
-
-
 ### Metodo delle secanti
 
 Il metodo delle secanti può essere visto come una variante del metodo di Newton in cui la derivata prima $f'(x_k)$ viene approssimata tramite un rapporto incrementale. In questo modo si evita il calcolo esplicito della derivata, rendendo il metodo applicabile anche quando essa non è facilmente disponibile.
@@ -701,7 +694,10 @@ Il metodo delle secanti rappresenta un buon compromesso tra costo computazionale
 
 ---
 
-### Metodo di Newton per sistemi nonlineari *(vedi file su gradienti e jacobiani)*
+## Metodi per sistemi nonlineari
+
+### Metodo di Newton (per sistemi nonlineari).
+--> *Vedi file su gradienti e jacobiani*
 
 Per estendere il metodo di Newton al caso multidimensionale, consideriamo una funzione vettoriale:
 
@@ -823,3 +819,390 @@ for k = 0,1,2,...
 
 ---
 
+## Interpolazione
+
+### Esempi e motivazioni dell’interpolazione
+
+L’interpolazione nasce dall’esigenza di ricostruire informazioni intermedie a partire da dati noti. In molti contesti applicativi non ci interessa solo conoscere uno stato iniziale e uno finale, ma anche descrivere in modo continuo ciò che accade tra questi due estremi.
+
+Un esempio tipico è quello del movimento di un braccio robotico. Date una configurazione iniziale e una finale, vogliamo determinare una sequenza di configurazioni intermedie che descrivano il movimento del braccio nel tempo. In questo modo è possibile ottenere un’animazione fluida (frame intermedi) che rappresenti il passaggio da uno stato all’altro. L’interpolazione permette quindi di costruire una traiettoria continua nello spazio delle configurazioni.
+
+Un altro esempio importante riguarda l’elaborazione delle immagini. Supponiamo di avere una porzione di immagine rappresentata come una matrice di pixel di dimensione $n \times n$. Se vogliamo ingrandire questa immagine, possiamo costruire una nuova matrice più grande, ad esempio di dimensione $m \times m$ con $m = 2n$. Tuttavia, i nuovi pixel introdotti non hanno un valore assegnato.
+
+Il problema diventa quindi quello di determinare i valori dei pixel mancanti in modo coerente con quelli originali. Questo viene fatto tramite tecniche di interpolazione, che stimano i valori ignoti utilizzando l’informazione disponibile nei pixel vicini.
+
+In sintesi, l’interpolazione consente di passare da dati discreti a una rappresentazione più densa o continua, ed è fondamentale in applicazioni come animazioni, simulazioni fisiche e elaborazione di immagini.
+
+---
+
+### Interpolazione polinomiale
+
+Il problema dell’interpolazione consiste nel costruire una funzione che passi esattamente per un insieme finito di punti dati.
+
+I dati in ingresso sono coppie di valori:
+
+$$
+(x_i, y_i), \qquad i = 0, \dots, n
+$$
+
+dove gli $x_i$ rappresentano le ascisse (tipicamente distinti tra loro) e gli $y_i$ le corrispondenti ordinate.
+
+L’obiettivo è costruire una funzione $g(x)$ tale che:
+
+$$
+g(x_i) = y_i \qquad \forall i = 0, \dots, n
+$$
+
+cioè una funzione che interpoli esattamente tutti i punti dati.
+
+---
+
+#### Scopo dell’interpolazione
+
+Una volta costruita la funzione $g(x)$, possiamo usarla per stimare valori in punti non noti. Dato un punto $\tilde{x}$ (che non appartiene necessariamente all’insieme $\{x_i\}$), vogliamo determinare:
+
+$$
+g(\tilde{x}) = \tilde{y}
+$$
+
+In questo modo si ottiene una stima dell’ordinata associata a $\tilde{x}$, basata sull’informazione dei punti noti.
+
+---
+
+#### Idea di base
+
+L’interpolazione consiste quindi nel passare da un insieme discreto di dati a una funzione continua che li descriva. Una volta costruita questa funzione, i valori ignoti vengono determinati semplicemente valutandola nei punti di interesse.
+
+Tuttavia, esiste un aspetto importante: **non esiste un’unica funzione che interpola i dati**. In generale, infinite funzioni possono passare per gli stessi punti.
+
+Per rendere il problema ben posto, è necessario restringere la classe delle funzioni tra cui cercare l’interpolante.
+
+---
+
+#### Scelta della classe di funzioni
+
+Nella maggior parte dei casi si scelgono i **polinomi**, perché:
+
+- sono semplici da gestire dal punto di vista computazionale,
+- garantiscono (sotto opportune condizioni) esistenza e unicità della soluzione,
+- sono facili da valutare e derivare.
+
+Pertanto, il problema dell’interpolazione si riduce spesso alla costruzione di un polinomio $p(x)$ tale che:
+
+$$
+p(x_i) = y_i \qquad \forall i = 0, \dots, n
+$$
+
+Questo polinomio è detto **polinomio interpolante** dei dati.
+
+---
+
+#### Intermezzo sui polinomi
+
+Un **polinomio** è una funzione che si scrive come combinazione di monomi, della forma:
+
+$$
+p(x) = a_0 + a_1 x + a_2 x^2 + \dots + a_n x^n, \qquad a_0, a_1, \dots, a_n \in \mathbb{R}
+$$
+
+dove i coefficienti $a_i$ sono numeri reali e il grado del polinomio è $n$ (supponendo $a_n \neq 0$).
+
+---
+
+#### Perché scegliere i polinomi per l’interpolazione?
+
+I polinomi sono una scelta naturale per l’interpolazione perché possiedono una proprietà fondamentale: sono completamente determinati dai loro coefficienti. Un polinomio di grado al più $n$ è descritto da $n+1$ coefficienti:
+
+$$
+a_0, a_1, \dots, a_n
+$$
+
+Quindi esiste una corrispondenza tra:
+
+- i $n+1$ dati $(x_i, y_i)$,
+- e i $n+1$ coefficienti del polinomio interpolante.
+
+Sotto opportune condizioni (in particolare $x_i$ tutti distinti), è possibile dimostrare che **esiste ed è unico** un polinomio di grado al più $n$ che interpola i dati:
+
+$$
+p(x_i) = y_i \qquad \forall i = 0, \dots, n
+$$
+
+Dal punto di vista computazionale, il problema dell’interpolazione si riduce quindi a determinare i coefficienti del polinomio. Il risultato del calcolo non è direttamente la funzione, ma un insieme di numeri (i coefficienti) che la identificano completamente.
+
+È importante osservare che il numero di dati $n+1$ coincide con il numero di coefficienti del polinomio, e quindi con il grado massimo del polinomio interpolante.
+
+In sintesi, i polinomi permettono di trasformare il problema dell’interpolazione in un problema algebrico ben posto, con soluzione unica e facilmente rappresentabile.
+
+---
+
+#### Interpolazione polinomiale ed esistenza/unicità
+
+Un risultato fondamentale alla base dell’interpolazione polinomiale è il seguente: dati $n+1$ punti distinti nel piano, esiste **un unico polinomio di grado al più $n$** che passa esattamente per tutti questi punti.
+
+È importante precisare un dettaglio: dati tre punti, esiste un’unica **parabola**, cioè un polinomio di **grado al più 2** (non di terzo grado), che li interpola. Questo risultato si generalizza: dati $n+1$ punti $(x_i, y_i)$ con $x_i$ distinti, esiste ed è unico il polinomio $p_n(x)$ di grado al più $n$ tale che:
+
+$$
+p_n(x_i) = y_i \qquad \forall i = 0, \dots, n
+$$
+
+---
+
+#### Significato per l’interpolazione
+
+Questo teorema è cruciale perché risolve due problemi:
+
+- tra infinite funzioni possibili, restringiamo la ricerca ai polinomi;
+- all’interno dei polinomi, otteniamo una **soluzione unica**.
+
+Quindi il problema dell’interpolazione diventa ben posto: esiste una sola funzione interpolante (nel senso polinomiale) che soddisfa i vincoli.
+
+---
+
+#### Formulazione del problema
+
+Dati i punti:
+
+$$
+(x_i, y_i), \qquad i = 0, \dots, n
+$$
+
+si vuole determinare un polinomio:
+
+$$
+p_n(x) = a_0 + a_1 x + a_2 x^2 + \dots + a_n x^n
+$$
+
+tale che valgano le condizioni di interpolazione:
+
+$$
+p_n(x_i) = y_i \qquad \forall i = 0, \dots, n
+$$
+
+L’obiettivo è quindi determinare i coefficienti:
+
+$$
+a_0, a_1, \dots, a_n
+$$
+
+---
+
+#### Osservazione
+
+L’interpolazione polinomiale è caratterizzata da due scelte fondamentali:
+
+- si restringe la classe delle funzioni ai polinomi;
+- si fissa il grado massimo del polinomio in base al numero di dati.
+
+Queste due restrizioni garantiscono unicità e rendono il problema trattabile sia teoricamente che computazionalmente.
+
+---
+
+#### Interpretazione algebrica
+
+Un polinomio è una combinazione lineare dei monomi:
+
+$$
+1, \; x, \; x^2, \; \dots, \; x^n
+$$
+
+Pertanto, imporre le condizioni di interpolazione equivale a costruire un sistema lineare in cui le incognite sono i coefficienti $a_0, \dots, a_n$.
+
+Il problema dell’interpolazione polinomiale si riduce quindi alla risoluzione di un sistema lineare con $n+1$ equazioni e $n+1$ incognite, che ammette una soluzione unica (se gli $x_i$ sono distinti).
+
+---
+
+### Metodo dei coefficienti indeterminati
+
+Per costruire il polinomio interpolante, partiamo dalla sua forma generale:
+
+$$
+p_n(x) = a_0 + a_1 x + a_2 x^2 + \dots + a_n x^n
+$$
+
+e imponiamo che soddisfi le **condizioni di interpolazione**:
+
+$$
+p_n(x_i) = y_i \qquad \forall i = 0, \dots, n
+$$
+
+che corrispondono a:
+
+$$\begin{aligned}
+i=0) &\quad p_n(x_0) = y_0 \;\Leftrightarrow\; a_0 + a_1x_0 + a_2x_0^2 + \dots + a_nx_0^n = y_0 \\
+i=1) &\quad p_n(x_1) = y_1 \;\Leftrightarrow\; a_0 + a_1x_1 + a_2x_1^2 + \dots + a_nx_1^n = y_1 \\ 
+\dots \\
+i=n) &\quad p_n(x_n) = y_n \;\Leftrightarrow\; a_0 + a_1x_n + a_2x_n^2 + \dots + a_nx_n^n = y_n \\ 
+\end{aligned}$$
+
+
+Sostituendo ciascun punto $(x_i, y_i)$ nel polinomio, otteniamo un sistema di $n+1$ equazioni:
+
+$$
+\begin{cases}
+a_0 + a_1 x_0 + a_2 x_0^2 + \dots + a_n x_0^n = y_0 \\
+a_0 + a_1 x_1 + a_2 x_1^2 + \dots + a_n x_1^n = y_1 \\
+\vdots \\
+a_0 + a_1 x_n + a_2 x_n^2 + \dots + a_n x_n^n = y_n
+\end{cases}
+$$
+
+In questo sistema:
+
+- i valori $x_i$ e $y_i$ sono dati noti,
+- le incognite sono i coefficienti $a_0, a_1, \dots, a_n$.
+
+---
+
+#### Forma matriciale
+
+Il sistema può essere scritto in forma matriciale come:
+
+$$
+\boxed{
+V \alpha = y
+}
+$$
+
+dove:
+
+$$
+V =
+\begin{pmatrix} 
+1 & x_0 & x_0^2 & \dots & x_0^n \\
+1 & x_1 & x_1^2 & \dots & x_1^n \\
+\vdots & \vdots & \vdots & & \vdots \\
+1 & x_n & x_n^2 & \dots & x_n^n
+\end{pmatrix},
+\quad
+\alpha =
+\begin{pmatrix}
+a_0 \\ a_1 \\ \vdots \\ a_n
+\end{pmatrix},
+\quad
+y =
+\begin{pmatrix}
+y_0 \\ y_1 \\ \vdots \\ y_n
+\end{pmatrix}
+$$
+
+La matrice $V$ è detta **matrice di Vandermonde**.
+
+---
+
+#### Interpretazione
+
+Il problema dell’interpolazione polinomiale si riduce quindi alla risoluzione di un sistema lineare con $n+1$ equazioni e $n+1$ incognite.
+
+Una volta determinato il vettore dei coefficienti $\alpha$, il polinomio $p_n(x)$ è completamente noto e può essere utilizzato per valutare la funzione in qualsiasi punto.
+
+In altre parole, “costruire la funzione” significa trovare i coefficienti reali che la identificano univocamente.
+
+---
+
+#### Osservazione
+
+Il metodo dei coefficienti indeterminati è concettualmente semplice e diretto, ma presenta limiti pratici: **la matrice di Vandermonde può diventare numericamente instabile per $n$ grande**. Per questo motivo, in pratica si preferiscono altre formulazioni dell’interpolazione (come la forma di Lagrange o di Newton).
+
+---
+
+### Metodo di Lagrange
+
+Un’alternativa al metodo dei coefficienti indeterminati consiste nel rappresentare il polinomio interpolante in una forma diversa, evitando di risolvere esplicitamente il sistema lineare.
+
+L’idea è di non esprimere più il polinomio nella forma canonica:
+
+$$
+p_n(x) = a_0 + a_1 x + \dots + a_n x^n
+$$
+
+ma come combinazione lineare di una **base diversa di polinomi**, costruita direttamente a partire dai nodi di interpolazione.
+
+---
+
+#### Caso base: interpolazione lineare
+
+Consideriamo due punti $(x_0, y_0)$ e $(x_1, y_1)$. Il polinomio interpolante (retta) può essere scritto come:
+
+$$
+p_1(x) = y_0 + (x - x_0)\frac{y_1 - y_0}{x_1 - x_0}
+$$
+
+Questa espressione può essere riscritta come combinazione lineare:
+
+$$
+p_1(x) = y_0 \underbrace{\frac{x - x_1}{x_0 - x_1}}_{L_0(x)} + 
+          y_1 \underbrace{\frac{x - x_0}{x_1 - x_0}}_{L_1(x)}
+$$
+
+dove $L_0(x)$ e $L_1(x)$ sono polinomi di grado 1.
+
+---
+
+#### Generalizzazione: polinomio di grado $n$
+
+Nel caso generale, dati $n+1$ punti $(x_i, y_i)$, il polinomio interpolante si scrive come:
+
+$$
+p_n(x) = \sum_{i=0}^{n} y_i \, L_i(x)
+$$
+
+dove i polinomi $L_i(x)$ costituiscono la **base di Lagrange** e sono definiti come:
+
+$$
+L_i(x) = \prod_{\substack{j=0 \\ j \neq i}}^{n} \frac{x - x_j}{x_i - x_j}
+$$
+
+---
+
+#### Proprietà fondamentale
+
+I polinomi di Lagrange sono costruiti in modo tale da soddisfare:
+
+$$
+\begin{cases}
+L_i(x_i) = 1 \\
+L_i(x_j) = 0 \quad \text{per } j \neq i
+\end{cases}
+$$
+
+Questa proprietà garantisce automaticamente le condizioni di interpolazione:
+
+$$
+p_n(x_i) = y_i
+$$
+
+Infatti, valutando $p_n(x)$ in $x = x_i$, tutti i termini si annullano tranne quello con indice $i$.
+
+---
+
+#### Interpretazione
+
+In questa formulazione:
+
+- i coefficienti $y_i$ sono noti (sono i dati),
+- le funzioni base $L_i(x)$ dipendono solo dai nodi $x_i$ e devono essere costruite.
+
+Il polinomio interpolante è quindi ottenuto come combinazione lineare di queste funzioni base.
+
+---
+
+#### Vantaggi e svantaggi
+
+Questo metodo evita la risoluzione del sistema lineare (e quindi i problemi legati alla matrice di Vandermonde, spesso mal condizionata).
+
+Tuttavia, il costo computazionale può diventare elevato se si calcolano direttamente i prodotti per ogni $L_i(x)$, soprattutto per $n$ grande. Per questo motivo, nella pratica è importante organizzare il calcolo in modo efficiente o utilizzare formulazioni alternative più stabili (come la forma baricentrica).
+
+---
+
+#### Conclusione
+
+Il metodo di Lagrange fornisce una rappresentazione esplicita del polinomio interpolante, concettualmente semplice e teoricamente elegante, che costruisce direttamente la funzione senza passare dalla determinazione dei coefficienti nella base canonica.
+
+---
+
+### Metodo di Newton
+
+Saltato.
+
+---
