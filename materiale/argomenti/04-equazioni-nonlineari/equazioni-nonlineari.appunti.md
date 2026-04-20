@@ -502,7 +502,7 @@ Dobbiamo trovare il vettore $(x_1, \dots, x_n)$ tale che ciascuna funzione ad $n
 
 ---
 
-# (20) Lezione 15-04-2026 | s 274.. | Estensione ai sistemi di equazioni nonlineari
+# (20) Lezione 15-04-2026 | s 268..273 | Estensione ai sistemi di equazioni nonlineari
 
 Ripasso derivate parziali, gradienti, jacobiani:
 
@@ -634,5 +634,210 @@ In laboratorio.
 
 ---
 
-# (21) Lezione 20-04-2026 | s .. | Interpolazione
+# (21) Lezione 20-04-2026 | s 274.. | Interpolazione dei dati e funzioni
+
+### Alcuni esempi legati all'interpolazione
+
+Dato uno stato iniziale e finale vogiamo ricavare alcuni stati intermedi (frames) di collegamento. Nel caso del braccio robotico visto in precedenza in laboratorio, data la posizione di partenza e finale del braccio ricavare un'animazione delle posizioni intermedie (spostamento) del braccio per raggiungere lo stato finale, partendo dallo stato iniziale.
+
+Vogliamo ingrandire un riquadro di un'immagine. Possiamo vedere il riquadro di partenza come una matrice di una certa dimensione $n\times n$. Costruiamo una seconda matrice grande ad esempio il doppio $m\times m,\text{ con }m=2n$ ponendo tra i pixel noti dei pixel vuoti. Vedremo diverse strategie per "riempire" l'immagine ingrandita.
+
+### Interpolazione
+
+Come input avremo due vettori, che rispettivamente memorizzano le coordinate sulle ascisse e sulle ordinate:
+
+**DATI**:
+$$
+(x_i, y_i), \qquad\forall i=0,\dots n
+$$
+
+**OUTPUT**:
+$$
+g(x) \\
+g(x_i) = y_i \qquad\forall i=0,\dots,n
+$$
+
+**SCOPO**:
+$$
+(\tilde x, \underbrace{?}_{g(\tilde x)}) 
+$$
+
+```
+    ^
+    |
+    |
+t_i -                           ______
+    |      ___                 /      \
+y_1 -     /   \               /        \
+    |    /     \             /          \
+y_n -   /       \           /            \
+    |  /         \_________/              \  
+y_0 - /                                    \____ g(x)
+    |/
+---------|---|----|---------------|-----------|--->
+    |   x_0  ~   x_1             x_i         x_n
+    |        x
+```
+
+Costruire una funzione partendo da un numero finito di punti che devono appartenenre al suo grafico.
+
+$$
+g(x_i) = y_i \qquad \forall i=,\dots,n
+$$
+
+Se per esempio il problema consiste nel sapere cosa mettere in corrispondenza dellascissa $\tilde x$, la vado a colmare con il valore $g(\tilde x)$. Il valore della ordinata lo ottengo semplicemente come:
+
+$$
+g(\tilde x_i) = \tilde y_i
+$$
+
+Il metodo consste quindi nella costruzione della funzione che passa per tutti i punti noti. I punti ignoti li si ricava tramite la stessa funzione.
+
+>**Nota**: si vuole costruire una funzione che passi per i punti noti; ma infinite funzioni soddisfano questo requisito. Vogliamo restringere quindi l'insieme delle funzioni in cui cercare l'interpolante. Cercheremo delle funzioni con caratteristiche specifiche.
+>
+> Lavoreremo con dei polinomi. Le funzioni che costruiremo per interpolare i dati saranno di fatto dei polinomi.
+
+#### Intermezzo sui polinomi
+
+***Def.*** Funzione particolare che si scrive come combinazione di monomi.
+
+$$
+p(x) = a_0 + a_1x + a_2x^2 + \dots + a_nx^n \qquad a_0,a_1,\dots,a_n\in\R
+$$
+
+#### Perchè un polinomio come funzione interpolante?
+
+Perchè la scelta dei polinomi come funzioni per effettuare l'interpolazione? Hanno la proprietà di essere associate in maniera univoca ad $n+1$ numeri. Quando li si ha fissati, questi identificano in maniera univoca il polinomio. I polinomi sono funzioni che possono essere individuate in maniera univoca da $n+1$ numeri reali.
+
+Il calcolatore ci restituirà un insieme di numeri che ci permettono di costruire la funzione. Di fatti l'$n$ che abbiamo scelto per numerare i dati **coincide con il grado del polinomio**.
+
+#### Teorema fondamentale dell'algebra
+
+Dati tre punti su un piano il teorema dice che esiste un'unica parabola (polinomio di terzo grado) che passa per i tre punti dati. Lo stesso concetto si può generalizzare per $n$ punti.
+
+Anche se ci sono infinite funzioni che possiamo scegliere per interpolare gli $n$ punti, esiste un unico polinomio di grado (al più) $n$ che passa per quei punti. In questo modo non solo riduciamo il campo ma finiamo con un'unica funzione interpolante da scegliere.
+
+#### Polinomio di interpolazione
+
+Cose fondamentali che caratterizzano l'interpolazione polinomiale:
+1) Per interpolare dei punti stiam ofacendo una scelta ben precisa. Non stiamo scegliendo una funzione qualsiasi ma un polinomio.
+2) Il numero dei punti che dobbiamo interpolare determina il grado del polinomio che andiamo a costruire.
+
+E' vero che noi scegliamo di utilizzare dei polinomi (prima restrizione), ma andiamo a costruire polinomi di un grado definito (seconda restrizione).
+
+**DATI**
+
+$$\begin{aligned}
+&(x_i, y_i) \\
+i&=0,1,\dots,n
+\end{aligned}$$
+
+**OUTPUT**
+
+$a_0,a_1,\dots,a_n$ da interpretare come i coefficienti dell'unico polinomio di grado $n$, $p_n(x)$ tale che:
+
+$$
+\underbrace{p_n(x_i) = y_i \qquad\forall i=0,\dots,n}_{\tclb{\text{Uguaglianze di interpolazione}}}
+$$
+
+Ma un polinomio è una combinazione lineare dei monomi.
+
+**METODO DEI COEFFICIENTI INDETERMINATI**
+
+$$\begin{aligned}
+i=0) &\quad p_n(x_0) = y_0 \;\Leftrightarrow\; a_0 + a_1x_0 + a_2x_0^2 + \dots + a_nx_0^n = y_0 \\
+i=1) &\quad p_n(x_1) = y_1 \;\Leftrightarrow\; a_0 + a_1x_1 + a_2x_1^2 + \dots + a_nx_1^n = y_1 \\ 
+\dots \\
+i=n) &\quad p_n(x_n) = y_n \;\Leftrightarrow\; a_0 + a_1x_n + a_2x_n^2 + \dots + a_nx_n^n = y_n \\ 
+\end{aligned}$$
+
+Il polinomio che stiamo cercando deve soddisfare queste $n+1$ uguaglianze, che sono le condizioni di interpolazione.
+
+> **Nota**: ad ogni iterazione $x_i$ e $y_i$ sono note (numeri) e dati in input. Le incognite che vogliamo ricavare sono i termini noti $a_0,\dots,a_n$.
+
+$$\begin{cases}
+ a_0 + a_1x_0 + a_2x_0^2 + \dots + a_nx_0^n = y_0 \\
+ a_0 + a_1x_1 + a_2x_1^2 + \dots + a_nx_1^n = y_1 \\ 
+\dots \\
+ a_0 + a_1x_n + a_2x_n^2 + \dots + a_nx_n^n = y_n \\ 
+\end{cases}$$
+
+Sistema lineare di $n+1$ equazioni nelle $n+1$ incognite $a_0,a_1,\dots,a_n$. Impostando le condizioni di interpolazione, in automatico, viene fuori un sistema lineare da risolvere.
+
+Estraiamo la matrice dei coefficienti dal sistema:
+
+$$
+V = \begin{pmatrix} 
+1 & x_0 & x_0^2 & \dots & x_0^n \\
+1 & x_1 & x_1^2 & \dots & x_1^n \\
+\vdots & \vdots & \vdots & & \vdots \\
+1 & x_n & x_n^2 & \dots & x_n^n \\
+\end{pmatrix} \qquad \alpha = \begin{pmatrix}
+a_0 \\ a_1 \\ \vdots \\ a_n
+\end{pmatrix} \qquad y = \begin{pmatrix}
+y_0 \\ y_1 \\ \vdots \\ y_n
+\end{pmatrix}
+$$
+
+Possiamo riscrivere quindi il sistema come:
+
+$$\boxed{
+V\alpha = y
+}$$
+
+Questo sistema non è altro che la versione matriciale delle condizioni di interpolazione.
+
+La cosa fondamentale da ricordare è l'obiettivo (ottenere l'unico polinomio di grado n che interpola i punti dati), e come lo ricaviamo (attraverso i coefficienti della sua espressione canonica).
+
+Creiamo una funzione nel senso che troviamo i numeri realti che ci consentono di individuare univocamente il polinomio cercato.
+
+### Condizionamento della matrice $V$
+
+Anche con l'algoritmo più stabile che possiamo utilizzare, questo metodo è instabile sui dati in input. Anche un piccolo errore sui dati porta ad un errore considerevole nella soluzione.
+
+---
+
+### Metodo dei coefficienti inve
+
+L'idea è di trovare un altro algoritmo alternativo per ricavare il polinomio interpolante.
+
+Per ricavare i coefficienti indeterminati, questo algoritmo parte da una diversa rappresentazione del polinomio (non più in forma canonica come somma pesata dei polinomi).
+
+$$
+p_1(x) = y_0 + (x-x_0)\frac{y_1-y_0}{x_1-x_0}
+$$
+
+Ora interpretiamo i polinomi come costruiti come somme pesate di funzioni di una base diversa. Si parte dalla formula per una retta passante per due punti. Applicando una semplice trasformazione otteniamo la formula:
+
+$$
+p_1(x) = y_0\underbrace{\frac{x-x_1}{x_0-x_1}}_{L_0(x)} + y_1\underbrace{\frac{x-x_0}{x_1x_0}}_{L_0(x)}
+$$
+
+Somma pesata di due funzioni $L_0(x), L_1(x)$ polinomi di grado 1. Si tratta di due funzioni lineari. Questa formula ci permette di descrivere un polinomio di grado 1 come somma pesata di due polinomi di grado uno. Qui i pesi $y_0,y_1$ sono fissati.
+
+Questo "giochino" si può applicare ad un $n$-esimo grado:
+
+$$
+p_n(x) = y_0L_0(x) + y_1L_1(x) + \dots + y_nL_n(x)
+$$
+
+Qui abbiamo un polinomio di grado $n$ espresso come soma di $n+1$ polinomi di grado $n$. Otteniamo una situazione inversa, qui le $y_0,y_1,\dots,y_n$ sono note mentre invece vanno calcolate le basi. Questo insieme di polinomi di grado $n$ viene chiamato **Base di Lagrange**.
+
+Gli elementi della base ($L$) hanno la proprietà che quando vengono calcolati in uno dei nodi valgono 1. In tutti gli altri valgono 0.
+
+$$\begin{cases}
+L_k(x_k) = 1 \\
+L_k(x_j) = 0 \text{ se } k \ne j
+\end{cases}$$
+
+- Prima dovremo calcolare tutte le componenti della base di lagrange, che dipende dai nodi (da $x$).
+- Facciamo una combinazione lineare dove i pesi sono le $y$.
+
+Questo modo di procedere di sicuro evita di risolvere un sistema mal condizionato. Però il calcolo della base di lagrange è costoso e bisogna organizzare il calcolo o si rischia di aggravare il costo computazionale.
+
+### Saltiamo la rappresentazione di Newton
+
+---
+
+# (22) Lezione 21-04-2026 | s .. | Implementazione metodo dei coefficienti indeterminati
 
