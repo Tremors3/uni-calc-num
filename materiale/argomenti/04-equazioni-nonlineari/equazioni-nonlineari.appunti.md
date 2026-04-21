@@ -839,7 +839,7 @@ Questo modo di procedere di sicuro evita di risolvere un sistema mal condizionat
 
 ---
 
-# (22) Lezione 21-04-2026 | s .. | Implementazione metodo dei coefficienti indeterminati
+# (22) Lezione 21-04-2026 | s ..306 | Implementazione metodo dei coefficienti indeterminati
 
 Implementazione metodo dei coefficienti indeterminati fatta in laboratorio.
 
@@ -850,4 +850,8 @@ Implementazione metodo dei coefficienti indeterminati fatta in laboratorio.
 Si suppone che i dati iniziali, cioè le coordinate dei punti da interpolare, non siano dati ma si debbano ricavare da una certa funzione nonlineare di partenza. Cioè i valori che una funzione assume in certi punti di ascissa (nodi) dati.
 
 Nelle scienze applicate molto spesso capita di non avere la funzione, dobbiamo approssimarla tramite l'interpolazione stessa.
+
+---
+
+# (23) Lezione 22-04-2026 | s 307..| Implementazione metodo dei coefficienti indeterminati
 
