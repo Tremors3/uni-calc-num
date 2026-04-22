@@ -853,5 +853,152 @@ Nelle scienze applicate molto spesso capita di non avere la funzione, dobbiamo a
 
 ---
 
-# (23) Lezione 22-04-2026 | s 307..| Implementazione metodo dei coefficienti indeterminati
+# (23) Lezione 22-04-2026 | s 307..| Teoria approssimazione dell'interpolazione polinomiale
 
+### Approssimazione dell'interpolazione polinomiale ed Errore (vicinanza)
+
+Come possiamo descrivere la distanza (/vicinanza) tra funzioni? Studiando la norma della funzione definita come la differenza tra la funzione nonlineare originale e il polinomio interpolante.
+
+Assumiamo che la funzione $f$ sia continua ed il suo intervallo chiuso e limitato. Definiamo la norma infinito della funzione come:
+
+$$
+\|f\|_{\infin} = \max_{x\in[a,b]} |f(x)|
+$$
+
+La distanza in norma infinito tra la funzione (nonlineare) $f$ ed un ipotetico polinomio interpolante $p : [a,b]\to\R$ è definita come:
+
+$$
+\|f - p\|_{\infin} = \max_{x\in[a,b]} |f(x) - p(x)| < \varepsilon
+$$
+
+Più la norma infinito della differenza tra le due funzioni è piccola e più i due grafici saranno sovrapporsi. In altre parole la norma infinito è la distanza massima di $p$ da $f$; e quindi il grafico di $p$ non disterà mai più di $\varepsilon$ dal grafico di $f$.
+
+$$\begin{aligned}
+& \|f - p\|_{\infin} &< \varepsilon \\
+\Rightarrow&\quad \max_{x\in[a,b]} |f(x) - p(x)| &< \varepsilon \\
+\Rightarrow&\quad |f(x) - p(x)|_{\infin} &< \varepsilon \\
+\Rightarrow&\quad f(x) - \varepsilon < g(x) < f(x) + \epsilon 
+\end{aligned}$$
+
+La funzione $g$ approssima bene $f$ più $\|f - p\|_{\infin}$ è piccola. Per capire quanto una approssimazione è buona bisogna studiare la loro distanza in norma infinito.
+
+**Resto di Interpolazione**
+
+Chiameremo resto di interpolazione la differenza tra le due funzioni. Ci interessa studiare la norma infinito del resto.
+
+$$
+\boxed{R_n(x) = f(x) - p_n(x)} \qquad\text{ in particolare } \|R_n\|_\infin
+$$
+
+dove $p_n(x)$ è l'unico polinomio di grado al più $n$
+
+$$
+p_n(x_i) = f(x_i) \qquad\forall i=0,\dots,n
+$$
+
+dove $x_i$ sono punti fissati in un intervallo di riferimento
+
+$$
+x_i\in[a,b]
+$$
+
+#### Dimostrazione formula resto di interpolazione
+
+L'obiettivo è di studiare questa funzione, o meglio studiare come viaggia la sua norma infinito $\|R_n\|_\infin$ rispetto:
+- al **numero $\mathbf n$ di punti** che usiamo;
+- **dove li abbiamo presi**: come sono disposti $x_0,\dots,x_n$ in $[a,b]$.
+
+**Hp**.
+- $f : [a,b]\to\R$
+- $f \in C^{n+1}([a,b]) \text{ la funzione } f \text{ ha } n+1 \text{ derivate continue nell'intervallo}$
+- $x_0,\dots,x_n\in[a,b]$
+- $p_n(x_i) = f(x_i) \quad\forall i=0,\dots,n$
+- con $p_n$ polinomio di grado $n$
+
+**Th**.
+
+$\exists\;\xi \in[a,b]$ tali che
+
+$$
+R_n(x) = \frac{(x-x_0)(x-x_1)\cdots(x-x_n)}{(n+1)!}f^{(n+1)}(\xi)
+$$
+
+La differenza tra la funzione ed il polinomio di interpolazione si può anche scrivere come la quantità $(x-x_0)(x-x_1)\cdots(x-x_n)$ che dipende dai nodi, normalizzato per $(n+1)!$, ed il termine $f^{(n+1)}(\xi)$. Questa formula ovviemente è inutile dal punto di vista pratico, perchè in pratica non si dispone della funzione $f$.
+
+**Dim**.
+
+Introduciamo:
+
+$$
+\omega_{x_0,\dots,x_n}(x) = (x-x_0)(x-x_1)\cdots(x-x_n)
+$$
+
+Si tratta di una funzione di $x$ che dipende però anche da tutti i nodi utilizzati per interpolare.
+
+Vediamo che è una produttoria che al massimo contiene potenze di x. Si tratta di un polinomio di grado $n+1$, e il coefficiente del termine di grado massimo è $1$.
+
+>Nota: una volta che $x$ è uguale ad uno dei termini $x_i$ il polinomio si annulla. Questo accade nei punti di interpolazione.
+
+Definiamo ora:
+
+$$\begin{aligned}
+\Omega(x,t) &= R_n(t)\omega_{x_0,\dots,x_n}(x) - R_n(x)\omega_{x_0,\dots,x_n}(t) \\
+&= \big(f(t) - è_n(t)\big)\omega_{x_0,\dots,x_n}(x) - \big(f(x) - p_n(x)\big)\omega_{x_0,\dots,x_n}(t)
+\end{aligned}$$
+
+Assunto $x\in[a,b],\quad x\ne x_i \space\forall i=0,\dots,n$
+
+$$\begin{aligned}
+\Omega(x,x) &= 0 \\
+\Omega(x, x_i) &= 0 \quad\forall i =0,\dots,n
+\end{aligned} \Rightarrow
+\begin{aligned}
+\Omega(x,\cdot) : [a,b]&\to\R \\ t &\to \Omega(x,t)
+\end{aligned}
+$$
+
+La funzione $\Omega$ si annula in $n+2$ punti, tra cui il punto $x\ne x_i$ che abbiamo scleto in precedenza.
+
+> **Oss** (*Teorema di Rolle*): Sela funzione interseca l'asse delle ascisse $k$ volte, allora avremo almeno $k-1$ punti in cui la derivata prima della funzione si annulla.
+
+Nel nostro caso abbiamo $n+2$ punti di intersezione tra le funzioni $f$ e $p$ quindi abbiamo $n+1$ punti in cui la derivata prima di $f$ si annulla.
+
+Questo procedimento lo si itera per la derivata $n$-esima...
+
+$\exists\space\xi\in[a,b] \text{ t.c. }$
+
+$$
+\frac{d^n}{dt^{n+1}}\Omega(x,t) \Big|_{t=\xi} = 0
+$$
+
+$$
+f^{(n+1)}(\xi)\omega_{x_0,\dots,x_n}(x) - \boxed{R_n(x)}\underbrace{(n+1)!}_{\frac{d^{n+1}}{dx^{n+1}} = (n+1)!} = 0
+$$
+
+Da questa formula ricaviamo il resto e abbiamo dimostrato suo calcolo,
+
+#### Studiare la norma infinito del resto di interpolazione
+
+$$
+\|R_n\| = \max_{x\in{a,b}} \frac{|\omega_{x_0,\dots,x_n}(x)| \cdot |f^{(n+1)}(\xi_x)|}{(n+1)!}
+$$
+
+Valore $M$ che maggiora 
+
+$$
+\forall x\in[a,b] \quad \exists\space M_{n+1}^f\in\R_+ : |f^{n+1}(x)| \le M_{n+1}
+$$
+
+Esiste una costante $\omega^*$ che maggiora tutti quanti i valori assoluti di $\omega_x$.
+
+$$
+\exists\space\omega_{x_0,\dots,x_n}^* : |\omega_{x_0,\dots,x_n}(x)| \le \omega_{x_0,\dots,x_n}^*
+$$
+
+Quindi:
+
+$$
+\|R_n\| = \max_{x\in{a,b}} \frac{|\omega_{x_0,\dots,x_n}(x)| \cdot |f^{(n+1)}(\xi_x)|}{(n+1)!} \le \frac{\omega_{x_0,\dots,x_n}^*}{(nè1)|}M_{n+1}^f
+$$
+
+La scelta di questi nodi minimizza il massimo del polinomio $\omega_{x_0,\dots,x_n}$ come abbiamo visto in laboratorio con i nodi di Chebishev.
