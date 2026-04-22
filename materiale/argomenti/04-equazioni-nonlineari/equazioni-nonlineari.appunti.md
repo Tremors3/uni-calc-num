@@ -853,7 +853,7 @@ Nelle scienze applicate molto spesso capita di non avere la funzione, dobbiamo a
 
 ---
 
-# (23) Lezione 22-04-2026 | s 307..| Teoria approssimazione dell'interpolazione polinomiale
+# (23) Lezione 22-04-2026 | s 307..309 | Teoria approssimazione dell'interpolazione polinomiale
 
 ### Approssimazione dell'interpolazione polinomiale ed Errore (vicinanza)
 
@@ -1002,3 +1002,6 @@ $$
 $$
 
 La scelta di questi nodi minimizza il massimo del polinomio $\omega_{x_0,\dots,x_n}$ come abbiamo visto in laboratorio con i nodi di Chebishev.
+
+# (24) Lezione 27-04-2026 | s 310..| Interpolazione polinomiale a tratti
+

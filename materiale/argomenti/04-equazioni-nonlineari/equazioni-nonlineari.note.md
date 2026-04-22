@@ -1201,8 +1201,322 @@ Il metodo di Lagrange fornisce una rappresentazione esplicita del polinomio inte
 
 ---
 
-### Metodo di Newton
+## Approssimazione dell’interpolazione polinomiale ed errore
 
-Saltato.
+### Approssimazione polinomiale
+
+Quando utilizziamo un polinomio interpolante $p(x)$ per approssimare una funzione $f(x)$, è fondamentale capire **quanto le due funzioni siano vicine**. Per farlo, introduciamo il concetto di distanza tra funzioni tramite una norma.
+
+Assumiamo che $f : [a,b] \to \mathbb{R}$ sia continua su un intervallo chiuso e limitato. In questo contesto, possiamo definire la **norma infinito** (o norma uniforme) come:
+
+$$
+\|f\|_{\infty} = \max_{x \in [a,b]} |f(x)|
+$$
+
+Questa norma misura il valore massimo assoluto assunto dalla funzione nell’intervallo.
 
 ---
+
+#### Distanza tra funzione e interpolante
+
+Per confrontare la funzione originale $f$ con il polinomio interpolante $p$, consideriamo la norma della loro differenza:
+
+$$
+\|f - p\|_{\infty} = \max_{x \in [a,b]} |f(x) - p(x)|
+$$
+
+Questa quantità rappresenta **l’errore massimo** tra le due funzioni sull’intero intervallo.
+
+Se vale:
+
+$$
+\|f - p\|_{\infty} < \varepsilon
+$$
+
+allora significa che, per ogni $x \in [a,b]$:
+
+$$
+|f(x) - p(x)| < \varepsilon
+$$
+
+cioè:
+
+$$
+f(x) - \varepsilon < p(x) < f(x) + \varepsilon
+$$
+
+---
+
+#### Interpretazione geometrica
+
+La norma infinito ha un significato molto intuitivo: rappresenta la **massima distanza verticale** tra i grafici di $f$ e $p$.
+
+Dire che:
+
+$$
+\|f - p\|_{\infty} < \varepsilon
+$$
+
+significa che il grafico del polinomio $p(x)$ è sempre contenuto in una “fascia” di ampiezza $2\varepsilon$ centrata attorno al grafico di $f(x)$.
+
+---
+
+#### Qualità dell’approssimazione
+
+Più il valore:
+
+$$
+\|f - p\|_{\infty}
+$$
+
+è piccolo, migliore è l’approssimazione. In altre parole, il polinomio interpolante descrive fedelmente il comportamento della funzione originale su tutto l’intervallo.
+
+Questo concetto è fondamentale perché permette di valutare **globalmente** la bontà dell’interpolazione, e non solo nei punti in cui i due grafici coincidono (i nodi).
+
+---
+
+#### Osservazione
+
+L’interpolazione garantisce che:
+
+$$
+p(x_i) = f(x_i)
+$$
+
+nei nodi, quindi l’errore è nullo in quei punti. Tuttavia, tra i nodi l’errore può crescere, ed è proprio la norma infinito che ci permette di quantificare il caso peggiore.
+
+---
+
+### Resto di interpolazione
+
+Per studiare l’errore dell’interpolazione polinomiale introduciamo il **resto di interpolazione**, definito come la differenza tra la funzione originale e il polinomio interpolante:
+
+$$
+\boxed{
+R_n(x) = f(x) - p_n(x)
+}
+$$
+
+dove $p_n(x)$ è il polinomio interpolante di grado al più $n$, costruito a partire dai nodi $x_0, x_1, \dots, x_n$ tali che:
+
+$$
+p_n(x_i) = f(x_i) \qquad \forall i = 0, \dots, n
+$$
+
+con:
+
+$$
+x_i \in [a,b]
+$$
+
+---
+
+#### Interpretazione
+
+Il resto $R_n(x)$ misura, punto per punto, quanto il polinomio si discosta dalla funzione reale. Nei nodi di interpolazione vale:
+
+$$
+R_n(x_i) = 0
+$$
+
+perché il polinomio interpola esattamente la funzione in quei punti.
+
+Tuttavia, per $x \neq x_i$, il resto può essere diverso da zero, ed è proprio questo comportamento che vogliamo analizzare.
+
+---
+
+#### Errore massimo
+
+Per valutare globalmente l’errore, consideriamo la norma infinito del resto:
+
+$$
+\|R_n\|_{\infty} = \max_{x \in [a,b]} |R_n(x)| = \max_{x \in [a,b]} |f(x) - p_n(x)|
+$$
+
+Questa quantità rappresenta il **massimo errore di interpolazione** sull’intervallo.
+
+---
+
+#### Significato
+
+Studiare il resto di interpolazione significa capire quanto il polinomio interpolante approssima bene la funzione reale non solo nei nodi, ma su tutto l’intervallo.
+
+In particolare, l’obiettivo è rendere $\|R_n\|_{\infty}$ il più piccolo possibile, scegliendo opportunamente:
+
+- il grado del polinomio,
+- la posizione dei nodi $x_i$.
+
+Questo porta naturalmente a problemi più avanzati, come la scelta ottimale dei nodi (ad esempio i nodi di Chebyshev).
+
+---
+
+### Dimostrazione della formula del resto di interpolazione
+
+L’obiettivo è comprendere come si comporta l’errore di interpolazione:
+
+$$
+R_n(x) = f(x) - p_n(x)
+$$
+
+in funzione di:
+- il numero di nodi $n+1$ utilizzati;
+- la loro distribuzione nell’intervallo $[a,b]$.
+
+---
+
+#### Ipotesi
+
+Sia $f : [a,b] \to \mathbb{R}$ tale che:
+
+$$
+f \in C^{n+1}([a,b])
+$$
+
+cioè $f$ è derivabile fino all’ordine $n+1$ con derivate continue. Siano inoltre:
+
+$$
+x_0, x_1, \dots, x_n \in [a,b]
+$$
+
+i nodi di interpolazione, e $p_n$ il polinomio di grado al più $n$ tale che:
+
+$$
+p_n(x_i) = f(x_i) \qquad \forall i = 0,\dots,n
+$$
+
+---
+
+#### Teorema (formula del resto)
+
+Per ogni $x \in [a,b]$ esiste un punto $\xi = \xi(x) \in [a,b]$ tale che:
+
+$$
+\boxed{
+R_n(x) = \frac{(x - x_0)(x - x_1)\cdots(x - x_n)}{(n+1)!}\, f^{(n+1)}(\xi)
+}
+$$
+
+---
+
+#### Interpretazione della formula
+
+Introduciamo il polinomio:
+
+$$
+\omega_{x_0,\dots,x_n}(x) = (x - x_0)(x - x_1)\cdots(x - x_n)
+$$
+
+che è un polinomio di grado $n+1$ con coefficiente principale pari a $1$.
+
+Questo polinomio si annulla nei nodi:
+
+$$
+\omega_{x_0,\dots,x_n}(x_i) = 0
+$$
+
+e rappresenta la parte dell’errore che dipende **solo dalla scelta dei nodi**.
+
+La formula del resto può quindi essere scritta come:
+
+$$
+R_n(x) = \frac{\omega_{x_0,\dots,x_n}(x)}{(n+1)!}\, f^{(n+1)}(\xi)
+$$
+
+---
+
+#### Idea della dimostrazione
+
+Si costruisce una funzione ausiliaria:
+
+$$
+\Omega(x,t) = R_n(t)\,\omega(x) - R_n(x)\,\omega(t)
+$$
+
+fissato $x$, si considera $\Omega(x,t)$ come funzione della variabile $t$.
+
+Questa funzione si annulla in $n+2$ punti:
+- nei nodi $t = x_i$, perché $R_n(x_i) = 0$;
+- nel punto $t = x$.
+
+Applicando ripetutamente il **teorema di Rolle**, si dimostra che esiste $\xi$ tale che:
+
+$$
+\frac{d^{n+1}}{dt^{n+1}} \Omega(x,t)\Big|_{t=\xi} = 0
+$$
+
+da cui si ricava la formula del resto.
+
+---
+
+#### Stima dell’errore (norma infinito)
+
+Prendendo il valore assoluto:
+
+$$
+|R_n(x)| = \left| \frac{\omega(x)}{(n+1)!} f^{(n+1)}(\xi) \right|
+$$
+
+e facendo il massimo su $[a,b]$:
+
+$$
+\|R_n\|_{\infty} = \max_{x \in [a,b]} |R_n(x)|
+\le
+\frac{\max_{x \in [a,b]} |\omega(x)|}{(n+1)!}
+\cdot
+\max_{x \in [a,b]} |f^{(n+1)}(x)|
+$$
+
+Se definiamo:
+
+$$
+M_{n+1} = \max_{x \in [a,b]} |f^{(n+1)}(x)|
+$$
+
+e:
+
+$$
+\omega^* = \max_{x \in [a,b]} |\omega(x)|
+$$
+
+otteniamo la stima:
+
+$$
+\boxed{
+\|R_n\|_{\infty} \le \frac{\omega^*}{(n+1)!} \, M_{n+1}
+}
+$$
+
+---
+
+#### Osservazioni fondamentali
+
+L’errore dipende da due fattori distinti:
+
+La quantità:
+
+$$
+M_{n+1}
+$$
+
+dipende solo dalla funzione $f$ e misura quanto è “irregolare” (quanto cresce la derivata di ordine alto).
+
+La quantità:
+
+$$
+\omega^* = \max_{x \in [a,b]} |\omega(x)|
+$$
+
+dipende solo dai nodi di interpolazione.
+
+---
+
+#### Conseguenza importante
+
+Non basta aumentare il numero di nodi per migliorare l’approssimazione: è fondamentale **scegliere bene i nodi**.
+
+Infatti, per nodi equispaziati, $\omega(x)$ può diventare molto grande (fenomeno di Runge), peggiorando l’errore.
+
+Una scelta ottimale consiste nei **nodi di Chebyshev**, che minimizzano il massimo di $|\omega(x)|$ e quindi riducono l’errore globale.
+
+---
+
