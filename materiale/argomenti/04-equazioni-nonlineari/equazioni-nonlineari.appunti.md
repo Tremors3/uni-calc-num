@@ -998,10 +998,248 @@ $$
 Quindi:
 
 $$
-\|R_n\| = \max_{x\in{a,b}} \frac{|\omega_{x_0,\dots,x_n}(x)| \cdot |f^{(n+1)}(\xi_x)|}{(n+1)!} \le \frac{\omega_{x_0,\dots,x_n}^*}{(nè1)|}M_{n+1}^f
+\|R_n\| = \max_{x\in{a,b}} \frac{|\omega_{x_0,\dots,x_n}(x)| \cdot |f^{(n+1)}(\xi_x)|}{(n+1)!} \le \frac{\omega_{x_0,\dots,x_n}^*}{(n+1)!}M_{n+1}^f
 $$
 
 La scelta di questi nodi minimizza il massimo del polinomio $\omega_{x_0,\dots,x_n}$ come abbiamo visto in laboratorio con i nodi di Chebishev.
 
 # (24) Lezione 27-04-2026 | s 310..| Interpolazione polinomiale a tratti
 
+### Ripaso Iterpolazione Polinomiale $-$ Resto di Interpolazione
+
+$$
+f : [a,b] \to\R \qquad x_0,x_1,\dots,x_n \in [a,b]
+$$
+
+Indichiamo con $p_n(x)$ l'unico polinomio di grado al più $n$ tale che
+
+$$
+p_n(x_i) = f(x_i) \qquad\forall i=0,\dots,n
+$$
+
+Chiamiamo Resto di Interpolazione la funzione
+
+$$
+R_n(x) = f(x) - p_n(x)
+$$
+
+E questo ci riporta al teorema che abbiamo dimostrato l'altra volta. Secondo il quale esiste un punto $\exists\xi\in[a,b]$ che dipende da $x_0,x_1,\dots,x_n$ tale che
+
+$$
+R_n(x) = \frac{\omega_{x_0,\dots,x_n}(x)}{(n+1)!}f^{(n+1)}(\xi)
+$$
+
+Dal punto di vista pratico non ci serve a nulla. Ma ci serve per stimare il resto.
+
+Il polinomio $\omega_{x_0,\dots,x_n}(x)$ è un polinomio di grado $(n+1)$ definito come:
+
+$$
+\omega_{x_0,\dots,x_n}(x) = (x-x_0)(x-x_1)\cdots(x-x_n)
+$$
+
+Sappiamo che $f^{(n+1)}$ è continua in $[a,b]\Rightarrow\mathcal F M_{n+1}^{f}$ tale che:
+
+$$
+M_{n+1}^{f} = \max_{x\in[a,b]} |f^{(n+1)}(x)|
+$$
+
+Prendo quindi il massimo della derivata prima.
+
+Riprendiamo la formula del resto e consideriamo il suo valore assoluto:
+
+$$\begin{aligned}
+|R_n(x)| &= \frac{|\omega_{x_0,\dots,x_n}(x)|}{(n+1)!}\tcy{|f^{(n+1)}(\xi)|} \\
+&\le \frac{|\omega_{x_0,\dots,x_n}(x)|}{(n+1)!}\tcy{M_{n+1}^f}
+\end{aligned}$$
+
+Possiamo quindi maggiorare mettendo al posto dell'ultimo valore un qualcosa di più grande.
+
+Significato di questa formula: abbiamo dimostrato questa disuguaglianza come corollario del teorema visto; ma in alcuni casi questa disuguaglianza si comporta come una uguaglianza ($\approx$). L'errore di interpolazione si comporta come se fosse proporzionale al polinomio $\omega$ che abbiamo definito. Dove la costante di proporzionalità è:
+
+$$
+\frac{M_{n+1}^f}{(n+1)!}
+$$
+
+Il resto di interpolazione si comporta quindi in modo simile al polinomio $\omega$. **Svolgi esercizio 10**.
+
+La distanza tra la funzione ed il polinomio di interpolazione è proporzionale a questo polinomio $\omega$. Più il polinomio $\omega$ oscilla e più il resto di interpolazione avrà anchesso questo comportamento. Il colpevole quindi nel caso di Runge è il polinomio $\omega$. Per far sì che questo polinomio $\omega$ abbia delle oscillazioni più piccole si devono scegliere opportunamente i nodi come visto con Chebishev.
+
+Quindi i "colpevoli" del fenomeno di Runge sono quindi:
+- La scelta dei nodi;
+- Il polinomio $\omega_{x_0,\dots,x_n}(x)$.
+
+> **Nota**: i nodi di Chebishev li abbiamo definiti in un intervallo $[-1,1]$. In realtà si possono definire per un qualsiasi intervallo $[a,b]$ con un'altra formula.
+
+## Altri metodi di Interpolazione
+
+### Inconvenienti legati all'Interpolazione Polinomiale
+
+1. Legando il numero dei nodi con il grado del polinomio dovremo costruire un polinomio di grado elevato se il numero dei punti è elevato. Quindi il metodo precedente.
+
+2. In pratica capita che non si hanno a priori tutti i punti da interpolare. Il metodo polinomiale ha bisogno di tutti i punti fin da subito.
+
+### Interpolazione A Tratti 
+
+Possiamo tracciare dei segmenti da un punto al successivo ed ottenere una funzione "spezzata" interpolante. Questa ci consente di interpolare dei tratti (dei sottointervalli) della funzione originale. Ci consente anche di congiungere più sottointerpolazioni tra loro.
+
+Però non si tratta di un polinomio, con l'interpolaz. polinomiale avremmo costruito un polinomio di grado 7 nell'esempio. Ma comunque questa "spezata" interpolante ha qualcosa in comune con un polinomio:
+
+Se consideriamo un sottointervallo restringendo la funzione "spezzata" su questo intervallo, li, con la restrizione della spezzata ad 1 sottointervallo, allora la funzione lì si che è un polinomio, un polinomio di grado 1. L'idea della spezzata non ci manda troppo lontano dal mondo dei polinomi; restringendo la spezzata su uno qualsiasi dei sottointervalli definiti dai nodi lì la funzione si può vedere come un polinomio di primo grado. Mentre se noi le guardiamo dall'intero intervallo non sono dei polinomi. 
+
+> **Vantaggio**: abbiamo slegato il numero dei punti dal grado dei polinomi che utilizziamo.
+>
+> **Es.** Se abbiamo 1900 punti la nostra spezzata sarà composta da 1901 polinomi di primo grado.
+> $$ n \text{ punti} \quad\Rightarrow\quad n+1 \text{ partizioni} $$
+
+#### Costruzione interpolaz. a tratti
+
+Nella notazione dovremo tenere conto sia del numero dei punti, sia del grado.
+
+```
+   ^
+   |
+   |
+---|----|-------|--------|-----|---------|----------------|---------|--->
+       x_0     x_1      x_2   x_i       x_i+1     ...    x_m       x_m+1
+        [x_0,x_1][x_1,x_2]     [x_i,x_i+1]                [x_m,x_m+1]
+           I_0      I_1            I_i                        I_n
+
+```
+
+Supponiamo di voler calcolare la "spezzata" in un punto.
+1. Prima cosa da fare è individuare l'intervallo $I_j$ in cui cade quel punto.
+2. Per calcolare quel punto ci serve la retta che passa per i due punti estremi dell'intervallo in cui vogliamo calcolare $x$.
+
+> **Nota**: Per ciascun intervallo avremo una formula diversa per calcolare le x. Dobbiamo ricalcolare la funzione che è la retta definita tra i punti estremi di uno dei sotto intervalli. **Svolgi esercizio 12.**
+
+#### Nota esercizio 12 versione 2
+
+In questo caso non conosciamo a priori il numero delle componenti.
+
+```
+INPUT t componenti t_1,...,t_n  
+      x componenti x_1,...,x_m  <--
+      y componenti y_1,...,y_m  <--
+OUTPUT z componenti z_1,...,z_n dove:
+```
+
+$$
+z_j = y_i + \frac{(y_i+1 - y_i)}{(x_i+1 - x_i)}(t_j - x_i) \quad\text{ dove } t_j \in [x_i, x_{i+1}] 
+$$
+
+Che è la funzione che definisce i tratti a seconda dell'intervallo di appartenenza.
+
+Risolvere l'esercizio con un solo ciclo sulla variabile $i$.
+
+```
+CICLO su i che scorre le componenti di x (itero gli intervalli)
+    quali componenti di t che cadono nell'intervallo [x_i,x_i+1]
+```
+
+#### Altre caratteristiche interpolazione a tratti
+
+Un vantaggio è che questo tipo di interpolazione non soffra del problema introdotto dalla funzione di Runge. In particolare la stabilità dell'inteprolazione a tratti non dipende dalla posizione dei nodi (punti) scelti.
+
+$$
+f:[a,b]\to\R,\quad f\in C^2([a,b]) \\
+x_0,x_1,\dots,x_{m+1}\in[a,b]m \qquad a=x_0<x_1<\dots<x_m<x_{m+1} = b
+$$
+
+$\mathcal s(x)$ è polinomio lineare a tratti tale che
+
+$$
+s(x_i) = f(x_i) \quad i=0,\dots,m+1 \qquad\Big(\text{assum. che: }y_i = f(x_i)\Big)
+$$
+
+I punti li abbiamo presi quindi dal grafico di una funzione che qui stiamo chiamando $f$.
+
+#### Analisi del Resto di interpolazione lineare
+
+Vogliamo andare ad analizzare il **Resto di Interpolazione** della spezzata. Con resto intendiamo proprio la distanza e quindi differenza tra le due funzioni (spezzata e funzione).
+
+$$
+R^s(x) = s(x) - f(x)
+$$
+
+Vorremmo scrivere $R^s(x) = $ a qulcosa, ma questo qualcosa dipende dall'intervallo della partizione considerato. Quindi:
+
+$$
+R^s(x) = s(x) - f(x) \qquad x\in[x_i,x_{i+1}]
+$$
+
+L'idea è quella di restringere l'analisi del resto soltanto per ciascuno dei sottointervalli della partizione; abbiamo preso l'$i$-esimo.
+
+Se:
+$$
+x\in[x_i,x_{i+1}] \quad\Rightarrow\quad s(x) = f(x) - \frac{f(x_{i+1})-f(x_i)}{x_{i+1}-x_i}(x - x_i)
+$$
+
+Abbiamo quindi:
+
+$$\begin{aligned}
+R^s(x) &= s(x) - f(x) \\
+&= \frac{w_{x_i,x_{i+1}}}{2!}f^{(2)}(\xi_1) \qquad\xi_i\in[x_i,x_{i+1}] \\
+\end{aligned}$$
+
+Non abbiam ofatto altro che applicare il teorema sul resto visto in precedenza ma su due punti consecutivi. Che riscritta:
+
+$$
+R^s(x) = \frac{(x-x_i)(x-x_{i+1})}{2}f^{(2)}(\xi_i) \qquad x\in[x_i,x_{i+1}]
+$$
+
+Passando al valore assoluto:
+
+$$
+|R^s(x)| = \frac{|(x-x_i)(x-x_{i+1})|}{2}\tcy{|f^{(2)}(\xi_i)|} \qquad x\in[x_i,x_{i+1}]
+$$
+
+Adesso maggioriamo l'ultimo termine. Per continuità esiste un termine
+
+$$
+M_2^f = \max_{x\in[a,b]} |f^{(2)}(x)|
+$$
+
+Consideriamo tutto l'intervallo $[a,b]$ perchè in questo modo troviamo una costante di approssimazione sovrabbondante ma che vale per l'intero intervallo, e non soolo il sotto intervallo $i$-esimo considerato. Lo utilizziamo per maggiorare quindi:
+
+$$
+|R^s(x)| \le \frac{|\overbrace{(x-x_i)}^+\overbrace{(x-x_{i+1})}^-|}{2}\tcy{M_2^f}
+$$
+
+>Oss. Se stiamo nell'intervallo indicato $x\in[x_i,x_{i+1}]$ allora per forza:
+> $$x_i < x < x_{i+1}$$
+
+$$
+|R^s(x)| \le \frac{|(x-x_i)(x_{i+1} - x)|}{2}M_2^f
+$$
+
+Poi:
+
+$$\begin{aligned}
+\max_{x\in[x_i,x_{i+1}]} (x - x_i)(x_{i+1} - x) \\
+&= -x^2 + x(x_i+x_{i+1}) - x_i-x_{i+1} &\text{ parabola di grado 2} \\
+\tilde x &= \frac{x_1 + x_{i+1}}{2} &\text{ punto di massimo}
+\end{aligned}$$
+
+Il **punto di massimo** sta sull'asse delle ascisse, metre il **valore massimo** sta sull'asse delle ordinate.
+
+
+$$\begin{aligned}
+|R^s(x)| &\le \frac{|(x-x_i)(x_{i+1} - x)|}{2}M_2^f \\
+&\le (\tilde x - x_i)(x_{i+1} - x) \frac{M_2^f}{2} \\
+&= (\frac{x_i + x_{i+1}}{2} - x_i)(x_{i+1} - \frac{x_i + x_{i+1}}{2}) \frac{M_2^f}{2} \\
+&= \frac{(x_{i+1} -x_i)^2}{4} M_2^f \qquad x\in[x_i,x_{i+1}]
+\end{aligned}$$
+
+Il fenomeno di Runge non può accadere, perchè:
+
+$$
+|R^s(x)| \le\frac{(x_{i+1} - x_i)^2}{4} M_2^f \qquad x\in[x_i,x_{i+1}]
+$$
+
+nodi equispaziati $\Rightarrow x_{i+1} - x_i = h$. Dove $h$ rappresenta la distanza tra due nodi consecutivi.
+
+$$
+|R^s(x)| \le \frac{h^2}{8}M_2^f \quad\forall x\in[a,b]
+$$
+
+---
