@@ -835,7 +835,7 @@ In sintesi, l’interpolazione consente di passare da dati discreti a una rappre
 
 ---
 
-### Interpolazione polinomiale
+## Interpolazione polinomiale
 
 Il problema dell’interpolazione consiste nel costruire una funzione che passi esattamente per un insieme finito di punti dati.
 
@@ -1517,6 +1517,499 @@ Non basta aumentare il numero di nodi per migliorare l’approssimazione: è fon
 Infatti, per nodi equispaziati, $\omega(x)$ può diventare molto grande (fenomeno di Runge), peggiorando l’errore.
 
 Una scelta ottimale consiste nei **nodi di Chebyshev**, che minimizzano il massimo di $|\omega(x)|$ e quindi riducono l’errore globale.
+
+---
+
+### Ripasso sull’interpolazione polinomiale e resto di interpolazione
+
+Sia data una funzione
+
+$$
+f : [a,b] \to \mathbb{R}
+$$
+
+e siano fissati $n+1$ nodi distinti
+
+$$
+x_0, x_1, \dots, x_n \in [a,b].
+$$
+
+Esiste ed è unico il polinomio interpolante $p_n(x)$ di grado al più $n$ tale che
+
+$$
+p_n(x_i)=f(x_i)\qquad \forall i=0,\dots,n.
+$$
+
+Definiamo **resto di interpolazione** (o errore di interpolazione puntuale) la funzione
+
+$$
+R_n(x)=f(x)-p_n(x).
+$$
+
+Questa quantità misura, punto per punto, quanto il polinomio interpolante si discosta dalla funzione originale.
+
+---
+
+#### Formula del resto di interpolazione
+
+Dal teorema dimostrato sul resto di interpolazione sappiamo che, per ogni $x\in[a,b]$, esiste un punto
+
+$$
+\xi=\xi(x)\in[a,b]
+$$
+
+tale che
+
+$$
+R_n(x)=\frac{\omega_{x_0,\dots,x_n}(x)}{(n+1)!}\,f^{(n+1)}(\xi),
+$$
+
+dove
+
+$$
+\omega_{x_0,\dots,x_n}(x)=(x-x_0)(x-x_1)\cdots(x-x_n)
+$$
+
+è il **polinomio nodale**, polinomio di grado $n+1$ che si annulla esattamente nei nodi di interpolazione.
+
+---
+
+#### Stima dell’errore
+
+Supponiamo che
+
+$$
+f\in C^{n+1}([a,b]),
+$$
+
+cioè che $f$ abbia derivata $(n+1)$-esima continua nell’intervallo. Essendo continua su un compatto, tale derivata ammette massimo assoluto:
+
+$$
+M_{n+1}^f=\max_{x\in[a,b]}|f^{(n+1)}(x)|.
+$$
+
+Prendendo il valore assoluto nella formula del resto otteniamo:
+
+$$
+|R_n(x)|
+=
+\left|
+\frac{\omega_{x_0,\dots,x_n}(x)}{(n+1)!}\,f^{(n+1)}(\xi)
+\right|
+$$
+
+e quindi la stima
+
+$$
+|R_n(x)|
+\le
+\frac{|\omega_{x_0,\dots,x_n}(x)|}{(n+1)!}\,M_{n+1}^f.
+$$
+
+---
+
+#### Interpretazione della stima
+
+Questa disuguaglianza è fondamentale perché mostra che l’errore di interpolazione dipende essenzialmente da due fattori:
+
+$$
+|R_n(x)| \lesssim
+\frac{M_{n+1}^f}{(n+1)!}\,|\omega_{x_0,\dots,x_n}(x)|.
+$$
+
+In molti casi pratici questa stima descrive bene anche il comportamento qualitativo dell’errore, cioè il resto si comporta **come se fosse proporzionale** al polinomio nodale $\omega$.
+
+La costante di proporzionalità è circa
+
+$$
+\frac{M_{n+1}^f}{(n+1)!}.
+$$
+
+Questo significa che:
+
+- se $\omega(x)$ oscilla molto, anche l’errore tenderà a oscillare molto;
+- se $\omega(x)$ assume valori grandi, anche l’errore potrà diventare grande.
+
+---
+
+#### Collegamento con il fenomeno di Runge
+
+Il fenomeno di Runge si manifesta quando il polinomio interpolante oscilla fortemente, specialmente vicino agli estremi dell’intervallo.
+
+Dalla formula dell’errore si capisce che il principale responsabile di questo comportamento è proprio il polinomio nodale
+
+$$
+\omega_{x_0,\dots,x_n}(x).
+$$
+
+Infatti, scegliendo male i nodi (ad esempio nodi equispaziati), il polinomio $\omega$ può crescere molto vicino agli estremi, causando un grande errore di interpolazione.
+
+Per ridurre questo effetto occorre scegliere i nodi in modo più opportuno, ad esempio utilizzando i **nodi di Chebyshev**, che minimizzano il massimo valore assoluto del polinomio nodale.
+
+---
+
+#### Conclusione
+
+Il fenomeno di Runge è dovuto principalmente a due fattori strettamente collegati:
+
+1. La **scelta dei nodi di interpolazione**, che influenza la forma del polinomio nodale.
+
+2. Il comportamento del **polinomio nodale**
+
+    $$
+    \omega_{x_0,\dots,x_n}(x),
+    $$
+
+    che determina direttamente l’andamento dell’errore di interpolazione.
+
+Per questo motivo, nell’interpolazione polinomiale non conta solo quanti punti si usano, ma soprattutto **dove vengono scelti**.
+
+---
+
+## Interpolazione a Tratti
+
+### Altri metodi di interpolazione
+
+L’interpolazione polinomiale globale presenta alcuni limiti pratici importanti.
+
+Il primo inconveniente è che il grado del polinomio interpolante cresce con il numero dei nodi: se si vogliono interpolare molti punti, si è costretti a costruire un polinomio di grado elevato. Questo può portare sia a problemi numerici sia a oscillazioni indesiderate, come nel fenomeno di Runge.
+
+Un secondo limite è che l’interpolazione polinomiale classica richiede di conoscere **tutti i punti fin dall’inizio**. Se nuovi dati vengono aggiunti successivamente, in generale occorre ricostruire completamente il polinomio interpolante.
+
+---
+
+### Idea dell'Interpolazione a Tratti
+
+Per superare questi problemi si può rinunciare a costruire un unico polinomio globale e utilizzare invece **più polinomi locali**, ciascuno valido solo su una parte dell’intervallo.
+
+L’idea più semplice consiste nel collegare ogni coppia di punti consecutivi con un segmento, ottenendo una funzione spezzata che interpola tutti i dati.
+
+Questa funzione **non è un polinomio globale** su tutto l’intervallo, ma possiede una struttura polinomiale locale: se la si restringe a uno specifico sottointervallo, allora coincide con un polinomio di grado 1.
+
+In altre parole, l’interpolazione a tratti costruisce una funzione che è:
+
+- globalmente una funzione spezzata;
+- localmente, su ciascun intervallo, un polinomio.
+
+---
+
+#### Vantaggio principale
+
+Il vantaggio fondamentale è che **il numero di nodi viene disaccoppiato dal grado dei polinomi utilizzati**.
+
+Con l’interpolazione polinomiale globale:
+
+$$
+n+1 \text{ nodi } \Rightarrow \text{ polinomio di grado } n
+$$
+
+Con l’interpolazione lineare a tratti:
+
+$$
+n+1 \text{ nodi } \Rightarrow n \text{ polinomi di grado } 1
+$$
+
+Quindi anche con moltissimi punti si continua a lavorare con polinomi semplici.
+
+---
+
+#### Suddivisione dell’intervallo
+
+Supponiamo di avere nodi ordinati:
+
+$$
+x_0 < x_1 < \cdots < x_n
+$$
+
+Essi suddividono l’intervallo complessivo nei sottointervalli:
+
+$$
+I_i = [x_i, x_{i+1}], \qquad i=0,\dots,n-1
+$$
+
+Su ciascun intervallo $I_i$ costruiremo un interpolante locale.
+
+---
+
+#### Come si valuta l’interpolante a tratti
+
+Per calcolare il valore dell’interpolante in un punto $x$:
+
+Si individua anzitutto il sottointervallo $I_j$ tale che
+
+$$
+x \in [x_j, x_{j+1}]
+$$
+
+Successivamente si utilizza il polinomio locale associato a quell’intervallo, cioè la retta passante per i punti:
+
+$$
+(x_j, y_j), \qquad (x_{j+1}, y_{j+1})
+$$
+
+---
+
+#### Formula dell’interpolante lineare locale
+
+La retta interpolante sul sottointervallo $I_i=[x_i,x_{i+1}]$ è:
+
+$$
+p_i(x)=
+y_i+
+\frac{y_{i+1}-y_i}{x_{i+1}-x_i}(x-x_i)
+$$
+
+oppure, in forma equivalente:
+
+$$
+p_i(x)=
+y_i\frac{x-x_{i+1}}{x_i-x_{i+1}}
++
+y_{i+1}\frac{x-x_i}{x_{i+1}-x_i}
+$$
+
+Questa formula vale solo per:
+
+$$
+x\in[x_i,x_{i+1}]
+$$
+
+---
+
+#### Osservazione finale
+
+L’interpolazione a tratti produce quindi una funzione definita **pezzo per pezzo**, dove ogni pezzo ha una propria formula.
+
+Questo significa che non esiste un’unica espressione valida su tutto l’intervallo, ma una famiglia di polinomi locali:
+
+$$
+p_0(x),\,p_1(x),\,\dots,\,p_{n-1}(x)
+$$
+
+ciascuno associato al proprio sottointervallo.
+
+L’idea fondamentale è che si sacrifica la semplicità di avere un unico polinomio globale, in cambio di una maggiore stabilità numerica e di una migliore gestione di grandi quantità di dati.
+
+---
+
+### Interpolazione lineare a tratti: proprietà ed errore
+
+Un importante vantaggio dell’interpolazione lineare a tratti è che **non soffre del fenomeno di Runge**.
+
+A differenza dell’interpolazione polinomiale globale, la sua stabilità non peggiora al crescere del numero dei nodi e dipende molto meno dalla loro posizione.
+
+Sia data una funzione
+
+$$
+f:[a,b]\to\mathbb{R}, \qquad f\in C^2([a,b])
+$$
+
+e siano fissati nodi ordinati
+
+$$
+a=x_0<x_1<\dots<x_m<x_{m+1}=b.
+$$
+
+Indichiamo con $s(x)$ l’interpolante lineare a tratti, cioè la funzione spezzata tale che
+
+$$
+s(x_i)=f(x_i)\qquad i=0,\dots,m+1.
+$$
+
+Assumiamo quindi che i dati interpolati provengano dal grafico della funzione $f$.
+
+---
+
+#### Resto di interpolazione lineare
+
+Definiamo il resto (errore) dell’interpolazione lineare a tratti come
+
+$$
+R^s(x)=s(x)-f(x).
+$$
+
+Poiché $s(x)$ è definita a tratti, anche l’analisi dell’errore deve essere fatta **localmente su ciascun sottointervallo**.
+
+Fissiamo quindi un intervallo della partizione:
+
+$$
+x\in[x_i,x_{i+1}].
+$$
+
+Su questo intervallo, $s(x)$ coincide con la retta interpolante i due punti estremi:
+
+$$
+s(x)=f(x_i)+\frac{f(x_{i+1})-f(x_i)}{x_{i+1}-x_i}(x-x_i).
+$$
+
+---
+
+#### Formula del resto locale
+
+Poiché su $[x_i,x_{i+1}]$ stiamo interpolando con un polinomio di grado 1, possiamo applicare la formula generale del resto di interpolazione con $n=1$.
+
+Otteniamo quindi che esiste un punto
+
+$$
+\xi_i\in[x_i,x_{i+1}]
+$$
+
+tale che
+
+$$
+R^s(x)=s(x)-f(x)
+=
+\frac{(x-x_i)(x-x_{i+1})}{2}\,f''(\xi_i).
+$$
+
+Questa è la formula esatta dell’errore dell’interpolazione lineare su ciascun intervallo.
+
+---
+
+#### Stima dell’errore
+
+Passando al valore assoluto:
+
+$$
+|R^s(x)|
+=
+\frac{|(x-x_i)(x-x_{i+1})|}{2}\,|f''(\xi_i)|.
+$$
+
+Poiché $f''$ è continua su $[a,b]$, esiste il massimo assoluto:
+
+$$
+M_2^f=\max_{x\in[a,b]}|f''(x)|.
+$$
+
+Quindi:
+
+$$
+|R^s(x)|
+\le
+\frac{|(x-x_i)(x-x_{i+1})|}{2}\,M_2^f.
+$$
+
+Osserviamo che per $x\in[x_i,x_{i+1}]$ vale:
+
+$$
+x-x_i\ge 0,\qquad x-x_{i+1}\le 0,
+$$
+
+perciò:
+
+$$
+|(x-x_i)(x-x_{i+1})|
+=
+(x-x_i)(x_{i+1}-x).
+$$
+
+Otteniamo dunque:
+
+$$
+|R^s(x)|
+\le
+\frac{(x-x_i)(x_{i+1}-x)}{2}\,M_2^f.
+$$
+
+---
+
+#### Massimo del termine geometrico
+
+Studiamo la funzione
+
+$$
+\phi(x)=(x-x_i)(x_{i+1}-x)
+$$
+
+nell’intervallo $[x_i,x_{i+1}]$.
+
+Essa è una parabola concava con massimo nel punto medio:
+
+$$
+\tilde x=\frac{x_i+x_{i+1}}{2}.
+$$
+
+Il valore massimo vale:
+
+$$
+\phi(\tilde x)
+=
+\left(\frac{x_{i+1}-x_i}{2}\right)^2
+=
+\frac{(x_{i+1}-x_i)^2}{4}.
+$$
+
+Sostituendo nella stima precedente:
+
+$$
+|R^s(x)|
+\le
+\frac{1}{2}\cdot\frac{(x_{i+1}-x_i)^2}{4}\,M_2^f
+=
+\frac{(x_{i+1}-x_i)^2}{8}\,M_2^f.
+$$
+
+Quindi:
+
+$$
+\boxed{
+|R^s(x)|
+\le
+\frac{(x_{i+1}-x_i)^2}{8}\,M_2^f
+\qquad x\in[x_i,x_{i+1}]
+}
+$$
+
+---
+
+#### Caso di nodi equispaziati
+
+Se i nodi sono equispaziati, cioè
+
+$$
+x_{i+1}-x_i=h
+$$
+
+per ogni $i$, allora la stima si semplifica in:
+
+$$
+\boxed{
+|R^s(x)|
+\le
+\frac{h^2}{8}\,M_2^f
+\qquad \forall x\in[a,b]
+}
+$$
+
+---
+
+#### Interpretazione della stima
+
+Questa formula mostra che:
+
+$$
+|R^s(x)|=\mathcal O(h^2).
+$$
+
+Quindi l’errore dell’interpolazione lineare a tratti decresce quadraticamente con la distanza tra i nodi.
+
+In particolare:
+
+- dimezzando la distanza $h$ tra i nodi,
+- l’errore si riduce di circa un fattore 4.
+
+---
+
+#### Perché non compare il fenomeno di Runge
+
+A differenza dell’interpolazione polinomiale globale:
+
+- ogni errore locale dipende solo dalla lunghezza del singolo intervallo;
+- non compare alcun polinomio nodale globale che possa oscillare molto;
+- l’errore è controllato uniformemente da $h^2$.
+
+Per questo motivo l’interpolazione lineare a tratti è **stabile** e non può manifestare il fenomeno di Runge.
 
 ---
 
