@@ -1243,3 +1243,172 @@ $$
 $$
 
 ---
+
+# (25) Lezione 28-04-2026 | s 310..| Interpolazione polinomiale a tratti
+
+### Interpolazione a Tratti $-$ continuo...
+
+#### Ripasso lezione precedente
+
+DATI $(x_i, x_{i+1}) i=0,\dots,m+1$
+
+$$
+I_i = [x_i,x_{i+1}] \quad i=0,\dots,m
+$$
+
+La funzione di interpolazione che abbiamo descritto è definita lineare a tratti.
+
+$$
+\text{Per} x\in I_i \Rightarrow s(x) = y_i + \frac{y_{i+1} - y_i}{x_{i+1} - x_i}(x - x_i) \qquad\text{Retta per } (x_i, y_i), (x_{i+1}. y_{i+1})
+$$
+
+$$
+y_i = f(x_i), \qquad i=0,\dots,m+1 \\
+f:[\underbrace{a}_{x_0},\underbrace{b}_{x_{m+1}}]\to\R, \qquad f\in C^2([a,b])
+$$
+
+Dato $x$, la distanza massima tra la funzione originale e quella di interpolazione è:
+
+$$
+|f(x) - s(x)| \le \frac{(x - x_i)(x - x_{i+1})}{2}M_2^f \quad\Leftarrow\quad M_2^f = \max_{x\in[a,b]} |f^{''}(x)|
+$$
+
+Arrivando ad una disuguaglianza per cui la distanza descritta è minore del polinomio e di una costante di aplificazione. Quindi:
+
+
+$$\begin{aligned}
+|f(x) - s(x)| &\le \frac{(x - x_i)(x - x_{i+1})}{2}M_2^f \\
+&\le \Big( \max_{x\in[a,b]} (x-x_i)(x-x_{i-1}) \Big) \frac{M_2^f}{2} \\
+&\le (x_{i+1} - x_i)^2 \frac{M_2^f}{8} \\
+&= h^2 \frac{M_2^f}{8}
+\end{aligned}$$
+
+Abbiamo dimostrato come la distanza tra la funzione e l'interpolante è sicuramente minore del valore $h^2 \frac{M_2^f}{8}$. Che dipende quindi dalla dimensione degli intervalli e dalla costante $M_2^f$.
+
+Qual'è la massima distanza tra due punti estremi di un $i$-intervallo generico? Individuiamo adesso qual'è la massima distanza dell'iesimo sottointervallo:
+
+$$
+\max_{i=0,\dots,m} x_{i+1} - x_i
+$$
+
+Troviamo quindi la formula in cui si vede come: La distanza massima tra i valori le due funzioni (in verticale) è limitato dal valore trovato prima dipendente da $h$.
+
+$$
+|f(x) - s(x)| \le h^2 \frac{M_2^f}{8} \quad\forall x\in[a,b]
+$$
+
+Il Fenomeno di Runge non si può osservare se si parla di interpolazione a tratti. Scegliamo i punti in modo che siano equispaziati in maniera uniforme.
+
+$$
+x_i = a + \underbrace{\frac{b-a}{m+1}}_{h=x_{i+1}-x_i}\cdot i, \qquad i=0,\dots,m+1
+$$
+
+I punti sono quindi equispaziati secondo $\boxed{\frac{b-a}{m+1}}$; la selezione dell'intervallo è approtata dall'indice $i$.
+
+Abbiamo capito quindi che, con punti equispaziati, la massima distanza tra il grafico di spezzata e funzioni non possono superare:
+
+$$
+|f(x) - s(x)| \le \frac{(b-a)^2}{(m+1)^2} \frac{M_2^f}{8} \xrightarrow{m\to+\infin} 0
+$$
+
+Naturalmente se il numero di punti cresce all'infinito la dimensione degli intervalli descresce all'infinito, tendendo a zero.
+
+> **Nota**. Limitandoci alla spezzata, abbiamo definito si una funzione che con tanti punti riesce a seguire abastanza bene l'andamento di una nonlineare, ma non è derivabile in ciascuno dei punti dati (si ha solo la derivata sinistra e destra), quindi non è regolare nell'intervallo (comunq. continita).
+
+---
+
+### Interpolazione $-$ Funzioni Spline
+
+Per definire una spline abbiamo bisogno di un intervallo partizionato in un qualche modo.
+
+$$
+a = x_0 < x_i < x_{i+1} < x_{m+1} = b \qquad\text{grado}:n
+$$
+
+Una Funzione Spline, definita per uno specifico degli intervalli, è un polinomio di grado al più $n$, che deve rispettare le due regole:
+- Deve essere differenziabile in tutte le derivate fino all'ordine $n-1$.
+- Le derivate fino all'ordine $n-1$ devono anche essere continue.
+
+$$
+s\in\mathcal{C}^{(n-1)}([a,b])
+$$
+
+Per indicare che una spline è ristretta in un certo intervallo si indica come:
+
+$$
+s\Big|_{I_i} = s_i
+$$
+
+Avremo quindi $m$ restrizioni, una per intervallo. Per ciascuna riduzione è necessario definire una funzione spline:
+
+$$
+s_0 ... s_m
+$$
+
+Ciascuna di queste deve essere:
+1. $s_i$ polinomi di grado al più $n \qquad\forall i=0,\dots,n$
+2. $s_i(x_{i+1}) = s_{i+1}(x_{i+1}) \quad\forall i =0,\dots,m-1 \to$ Richiesta della definizione nel caso di spline di ordine zero. Questo deve valere ovunque due funzioni si attaccano, cioè nei punti di raccordo (tranne il primo e l'ultimo che non hanno un intervallo prima/dopo rispettivamente).
+    
+    Lo stesso ragionamento lo si applica iterativamente per le derivate fino alla $(m-1)$-esima.
+
+    $$\begin{cases}
+    s_i(x_{i+1}) &= s_{i+1}(x_{i+1}) \\
+    s_i'(x_{i+1}) &= s_{i+1}'(x_{i+1}) \\
+    s_i''(x_{i+1}) &= s_{i+1}''(x_{i+1}) \\
+    \vdots \\
+    s_i^{(n-1)}(x_{i+1}) &= s_{i+1}^{(n-1)}(x_{i+1}) \\
+    \end{cases}\quad\text{per } i=0,\dots,m-1 $$
+
+    
+
+> **Oss**. Dati $s_i$ su $(x_i,x_{i+1})$ è derivabile $n-1$ volte. Questa proprietà è già garantita quasi d'appertutto. Gli unici punti in cui l'unicità non è mantenuta sono u raccordi: dove si incrociano due funzioni diverse.
+>
+> Un polinomio a tratti che non è una spline potrebbe non mantenere la regolarità nei punti di raccordo. Invece le spline sono un sottogruppo di funzioni che consentono di collegare correttamente le due funzioni nei punti di raccordo tra gli intervalli.
+
+#### Funzioni Spline di 3° grado
+
+Quando si parla di spline cubiche (grado m), sono polinomi di terzo grado con derivate prime e seconde (per m-1) continue, come descritto in precedenza nel caso generico.
+
+####
+
+Da quanti parametri dipende una generica spline di grado $n$? Ricordiamoci che il nostro scopo è quello di interpolare la funzione orignale, in questo caso per ogni itervallo.
+
+Quindi vediamo ciascuna delle $s_i(x)$ come polinomio di grado $n$:
+
+$$
+s_i(x) = a_{0i} + a_{1i}x + a_{2i}x^2 + \dots + a_{ni}x, \qquad i=0,\dots,n
+$$
+
+> Per abesso stiamo considerando solamente la prima delle condizioni. 
+
+Il numero di parametri da cui un generico polinomio a tratti di grado $n$ definito sulla partizione di $m+1$ intervalli:
+
+$$
+(n+1)(m+1)
+$$
+
+> Ma questi polinomi devono soddisfare anche la seconda condizione (il sistema). Ogni volta che una delle condizioni viene vefificata in realtà uno dei parametri sarà calcolato e fissato. Quindi al numero totale di parametri andiamo a sottrarre quelli fissati $nm$.
+
+$$
+(n+1)(m+1) - nm = n + m + 1
+$$
+
+Questa considerazione ci serve per stabilire il numero di funzioni spline da utilizzare.
+
+#### Costruzione di una spline
+
+Scegliamo come partizioni quelle definite dai nodi (punti dati) di interpolazione.
+
+Dati i vettori $(x_i, y_i)$ per $i=0,\dots,m+1$, una spline di grado $n$ relativa ai punti $x_0,\dots,x_{m+1}$, deve rispettare le condizioni di interpolazione:
+
+$$
+s(x_i) = y_i \qquad\forall i=0,\dots,m+1
+$$
+
+Le condizioni di interpolazione sono $(m + 2)$, e quindi i gradi di libertà rimanenti sono:
+
+$$
+n + m + 1 - (m + 2) = n - 1
+$$
+
+---
