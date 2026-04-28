@@ -2013,3 +2013,461 @@ Per questo motivo l’interpolazione lineare a tratti è **stabile** e non può 
 
 ---
 
+### Ripasso $-$ Resto dell’interpolazione lineare a tratti
+
+Consideriamo una partizione dell’intervallo $[a,b]$ data dai nodi
+
+$$
+a=x_0<x_1<\dots<x_{m+1}=b
+$$
+
+e definiamo i sottointervalli
+
+$$
+I_i=[x_i,x_{i+1}], \qquad i=0,\dots,m.
+$$
+
+Supponiamo di conoscere i valori della funzione
+
+$$
+y_i=f(x_i), \qquad i=0,\dots,m+1
+$$
+
+con
+
+$$
+f:[a,b]\to\mathbb R, \qquad f\in C^2([a,b]).
+$$
+
+L’interpolante lineare a tratti è la funzione $s(x)$ definita, su ciascun sottointervallo $I_i$, come la retta passante per i punti consecutivi $(x_i,y_i)$ e $(x_{i+1},y_{i+1})$:
+
+$$
+s(x)=y_i+\frac{y_{i+1}-y_i}{x_{i+1}-x_i}(x-x_i),
+\qquad x\in I_i.
+$$
+
+Questa funzione è continua su tutto $[a,b]$, ma è soltanto **lineare a tratti**: su ogni sottointervallo è un polinomio di grado 1, mentre globalmente non è un unico polinomio.
+
+---
+
+#### Formula del resto locale
+
+Per studiare quanto bene $s(x)$ approssima $f(x)$, fissiamo un intervallo $I_i=[x_i,x_{i+1}]$ e consideriamo l’errore
+
+$$
+R^s(x)=f(x)-s(x), \qquad x\in[x_i,x_{i+1}].
+$$
+
+Applicando la formula del resto dell’interpolazione polinomiale al caso di interpolazione su **due nodi** ($x_i$ e $x_{i+1}$), otteniamo:
+
+$$
+R^s(x)=\frac{(x-x_i)(x-x_{i+1})}{2}\,f''(\xi_i),
+\qquad \xi_i\in[x_i,x_{i+1}].
+$$
+
+Questa formula mostra che l’errore locale dipende:
+
+$$
+\text{dalla curvatura di }f \quad (\text{tramite }f'')
+$$
+
+e
+
+$$
+\text{dalla posizione di }x\text{ nel sottointervallo}.
+$$
+
+---
+
+#### Maggiorazione dell’errore
+
+Passando al valore assoluto:
+
+$$
+|f(x)-s(x)|
+=
+\left|
+\frac{(x-x_i)(x-x_{i+1})}{2}f''(\xi_i)
+\right|.
+$$
+
+Poiché $f\in C^2([a,b])$, la derivata seconda è continua e quindi limitata. Possiamo definire
+
+$$
+M_2^f=\max_{x\in[a,b]}|f''(x)|.
+$$
+
+Da cui segue:
+
+$$
+|f(x)-s(x)|
+\le
+\frac{|(x-x_i)(x-x_{i+1})|}{2}M_2^f.
+$$
+
+---
+
+#### Massimo del termine geometrico
+
+Per $x\in[x_i,x_{i+1}]$, il prodotto
+
+$$
+(x-x_i)(x_{i+1}-x)
+$$
+
+è una parabola concava che assume massimo nel punto medio del sottointervallo:
+
+$$
+x=\frac{x_i+x_{i+1}}{2}.
+$$
+
+Il valore massimo è
+
+$$
+\max_{x\in[x_i,x_{i+1}]}
+(x-x_i)(x_{i+1}-x)
+=
+\frac{(x_{i+1}-x_i)^2}{4}.
+$$
+
+Sostituendo nella stima precedente otteniamo:
+
+$$
+|f(x)-s(x)|
+\le
+\frac{(x_{i+1}-x_i)^2}{8}M_2^f,
+\qquad x\in[x_i,x_{i+1}].
+$$
+
+---
+
+#### Stima globale sull’intervallo
+
+Definiamo
+
+$$
+h=\max_{i=0,\dots,m}(x_{i+1}-x_i),
+$$
+
+cioè la lunghezza massima dei sottointervalli della partizione.
+
+Allora per ogni $x\in[a,b]$ vale la stima globale:
+
+$$
+|f(x)-s(x)|
+\le
+\frac{h^2}{8}M_2^f.
+$$
+
+Questa è la stima fondamentale dell’errore per l’interpolazione lineare a tratti.
+
+---
+
+#### Caso di nodi equispaziati
+
+Se i nodi sono scelti uniformemente in $[a,b]$, allora
+
+$$
+x_i=a+i\,h,
+\qquad i=0,\dots,m+1,
+$$
+
+con passo costante
+
+$$
+h=\frac{b-a}{m+1}.
+$$
+
+La stima dell’errore diventa:
+
+$$
+|f(x)-s(x)|
+\le
+\frac{(b-a)^2}{(m+1)^2}\frac{M_2^f}{8},
+\qquad \forall x\in[a,b].
+$$
+
+Facendo tendere il numero dei sottointervalli (e quindi il numero di nodi) all’infinito:
+
+$$
+m\to+\infty
+\quad\Rightarrow\quad
+h\to0
+\quad\Rightarrow\quad
+|f(x)-s(x)|\to0.
+$$
+
+Quindi:
+
+$$
+s(x)\to f(x)
+\quad\text{uniformemente su }[a,b].
+$$
+
+---
+
+#### Considerazioni finali
+
+L’interpolazione lineare a tratti **non soffre del fenomeno di Runge**, perché l’errore dipende solo dalla dimensione locale degli intervalli e non da oscillazioni globali di un polinomio di alto grado.
+
+Inoltre:
+
+$$
+\text{più piccoli sono i sottointervalli} \;\Rightarrow\; \text{più accurata è l’approssimazione.}
+$$
+
+Il limite principale è che la funzione interpolante $s(x)$, pur essendo continua, **non è derivabile nei nodi** $x_i$: in ciascun nodo esistono in generale derivata destra e derivata sinistra diverse.
+
+Di conseguenza:
+
+$$
+s\in C^0([a,b]),
+\qquad
+s\notin C^1([a,b]).
+$$
+
+Questo motiva l’introduzione di interpolanti più regolari, come le **spline cubiche**, che mantengono la struttura a tratti ma migliorano la regolarità.
+
+---
+
+## Interpolazione con Funzioni Spline
+
+Per superare i limiti dell’interpolazione lineare a tratti (continua ma non derivabile nei nodi) si introducono le **funzioni spline**, che permettono di costruire interpolanti a tratti più regolari.
+
+Sia data una partizione dell’intervallo $[a,b]$:
+
+$$
+a=x_0<x_1<\dots<x_{m+1}=b
+$$
+
+e fissato un grado $n$.
+
+Una **spline di grado $n$** relativa a questa partizione è una funzione $s:[a,b]\to\mathbb R$ tale che, su ciascun sottointervallo
+
+$$
+I_i=[x_i,x_{i+1}], \qquad i=0,\dots,m,
+$$
+
+la restrizione di $s$ a $I_i$ sia un polinomio di grado al più $n$:
+
+$$
+s|_{I_i}=s_i.
+$$
+
+Quindi una spline è una funzione **polinomiale a tratti**, composta da $m+1$ polinomi distinti:
+
+$$
+s_0,\dots,s_m.
+$$
+
+---
+
+### Condizioni di regolarità
+
+Affinché il polinomio a tratti sia una vera spline, non basta che sia definito a pezzi: i vari polinomi devono raccordarsi in modo regolare nei nodi interni.
+
+Si richiede infatti che
+
+$$
+s\in C^{\,n-1}([a,b]),
+$$
+
+cioè che la funzione abbia derivate continue fino all’ordine $n-1$ su tutto l’intervallo.
+
+Questo significa che, per ogni nodo interno $x_{i+1}$, devono coincidere i valori delle derivate dei due polinomi adiacenti:
+
+$$
+\begin{cases}
+s_i(x_{i+1})=s_{i+1}(x_{i+1})\\
+s_i'(x_{i+1})=s_{i+1}'(x_{i+1})\\
+s_i''(x_{i+1})=s_{i+1}''(x_{i+1})\\
+\vdots\\
+s_i^{(n-1)}(x_{i+1})=s_{i+1}^{(n-1)}(x_{i+1})
+\end{cases}
+\qquad i=0,\dots,m-1
+$$
+
+Queste condizioni garantiscono che la spline sia liscia nei punti di raccordo.
+
+---
+
+### Interpretazione geometrica
+
+Un generico polinomio a tratti può presentare “spigoli” nei nodi, cioè punti in cui la derivata cambia bruscamente.
+
+Le spline costituiscono il sottoinsieme dei polinomi a tratti che **raccordano correttamente i vari pezzi**, imponendo continuità non solo della funzione, ma anche delle sue derivate.
+
+In altre parole:
+
+$$
+\text{Spline} = \text{Polinomio a tratti + Regolarità nei raccordi}
+$$
+
+---
+
+### Caso importante: spline cubiche
+
+Il caso più utilizzato in pratica è quello delle **spline cubiche**, cioè spline di grado 3.
+
+In questo caso ogni tratto è un polinomio cubico:
+
+$$
+s_i(x)=a_{0i}+a_{1i}x+a_{2i}x^2+a_{3i}x^3
+$$
+
+e si richiede:
+
+$$
+s\in C^2([a,b]).
+$$
+
+Quindi nei nodi interni devono essere continue:
+
+- la funzione,
+- la derivata prima,
+- la derivata seconda.
+
+Le spline cubiche rappresentano un ottimo compromesso tra:
+
+- semplicità computazionale,
+- regolarità,
+- accuratezza dell’approssimazione.
+
+---
+
+### Numero di parametri di una spline
+
+Ogni polinomio $s_i$ di grado $n$ dipende da $n+1$ coefficienti:
+
+$$
+s_i(x)=a_{0i}+a_{1i}x+\dots+a_{ni}x^n.
+$$
+
+Poiché ci sono $m+1$ intervalli, il numero totale iniziale di coefficienti è:
+
+$$
+(n+1)(m+1).
+$$
+
+---
+
+#### Vincoli di raccordo
+
+Nei $m$ nodi interni bisogna imporre la continuità delle derivate fino all’ordine $n-1$.
+
+Per ogni nodo interno ci sono quindi $n$ condizioni:
+
+$$
+\text{continuità di }s,s',\dots,s^{(n-1)}.
+$$
+
+Essendo i nodi interni esattamente $m$, il numero totale di vincoli di raccordo è:
+
+$$
+nm.
+$$
+
+Pertanto i gradi di libertà residui diventano:
+
+$$
+(n+1)(m+1)-nm=n+m+1.
+$$
+
+---
+
+#### Condizioni di interpolazione
+
+Se vogliamo che la spline interpoli i dati
+
+$$
+(x_i,y_i), \qquad i=0,\dots,m+1,
+$$
+
+dobbiamo imporre:
+
+$$
+s(x_i)=y_i
+\qquad \forall i=0,\dots,m+1.
+$$
+
+Queste sono $m+2$ condizioni aggiuntive.
+
+Sottraendole ai gradi di libertà residui otteniamo:
+
+$$
+n+m+1-(m+2)=n-1.
+$$
+
+---
+
+#### Conseguenza fondamentale
+
+Dopo aver imposto:
+
+- regolarità nei nodi,
+- interpolazione dei dati,
+
+rimangono ancora
+
+$$
+n-1
+$$
+
+gradi di libertà da fissare.
+
+Questo significa che:
+
+> **Le sole condizioni di interpolazione e regolarità non bastano a determinare univocamente una spline di grado $n$.**
+
+Servono quindi **ulteriori condizioni al bordo**.
+
+---
+
+### Caso delle spline cubiche
+
+Per spline cubiche ($n=3$) rimangono:
+
+$$
+n-1=2
+$$
+
+gradi di libertà.
+
+Occorrono quindi **due condizioni aggiuntive**, tipicamente imposte agli estremi $a$ e $b$.
+
+Le più comuni sono:
+
+- **Spline naturale**
+
+$$
+s''(a)=0,\qquad s''(b)=0
+$$
+
+- **Spline completa (clamped)**
+
+$$
+s'(a)=f'(a),\qquad s'(b)=f'(b)
+$$
+
+- **Spline periodica**, se il problema ha struttura ciclica.
+
+---
+
+### Idea chiave da ricordare
+
+L’interpolazione spline mantiene i vantaggi dell’interpolazione a tratti:
+
+- evita polinomi globali di alto grado,
+- non soffre del fenomeno di Runge,
+
+ma produce anche una funzione molto più regolare della semplice spezzata.
+
+In particolare:
+
+$$
+\text{Spline cubica} =
+\text{Interpolante a tratti regolare, stabile e molto usato in pratica.}
+$$
+
+---
+

@@ -1244,11 +1244,11 @@ $$
 
 ---
 
-# (25) Lezione 28-04-2026 | s 310..| Interpolazione polinomiale a tratti
+# (25) Lezione 28-04-2026 | s ..| Interpolazione polinomiale a tratti e inizio spline
 
 ### Interpolazione a Tratti $-$ continuo...
 
-#### Ripasso lezione precedente
+#### Rispiegazione sul resto di interpolazione a tratti
 
 DATI $(x_i, x_{i+1}) i=0,\dots,m+1$
 
@@ -1412,3 +1412,8 @@ n + m + 1 - (m + 2) = n - 1
 $$
 
 ---
+
+# (26) Lezione 29-04-2026 | s ..| Interpolazione tramite funzioni spline
+
+### Interpolazione con funzioni spline
+
