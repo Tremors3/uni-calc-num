@@ -1003,7 +1003,7 @@ $$
 
 La scelta di questi nodi minimizza il massimo del polinomio $\omega_{x_0,\dots,x_n}$ come abbiamo visto in laboratorio con i nodi di Chebishev.
 
-# (24) Lezione 27-04-2026 | s 310..| Interpolazione polinomiale a tratti
+# (24) Lezione 27-04-2026 | s 310.. | Interpolazione polinomiale a tratti
 
 ### Ripaso Iterpolazione Polinomiale $-$ Resto di Interpolazione
 
@@ -1244,7 +1244,7 @@ $$
 
 ---
 
-# (25) Lezione 28-04-2026 | s ..| Interpolazione polinomiale a tratti e inizio spline
+# (25) Lezione 28-04-2026 | s .. | Interpolazione polinomiale a tratti e inizio spline
 
 ### Interpolazione a Tratti $-$ continuo...
 
@@ -1413,7 +1413,174 @@ $$
 
 ---
 
-# (26) Lezione 29-04-2026 | s ..| Interpolazione tramite funzioni spline
+# (26) Lezione 29-04-2026 | s .. | Interpolazione tramite funzioni spline, continuo...
 
-### Interpolazione con funzioni spline
+### Ripasso Interpolazione con funzioni spline
+
+**DATI**: $(x_i, y_i),\;i=0,\dots,m+1;\;n,n\le1$
+
+**OUTPUT**: "una spline" $s(x)$ di grado $n$ t.c. $s(x_i)=y_i,\;i=0,\dots,m+1$ relativa alla partizione data dai punti $x_0,x_1,\dots,x_{m+1}$.
+
+### Grado di libertà spline di terzo grado
+
+Consideriamo nello specifico il caso cubico ($n=3$). Fissato il grado dei polinomi rimangono comunque due gradi di libertà da scegliere.
+
+Quello che cerchiamo come obiettivo, è una funzione $s(x)$ che deve soddisfare le seguenti condizioni:
+1. Polinomio di **grado 3** in $[x_i,x_{i+1}],\;i=0,\dots,m+1$;
+2. Le **condizioni di raccordo**:
+    $$
+    \begin{cases}
+    s_i(x_{i+1})=s_{i+1}(x_{i+1})\\
+    s_i'(x_{i+1})=s_{i+1}'(x_{i+1})\\
+    s_i''(x_{i+1})=s_{i+1}''(x_{i+1})\\
+    \vdots\\
+    s_i^{(n-1)}(x_{i+1})=s_{i+1}^{(n-1)}(x_{i+1})
+    \end{cases}
+    \qquad i=0,\dots,m-1
+    $$;
+3. Le **condizioni di interpolazione**:
+    $$ s(x_i)=y_i,\;i=0,\dots,m+1 $$
+
+Queste tre condizioni (proprietà astratte) si possono tradurre in un sistema lineare riconducibile ad una forma quadrata. Risolvendo il sistema si riesce ad ottenere un polinomio univoco di terzo grado per ciascuno degli itervalli. Non vedremo i passaggi dell'algoritmo.
+
+### Costruzione di funzione spline di terzo grado
+
+Invece di utilizzare la rappresentazione canonica per $s_i(x)$ ne usiamo una alternativa:
+
+$$
+s_i(x) = \alpha_i + \beta_i(x - x_i) + \gamma_i(x-x_i)^2 + \delta_i(x - x_i)^3 \quad\forall i=0,\dots,m
+$$
+
+Questa forma ci è più comoda; risulta più semplice da manipolare nei massaggi successivi. Questo procedimento lo facciamo ciascuno degli intervalli. Ciascun intervallo dipende da 4 coefficienti $(\alpha,\beta,\gamma,\delta)$.
+
+Vogliamo calcolare questi quattro coefficienti per ciascuno dei polinomi:
+
+$$
+\alpha_i,\beta_i,\gamma_i,\delta_i \qquad\forall i=0,\dots,m
+$$
+
+Per fare questo decidiamo di utilizzare le proprietà del punto 2 e 3. Vogliamo riscrivere queste relazioni tenendo conto che le derivate del sistema hanno la nuova forma appena descritta.
+
+Nel fare questo si vede come arriviamo a ideare un vero e proprio algoritmo numerico.
+
+1. Applicando la terza proprietà, e sostituendo $x_i$ a $x$ nella nuova forma otteniamo:
+
+    $$
+    s_i(x) = \boxed{\alpha_i = y_i}
+    $$
+
+    Il termine costante di ciascun pezzo deve essere uguale alle ordinate dei dati. Abbiamo così fissato $\alpha$.
+
+2. Per ciascuno degli $i$ intervalli, utilizziamo la nuova forma integrata con le condizioni di raccordo:
+
+    $$\begin{aligned}
+    s_i(x) &= \alpha_i + \beta_i(x - x_i) + \gamma_i(x-x_i)^2 + \delta_i(x - x_i)^3 \\
+    s_i'(x) &= b_i + 2\gamma_i(x-x_i)+3\delta_i(x-x_i)^2 \\
+    s_i''(x) &= 2\gamma_i + 6\delta(x-x_i)
+    \end{aligned}$$
+
+    Quindi fisssando $h_i = x_i+1 - x_i$ abbiamo:
+    
+    $$\begin{aligned}
+    s_i(x_{i+1}) &= \alpha + \beta_ih_i + \gamma_ih_i^2 + \delta_ih_i^3 \\
+    &= s_{i+1}(x_{i+1}) = \alpha_{i+1}
+    \end{aligned}$$
+
+    Ottenendo:
+
+    $$
+    y_i + \beta_ih_i + \gamma_ih_i^2 + \delta_ih_i^2 = y_{i+1}
+    $$
+
+    Ho costruito una relazione che lega i quattro coefficienti da trovare e le condizioni di raccordo.
+
+3.  Questi passaggi si applicano per: $s_i(x), s_i'(x), s_i''(x)$.
+
+    Svolti i passaggi otteniamo il sistema:
+
+    $$\begin{cases}
+    y_i + \beta_ih_i + \gamma_ih_i^2 + \delta_ih_i^3 = y_{i+1} \\
+    \beta_i + 2\gamma_ih_i + 3\delta_ih_i^2 = \beta_{i+1} \\
+    2\gamma_i + 6\delta_ih_i = 2\gamma_{i+1}
+    \end{cases}$$
+
+    Le tre condizioni di continuità portano a questo sistema lineare. Le componenti da calcolare sono le $\beta,\gamma,\delta$, mentre le $\alpha$ le abbiamo già fissate.
+
+    $$\begin{cases}
+    y_i + \boxed{\beta_i}h_i + \boxed{\gamma_i}h_i^3 + \boxed{\delta_i}h_i^2 = y_{i+1} \\
+    \boxed{\beta_i} + 2\boxed{\gamma_i}h_i + 3\boxed{\delta_i}h_i^2 = \boxed{\beta_{i+1}} \\
+    2\boxed{\gamma_i} + 6\boxed{\delta_i}h_i = 2\boxed{\gamma_{i+1}}
+    \end{cases}$$
+
+    Mentre ad esempio le $h$ le possiamo ottenere semplicemente calcolando $h=x_{i+1}-x_i$.
+
+4. A questo punto bisogna ridurre il sistema cercando di apportare delle sostituzioni preliminari:
+
+    In un qualche modo il sistema si riesce a dividere in due sottosistemi.
+
+5. Con successivi passaggi si raggiunge la forma classica di un sistema lineare risolvibile con i metodi già visti.
+
+Il sistema risultante però non ha infinite soluzioni. Come facciamo? Si aggiungono dei dati e all'interno delle infinite spline di interpolazione ne andiamo a cercare una in particolare.
+
+Alcune casistiche e relative condizioni possono essere:
+- Spline cubica naturale
+- Spline cubica perioica (ciclica)
+- Spline cubica not-a-knot
+
+La condizione che di solito si trova nelle librerie standard è la not-a-knot.
+
+---
+
+### Teorema sulle spline cubiche: curvatura minima
+
+Una funzione spline si dice che ha "curvatura minima". Cioè le curve sono le più dolci. E quindi oscillerà poco.
+
+Tra tutte le funzioni $f\in\mathcal C^2([a,b])$ che interpolano i punti $(x_i,y_i), i=0,\dots,m+1$ e che soddisfano una delle tre condizioni.
+
+La spline cubica di interpolazione vincolata, naturale o periodica è quella per cui a proprità di minimo
+
+$$
+\int_a^b (s''(x))^2 \le \int_a^b (f''(x))^2
+$$
+
+e l'uguaglianza fale solamente se $f = s$.
+
+### Teorema spline cubiche: errore di interpolazione
+
+$$
+(x_i,y_i) i=0,\dots,m+1 \\
+y_i=f(x_i),i=0,\dots,n+1 \qquad f:[a,b]\to\R, f\in C^2([a,b])
+$$
+
+$s(x)$ è una spline cubica di interpolazione
+
+1. Abbiamo che:
+
+    $$
+    |f(x) - s(x)| \le \boxed{h^{3/2}\cdot\Big( \int_a^b(f''(x))^2\cdot dx \Big)^{1/2}} \qquad\forall x\in[a,b]
+    $$
+
+    A destra del segono di disuguaglianza mettiamo una quantità.
+    - L'integrale esprime la curvatura della funzione scelta (che può essere maggiorato per una costante); Quindi lo consideriamo come una costante.
+    - $h$ è la distanza massima che abbiamo tra due punti consecutivi della partizione.
+
+    Aumentando il numero di punti equispaziati nello stesso intervallo $[a,b]$ decresce h e quindi anche l'errore decresce:
+
+    $$
+    m\to+\infin \qquad h\to0 \qquad |s(x)-f(x)|\to0
+    $$
+
+2. Vale anche questo secondo risultato:
+
+    $$
+    |f'(x) - s'(x)| \le \boxed{h^{1/2}\cdot\Big( \int_a^b(f''(x))^2\cdot dx \Big)^{1/2}} \qquad\forall x\in[a,b]
+    $$
+
+    Più punti prendiamo e meglio la derivata della spline riuscirà ad approsimare la derivata della funzione originale.
+
+    Quindi più punti si hanno, più la spline riuscirà a "matchare" la pendenza della funzione originale.
+
+    Si tratta di un risultato in più che nessuno degli altri metodi visti può dimostrare. Spline di ordine superiore non si può dimostrare.
+
+# (27) Lezione -04-2026 | s .. | 
 
