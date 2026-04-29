@@ -1,0 +1,951 @@
+
+# (21) Lezione 20-04-2026 | s 274.. | Interpolazione dei dati e funzioni
+
+### Alcuni esempi legati all'interpolazione
+
+Dato uno stato iniziale e finale vogiamo ricavare alcuni stati intermedi (frames) di collegamento. Nel caso del braccio robotico visto in precedenza in laboratorio, data la posizione di partenza e finale del braccio ricavare un'animazione delle posizioni intermedie (spostamento) del braccio per raggiungere lo stato finale, partendo dallo stato iniziale.
+
+Vogliamo ingrandire un riquadro di un'immagine. Possiamo vedere il riquadro di partenza come una matrice di una certa dimensione $n\times n$. Costruiamo una seconda matrice grande ad esempio il doppio $m\times m,\text{ con }m=2n$ ponendo tra i pixel noti dei pixel vuoti. Vedremo diverse strategie per "riempire" l'immagine ingrandita.
+
+### Interpolazione
+
+Come input avremo due vettori, che rispettivamente memorizzano le coordinate sulle ascisse e sulle ordinate:
+
+**DATI**:
+$$
+(x_i, y_i), \qquad\forall i=0,\dots n
+$$
+
+**OUTPUT**:
+$$
+g(x) \\
+g(x_i) = y_i \qquad\forall i=0,\dots,n
+$$
+
+**SCOPO**:
+$$
+(\tilde x, \underbrace{?}_{g(\tilde x)}) 
+$$
+
+```
+    ^
+    |
+    |
+t_i -                           ______
+    |      ___                 /      \
+y_1 -     /   \               /        \
+    |    /     \             /          \
+y_n -   /       \           /            \
+    |  /         \_________/              \  
+y_0 - /                                    \____ g(x)
+    |/
+---------|---|----|---------------|-----------|--->
+    |   x_0  ~   x_1             x_i         x_n
+    |        x
+```
+
+Costruire una funzione partendo da un numero finito di punti che devono appartenenre al suo grafico.
+
+$$
+g(x_i) = y_i \qquad \forall i=,\dots,n
+$$
+
+Se per esempio il problema consiste nel sapere cosa mettere in corrispondenza dellascissa $\tilde x$, la vado a colmare con il valore $g(\tilde x)$. Il valore della ordinata lo ottengo semplicemente come:
+
+$$
+g(\tilde x_i) = \tilde y_i
+$$
+
+Il metodo consste quindi nella costruzione della funzione che passa per tutti i punti noti. I punti ignoti li si ricava tramite la stessa funzione.
+
+>**Nota**: si vuole costruire una funzione che passi per i punti noti; ma infinite funzioni soddisfano questo requisito. Vogliamo restringere quindi l'insieme delle funzioni in cui cercare l'interpolante. Cercheremo delle funzioni con caratteristiche specifiche.
+>
+> Lavoreremo con dei polinomi. Le funzioni che costruiremo per interpolare i dati saranno di fatto dei polinomi.
+
+#### Intermezzo sui polinomi
+
+***Def.*** Funzione particolare che si scrive come combinazione di monomi.
+
+$$
+p(x) = a_0 + a_1x + a_2x^2 + \dots + a_nx^n \qquad a_0,a_1,\dots,a_n\in\R
+$$
+
+#### Perchè un polinomio come funzione interpolante?
+
+Perchè la scelta dei polinomi come funzioni per effettuare l'interpolazione? Hanno la proprietà di essere associate in maniera univoca ad $n+1$ numeri. Quando li si ha fissati, questi identificano in maniera univoca il polinomio. I polinomi sono funzioni che possono essere individuate in maniera univoca da $n+1$ numeri reali.
+
+Il calcolatore ci restituirà un insieme di numeri che ci permettono di costruire la funzione. Di fatti l'$n$ che abbiamo scelto per numerare i dati **coincide con il grado del polinomio**.
+
+#### Teorema fondamentale dell'algebra
+
+Dati tre punti su un piano il teorema dice che esiste un'unica parabola (polinomio di terzo grado) che passa per i tre punti dati. Lo stesso concetto si può generalizzare per $n$ punti.
+
+Anche se ci sono infinite funzioni che possiamo scegliere per interpolare gli $n$ punti, esiste un unico polinomio di grado (al più) $n$ che passa per quei punti. In questo modo non solo riduciamo il campo ma finiamo con un'unica funzione interpolante da scegliere.
+
+#### Polinomio di interpolazione
+
+Cose fondamentali che caratterizzano l'interpolazione polinomiale:
+1) Per interpolare dei punti stiam ofacendo una scelta ben precisa. Non stiamo scegliendo una funzione qualsiasi ma un polinomio.
+2) Il numero dei punti che dobbiamo interpolare determina il grado del polinomio che andiamo a costruire.
+
+E' vero che noi scegliamo di utilizzare dei polinomi (prima restrizione), ma andiamo a costruire polinomi di un grado definito (seconda restrizione).
+
+**DATI**
+
+$$\begin{aligned}
+&(x_i, y_i) \\
+i&=0,1,\dots,n
+\end{aligned}$$
+
+**OUTPUT**
+
+$a_0,a_1,\dots,a_n$ da interpretare come i coefficienti dell'unico polinomio di grado $n$, $p_n(x)$ tale che:
+
+$$
+\underbrace{p_n(x_i) = y_i \qquad\forall i=0,\dots,n}_{\tclb{\text{Uguaglianze di interpolazione}}}
+$$
+
+Ma un polinomio è una combinazione lineare dei monomi.
+
+**METODO DEI COEFFICIENTI INDETERMINATI**
+
+$$\begin{aligned}
+i=0) &\quad p_n(x_0) = y_0 \;\Leftrightarrow\; a_0 + a_1x_0 + a_2x_0^2 + \dots + a_nx_0^n = y_0 \\
+i=1) &\quad p_n(x_1) = y_1 \;\Leftrightarrow\; a_0 + a_1x_1 + a_2x_1^2 + \dots + a_nx_1^n = y_1 \\ 
+\dots \\
+i=n) &\quad p_n(x_n) = y_n \;\Leftrightarrow\; a_0 + a_1x_n + a_2x_n^2 + \dots + a_nx_n^n = y_n \\ 
+\end{aligned}$$
+
+Il polinomio che stiamo cercando deve soddisfare queste $n+1$ uguaglianze, che sono le condizioni di interpolazione.
+
+> **Nota**: ad ogni iterazione $x_i$ e $y_i$ sono note (numeri) e dati in input. Le incognite che vogliamo ricavare sono i termini noti $a_0,\dots,a_n$.
+
+$$\begin{cases}
+ a_0 + a_1x_0 + a_2x_0^2 + \dots + a_nx_0^n = y_0 \\
+ a_0 + a_1x_1 + a_2x_1^2 + \dots + a_nx_1^n = y_1 \\ 
+\dots \\
+ a_0 + a_1x_n + a_2x_n^2 + \dots + a_nx_n^n = y_n \\ 
+\end{cases}$$
+
+Sistema lineare di $n+1$ equazioni nelle $n+1$ incognite $a_0,a_1,\dots,a_n$. Impostando le condizioni di interpolazione, in automatico, viene fuori un sistema lineare da risolvere.
+
+Estraiamo la matrice dei coefficienti dal sistema:
+
+$$
+V = \begin{pmatrix} 
+1 & x_0 & x_0^2 & \dots & x_0^n \\
+1 & x_1 & x_1^2 & \dots & x_1^n \\
+\vdots & \vdots & \vdots & & \vdots \\
+1 & x_n & x_n^2 & \dots & x_n^n \\
+\end{pmatrix} \qquad \alpha = \begin{pmatrix}
+a_0 \\ a_1 \\ \vdots \\ a_n
+\end{pmatrix} \qquad y = \begin{pmatrix}
+y_0 \\ y_1 \\ \vdots \\ y_n
+\end{pmatrix}
+$$
+
+Possiamo riscrivere quindi il sistema come:
+
+$$\boxed{
+V\alpha = y
+}$$
+
+Questo sistema non è altro che la versione matriciale delle condizioni di interpolazione.
+
+La cosa fondamentale da ricordare è l'obiettivo (ottenere l'unico polinomio di grado n che interpola i punti dati), e come lo ricaviamo (attraverso i coefficienti della sua espressione canonica).
+
+Creiamo una funzione nel senso che troviamo i numeri realti che ci consentono di individuare univocamente il polinomio cercato.
+
+### Condizionamento della matrice $V$
+
+Anche con l'algoritmo più stabile che possiamo utilizzare, questo metodo è instabile sui dati in input. Anche un piccolo errore sui dati porta ad un errore considerevole nella soluzione.
+
+---
+
+### Metodo dei coefficienti inve...
+
+L'idea è di trovare un altro algoritmo alternativo per ricavare il polinomio interpolante.
+
+Per ricavare i coefficienti indeterminati, questo algoritmo parte da una diversa rappresentazione del polinomio (non più in forma canonica come somma pesata dei polinomi).
+
+$$
+p_1(x) = y_0 + (x-x_0)\frac{y_1-y_0}{x_1-x_0}
+$$
+
+Ora interpretiamo i polinomi come costruiti come somme pesate di funzioni di una base diversa. Si parte dalla formula per una retta passante per due punti. Applicando una semplice trasformazione otteniamo la formula:
+
+$$
+p_1(x) = y_0\underbrace{\frac{x-x_1}{x_0-x_1}}_{L_0(x)} + y_1\underbrace{\frac{x-x_0}{x_1x_0}}_{L_0(x)}
+$$
+
+Somma pesata di due funzioni $L_0(x), L_1(x)$ polinomi di grado 1. Si tratta di due funzioni lineari. Questa formula ci permette di descrivere un polinomio di grado 1 come somma pesata di due polinomi di grado uno. Qui i pesi $y_0,y_1$ sono fissati.
+
+Questo "giochino" si può applicare ad un $n$-esimo grado:
+
+$$
+p_n(x) = y_0L_0(x) + y_1L_1(x) + \dots + y_nL_n(x)
+$$
+
+Qui abbiamo un polinomio di grado $n$ espresso come soma di $n+1$ polinomi di grado $n$. Otteniamo una situazione inversa, qui le $y_0,y_1,\dots,y_n$ sono note mentre invece vanno calcolate le basi. Questo insieme di polinomi di grado $n$ viene chiamato **Base di Lagrange**.
+
+Gli elementi della base ($L$) hanno la proprietà che quando vengono calcolati in uno dei nodi valgono 1. In tutti gli altri valgono 0.
+
+$$\begin{cases}
+L_k(x_k) = 1 \\
+L_k(x_j) = 0 \text{ se } k \ne j
+\end{cases}$$
+
+- Prima dovremo calcolare tutte le componenti della base di lagrange, che dipende dai nodi (da $x$).
+- Facciamo una combinazione lineare dove i pesi sono le $y$.
+
+Questo modo di procedere di sicuro evita di risolvere un sistema mal condizionato. Però il calcolo della base di lagrange è costoso e bisogna organizzare il calcolo o si rischia di aggravare il costo computazionale.
+
+### Saltiamo la rappresentazione di Newton
+
+---
+
+# (22) Lezione 21-04-2026 | s ..306 | Implementazione metodo dei coefficienti indeterminati
+
+Implementazione metodo dei coefficienti indeterminati fatta in laboratorio.
+
+---
+
+### Interpolazione di Funzioni
+
+Si suppone che i dati iniziali, cioè le coordinate dei punti da interpolare, non siano dati ma si debbano ricavare da una certa funzione nonlineare di partenza. Cioè i valori che una funzione assume in certi punti di ascissa (nodi) dati.
+
+Nelle scienze applicate molto spesso capita di non avere la funzione, dobbiamo approssimarla tramite l'interpolazione stessa.
+
+---
+
+# (23) Lezione 22-04-2026 | s 307..309 | Teoria approssimazione dell'interpolazione polinomiale
+
+### Approssimazione dell'interpolazione polinomiale ed Errore (vicinanza)
+
+Come possiamo descrivere la distanza (/vicinanza) tra funzioni? Studiando la norma della funzione definita come la differenza tra la funzione nonlineare originale e il polinomio interpolante.
+
+Assumiamo che la funzione $f$ sia continua ed il suo intervallo chiuso e limitato. Definiamo la norma infinito della funzione come:
+
+$$
+\|f\|_{\infin} = \max_{x\in[a,b]} |f(x)|
+$$
+
+La distanza in norma infinito tra la funzione (nonlineare) $f$ ed un ipotetico polinomio interpolante $p : [a,b]\to\R$ è definita come:
+
+$$
+\|f - p\|_{\infin} = \max_{x\in[a,b]} |f(x) - p(x)| < \varepsilon
+$$
+
+Più la norma infinito della differenza tra le due funzioni è piccola e più i due grafici saranno sovrapporsi. In altre parole la norma infinito è la distanza massima di $p$ da $f$; e quindi il grafico di $p$ non disterà mai più di $\varepsilon$ dal grafico di $f$.
+
+$$\begin{aligned}
+& \|f - p\|_{\infin} &< \varepsilon \\
+\Rightarrow&\quad \max_{x\in[a,b]} |f(x) - p(x)| &< \varepsilon \\
+\Rightarrow&\quad |f(x) - p(x)|_{\infin} &< \varepsilon \\
+\Rightarrow&\quad f(x) - \varepsilon < g(x) < f(x) + \epsilon 
+\end{aligned}$$
+
+La funzione $g$ approssima bene $f$ più $\|f - p\|_{\infin}$ è piccola. Per capire quanto una approssimazione è buona bisogna studiare la loro distanza in norma infinito.
+
+**Resto di Interpolazione**
+
+Chiameremo resto di interpolazione la differenza tra le due funzioni. Ci interessa studiare la norma infinito del resto.
+
+$$
+\boxed{R_n(x) = f(x) - p_n(x)} \qquad\text{ in particolare } \|R_n\|_\infin
+$$
+
+dove $p_n(x)$ è l'unico polinomio di grado al più $n$
+
+$$
+p_n(x_i) = f(x_i) \qquad\forall i=0,\dots,n
+$$
+
+dove $x_i$ sono punti fissati in un intervallo di riferimento
+
+$$
+x_i\in[a,b]
+$$
+
+#### Dimostrazione formula resto di interpolazione
+
+L'obiettivo è di studiare questa funzione, o meglio studiare come viaggia la sua norma infinito $\|R_n\|_\infin$ rispetto:
+- al **numero $\mathbf n$ di punti** che usiamo;
+- **dove li abbiamo presi**: come sono disposti $x_0,\dots,x_n$ in $[a,b]$.
+
+**Hp**.
+- $f : [a,b]\to\R$
+- $f \in C^{n+1}([a,b]) \text{ la funzione } f \text{ ha } n+1 \text{ derivate continue nell'intervallo}$
+- $x_0,\dots,x_n\in[a,b]$
+- $p_n(x_i) = f(x_i) \quad\forall i=0,\dots,n$
+- con $p_n$ polinomio di grado $n$
+
+**Th**.
+
+$\exists\;\xi \in[a,b]$ tali che
+
+$$
+R_n(x) = \frac{(x-x_0)(x-x_1)\cdots(x-x_n)}{(n+1)!}f^{(n+1)}(\xi)
+$$
+
+La differenza tra la funzione ed il polinomio di interpolazione si può anche scrivere come la quantità $(x-x_0)(x-x_1)\cdots(x-x_n)$ che dipende dai nodi, normalizzato per $(n+1)!$, ed il termine $f^{(n+1)}(\xi)$. Questa formula ovviemente è inutile dal punto di vista pratico, perchè in pratica non si dispone della funzione $f$.
+
+**Dim**.
+
+Introduciamo:
+
+$$
+\omega_{x_0,\dots,x_n}(x) = (x-x_0)(x-x_1)\cdots(x-x_n)
+$$
+
+Si tratta di una funzione di $x$ che dipende però anche da tutti i nodi utilizzati per interpolare.
+
+Vediamo che è una produttoria che al massimo contiene potenze di x. Si tratta di un polinomio di grado $n+1$, e il coefficiente del termine di grado massimo è $1$.
+
+>Nota: una volta che $x$ è uguale ad uno dei termini $x_i$ il polinomio si annulla. Questo accade nei punti di interpolazione.
+
+Definiamo ora:
+
+$$\begin{aligned}
+\Omega(x,t) &= R_n(t)\omega_{x_0,\dots,x_n}(x) - R_n(x)\omega_{x_0,\dots,x_n}(t) \\
+&= \big(f(t) - è_n(t)\big)\omega_{x_0,\dots,x_n}(x) - \big(f(x) - p_n(x)\big)\omega_{x_0,\dots,x_n}(t)
+\end{aligned}$$
+
+Assunto $x\in[a,b],\quad x\ne x_i \space\forall i=0,\dots,n$
+
+$$\begin{aligned}
+\Omega(x,x) &= 0 \\
+\Omega(x, x_i) &= 0 \quad\forall i =0,\dots,n
+\end{aligned} \Rightarrow
+\begin{aligned}
+\Omega(x,\cdot) : [a,b]&\to\R \\ t &\to \Omega(x,t)
+\end{aligned}
+$$
+
+La funzione $\Omega$ si annula in $n+2$ punti, tra cui il punto $x\ne x_i$ che abbiamo scleto in precedenza.
+
+> **Oss** (*Teorema di Rolle*): Sela funzione interseca l'asse delle ascisse $k$ volte, allora avremo almeno $k-1$ punti in cui la derivata prima della funzione si annulla.
+
+Nel nostro caso abbiamo $n+2$ punti di intersezione tra le funzioni $f$ e $p$ quindi abbiamo $n+1$ punti in cui la derivata prima di $f$ si annulla.
+
+Questo procedimento lo si itera per la derivata $n$-esima...
+
+$\exists\space\xi\in[a,b] \text{ t.c. }$
+
+$$
+\frac{d^n}{dt^{n+1}}\Omega(x,t) \Big|_{t=\xi} = 0
+$$
+
+$$
+f^{(n+1)}(\xi)\omega_{x_0,\dots,x_n}(x) - \boxed{R_n(x)}\underbrace{(n+1)!}_{\frac{d^{n+1}}{dx^{n+1}} = (n+1)!} = 0
+$$
+
+Da questa formula ricaviamo il resto e abbiamo dimostrato suo calcolo,
+
+#### Studiare la norma infinito del resto di interpolazione
+
+$$
+\|R_n\| = \max_{x\in{a,b}} \frac{|\omega_{x_0,\dots,x_n}(x)| \cdot |f^{(n+1)}(\xi_x)|}{(n+1)!}
+$$
+
+Valore $M$ che maggiora 
+
+$$
+\forall x\in[a,b] \quad \exists\space M_{n+1}^f\in\R_+ : |f^{n+1}(x)| \le M_{n+1}
+$$
+
+Esiste una costante $\omega^*$ che maggiora tutti quanti i valori assoluti di $\omega_x$.
+
+$$
+\exists\space\omega_{x_0,\dots,x_n}^* : |\omega_{x_0,\dots,x_n}(x)| \le \omega_{x_0,\dots,x_n}^*
+$$
+
+Quindi:
+
+$$
+\|R_n\| = \max_{x\in{a,b}} \frac{|\omega_{x_0,\dots,x_n}(x)| \cdot |f^{(n+1)}(\xi_x)|}{(n+1)!} \le \frac{\omega_{x_0,\dots,x_n}^*}{(n+1)!}M_{n+1}^f
+$$
+
+La scelta di questi nodi minimizza il massimo del polinomio $\omega_{x_0,\dots,x_n}$ come abbiamo visto in laboratorio con i nodi di Chebishev.
+
+# (24) Lezione 27-04-2026 | s 310.. | Interpolazione polinomiale a tratti
+
+### Ripaso Iterpolazione Polinomiale $-$ Resto di Interpolazione
+
+$$
+f : [a,b] \to\R \qquad x_0,x_1,\dots,x_n \in [a,b]
+$$
+
+Indichiamo con $p_n(x)$ l'unico polinomio di grado al più $n$ tale che
+
+$$
+p_n(x_i) = f(x_i) \qquad\forall i=0,\dots,n
+$$
+
+Chiamiamo Resto di Interpolazione la funzione
+
+$$
+R_n(x) = f(x) - p_n(x)
+$$
+
+E questo ci riporta al teorema che abbiamo dimostrato l'altra volta. Secondo il quale esiste un punto $\exists\xi\in[a,b]$ che dipende da $x_0,x_1,\dots,x_n$ tale che
+
+$$
+R_n(x) = \frac{\omega_{x_0,\dots,x_n}(x)}{(n+1)!}f^{(n+1)}(\xi)
+$$
+
+Dal punto di vista pratico non ci serve a nulla. Ma ci serve per stimare il resto.
+
+Il polinomio $\omega_{x_0,\dots,x_n}(x)$ è un polinomio di grado $(n+1)$ definito come:
+
+$$
+\omega_{x_0,\dots,x_n}(x) = (x-x_0)(x-x_1)\cdots(x-x_n)
+$$
+
+Sappiamo che $f^{(n+1)}$ è continua in $[a,b]\Rightarrow\mathcal F M_{n+1}^{f}$ tale che:
+
+$$
+M_{n+1}^{f} = \max_{x\in[a,b]} |f^{(n+1)}(x)|
+$$
+
+Prendo quindi il massimo della derivata prima.
+
+Riprendiamo la formula del resto e consideriamo il suo valore assoluto:
+
+$$\begin{aligned}
+|R_n(x)| &= \frac{|\omega_{x_0,\dots,x_n}(x)|}{(n+1)!}\tcy{|f^{(n+1)}(\xi)|} \\
+&\le \frac{|\omega_{x_0,\dots,x_n}(x)|}{(n+1)!}\tcy{M_{n+1}^f}
+\end{aligned}$$
+
+Possiamo quindi maggiorare mettendo al posto dell'ultimo valore un qualcosa di più grande.
+
+Significato di questa formula: abbiamo dimostrato questa disuguaglianza come corollario del teorema visto; ma in alcuni casi questa disuguaglianza si comporta come una uguaglianza ($\approx$). L'errore di interpolazione si comporta come se fosse proporzionale al polinomio $\omega$ che abbiamo definito. Dove la costante di proporzionalità è:
+
+$$
+\frac{M_{n+1}^f}{(n+1)!}
+$$
+
+Il resto di interpolazione si comporta quindi in modo simile al polinomio $\omega$. **Svolgi esercizio 10**.
+
+La distanza tra la funzione ed il polinomio di interpolazione è proporzionale a questo polinomio $\omega$. Più il polinomio $\omega$ oscilla e più il resto di interpolazione avrà anchesso questo comportamento. Il colpevole quindi nel caso di Runge è il polinomio $\omega$. Per far sì che questo polinomio $\omega$ abbia delle oscillazioni più piccole si devono scegliere opportunamente i nodi come visto con Chebishev.
+
+Quindi i "colpevoli" del fenomeno di Runge sono quindi:
+- La scelta dei nodi;
+- Il polinomio $\omega_{x_0,\dots,x_n}(x)$.
+
+> **Nota**: i nodi di Chebishev li abbiamo definiti in un intervallo $[-1,1]$. In realtà si possono definire per un qualsiasi intervallo $[a,b]$ con un'altra formula.
+
+## Altri metodi di Interpolazione
+
+### Inconvenienti legati all'Interpolazione Polinomiale
+
+1. Legando il numero dei nodi con il grado del polinomio dovremo costruire un polinomio di grado elevato se il numero dei punti è elevato. Quindi il metodo precedente.
+
+2. In pratica capita che non si hanno a priori tutti i punti da interpolare. Il metodo polinomiale ha bisogno di tutti i punti fin da subito.
+
+### Interpolazione A Tratti 
+
+Possiamo tracciare dei segmenti da un punto al successivo ed ottenere una funzione "spezzata" interpolante. Questa ci consente di interpolare dei tratti (dei sottointervalli) della funzione originale. Ci consente anche di congiungere più sottointerpolazioni tra loro.
+
+Però non si tratta di un polinomio, con l'interpolaz. polinomiale avremmo costruito un polinomio di grado 7 nell'esempio. Ma comunque questa "spezata" interpolante ha qualcosa in comune con un polinomio:
+
+Se consideriamo un sottointervallo restringendo la funzione "spezzata" su questo intervallo, li, con la restrizione della spezzata ad 1 sottointervallo, allora la funzione lì si che è un polinomio, un polinomio di grado 1. L'idea della spezzata non ci manda troppo lontano dal mondo dei polinomi; restringendo la spezzata su uno qualsiasi dei sottointervalli definiti dai nodi lì la funzione si può vedere come un polinomio di primo grado. Mentre se noi le guardiamo dall'intero intervallo non sono dei polinomi. 
+
+> **Vantaggio**: abbiamo slegato il numero dei punti dal grado dei polinomi che utilizziamo.
+>
+> **Es.** Se abbiamo 1900 punti la nostra spezzata sarà composta da 1901 polinomi di primo grado.
+> $$ n \text{ punti} \quad\Rightarrow\quad n+1 \text{ partizioni} $$
+
+#### Costruzione interpolaz. a tratti
+
+Nella notazione dovremo tenere conto sia del numero dei punti, sia del grado.
+
+```
+   ^
+   |
+   |
+---|----|-------|--------|-----|---------|----------------|---------|--->
+       x_0     x_1      x_2   x_i       x_i+1     ...    x_m       x_m+1
+        [x_0,x_1][x_1,x_2]     [x_i,x_i+1]                [x_m,x_m+1]
+           I_0      I_1            I_i                        I_n
+
+```
+
+Supponiamo di voler calcolare la "spezzata" in un punto.
+1. Prima cosa da fare è individuare l'intervallo $I_j$ in cui cade quel punto.
+2. Per calcolare quel punto ci serve la retta che passa per i due punti estremi dell'intervallo in cui vogliamo calcolare $x$.
+
+> **Nota**: Per ciascun intervallo avremo una formula diversa per calcolare le x. Dobbiamo ricalcolare la funzione che è la retta definita tra i punti estremi di uno dei sotto intervalli. **Svolgi esercizio 12.**
+
+#### Nota esercizio 12 versione 2
+
+In questo caso non conosciamo a priori il numero delle componenti.
+
+```
+INPUT t componenti t_1,...,t_n  
+      x componenti x_1,...,x_m  <--
+      y componenti y_1,...,y_m  <--
+OUTPUT z componenti z_1,...,z_n dove:
+```
+
+$$
+z_j = y_i + \frac{(y_i+1 - y_i)}{(x_i+1 - x_i)}(t_j - x_i) \quad\text{ dove } t_j \in [x_i, x_{i+1}] 
+$$
+
+Che è la funzione che definisce i tratti a seconda dell'intervallo di appartenenza.
+
+Risolvere l'esercizio con un solo ciclo sulla variabile $i$.
+
+```
+CICLO su i che scorre le componenti di x (itero gli intervalli)
+    quali componenti di t che cadono nell'intervallo [x_i,x_i+1]
+```
+
+#### Altre caratteristiche interpolazione a tratti
+
+Un vantaggio è che questo tipo di interpolazione non soffra del problema introdotto dalla funzione di Runge. In particolare la stabilità dell'inteprolazione a tratti non dipende dalla posizione dei nodi (punti) scelti.
+
+$$
+f:[a,b]\to\R,\quad f\in C^2([a,b]) \\
+x_0,x_1,\dots,x_{m+1}\in[a,b]m \qquad a=x_0<x_1<\dots<x_m<x_{m+1} = b
+$$
+
+$\mathcal s(x)$ è polinomio lineare a tratti tale che
+
+$$
+s(x_i) = f(x_i) \quad i=0,\dots,m+1 \qquad\Big(\text{assum. che: }y_i = f(x_i)\Big)
+$$
+
+I punti li abbiamo presi quindi dal grafico di una funzione che qui stiamo chiamando $f$.
+
+#### Analisi del Resto di interpolazione lineare
+
+Vogliamo andare ad analizzare il **Resto di Interpolazione** della spezzata. Con resto intendiamo proprio la distanza e quindi differenza tra le due funzioni (spezzata e funzione).
+
+$$
+R^s(x) = s(x) - f(x)
+$$
+
+Vorremmo scrivere $R^s(x) = $ a qulcosa, ma questo qualcosa dipende dall'intervallo della partizione considerato. Quindi:
+
+$$
+R^s(x) = s(x) - f(x) \qquad x\in[x_i,x_{i+1}]
+$$
+
+L'idea è quella di restringere l'analisi del resto soltanto per ciascuno dei sottointervalli della partizione; abbiamo preso l'$i$-esimo.
+
+Se:
+$$
+x\in[x_i,x_{i+1}] \quad\Rightarrow\quad s(x) = f(x) - \frac{f(x_{i+1})-f(x_i)}{x_{i+1}-x_i}(x - x_i)
+$$
+
+Abbiamo quindi:
+
+$$\begin{aligned}
+R^s(x) &= s(x) - f(x) \\
+&= \frac{w_{x_i,x_{i+1}}}{2!}f^{(2)}(\xi_1) \qquad\xi_i\in[x_i,x_{i+1}] \\
+\end{aligned}$$
+
+Non abbiam ofatto altro che applicare il teorema sul resto visto in precedenza ma su due punti consecutivi. Che riscritta:
+
+$$
+R^s(x) = \frac{(x-x_i)(x-x_{i+1})}{2}f^{(2)}(\xi_i) \qquad x\in[x_i,x_{i+1}]
+$$
+
+Passando al valore assoluto:
+
+$$
+|R^s(x)| = \frac{|(x-x_i)(x-x_{i+1})|}{2}\tcy{|f^{(2)}(\xi_i)|} \qquad x\in[x_i,x_{i+1}]
+$$
+
+Adesso maggioriamo l'ultimo termine. Per continuità esiste un termine
+
+$$
+M_2^f = \max_{x\in[a,b]} |f^{(2)}(x)|
+$$
+
+Consideriamo tutto l'intervallo $[a,b]$ perchè in questo modo troviamo una costante di approssimazione sovrabbondante ma che vale per l'intero intervallo, e non soolo il sotto intervallo $i$-esimo considerato. Lo utilizziamo per maggiorare quindi:
+
+$$
+|R^s(x)| \le \frac{|\overbrace{(x-x_i)}^+\overbrace{(x-x_{i+1})}^-|}{2}\tcy{M_2^f}
+$$
+
+>Oss. Se stiamo nell'intervallo indicato $x\in[x_i,x_{i+1}]$ allora per forza:
+> $$x_i < x < x_{i+1}$$
+
+$$
+|R^s(x)| \le \frac{|(x-x_i)(x_{i+1} - x)|}{2}M_2^f
+$$
+
+Poi:
+
+$$\begin{aligned}
+\max_{x\in[x_i,x_{i+1}]} (x - x_i)(x_{i+1} - x) \\
+&= -x^2 + x(x_i+x_{i+1}) - x_i-x_{i+1} &\text{ parabola di grado 2} \\
+\tilde x &= \frac{x_1 + x_{i+1}}{2} &\text{ punto di massimo}
+\end{aligned}$$
+
+Il **punto di massimo** sta sull'asse delle ascisse, metre il **valore massimo** sta sull'asse delle ordinate.
+
+
+$$\begin{aligned}
+|R^s(x)| &\le \frac{|(x-x_i)(x_{i+1} - x)|}{2}M_2^f \\
+&\le (\tilde x - x_i)(x_{i+1} - x) \frac{M_2^f}{2} \\
+&= (\frac{x_i + x_{i+1}}{2} - x_i)(x_{i+1} - \frac{x_i + x_{i+1}}{2}) \frac{M_2^f}{2} \\
+&= \frac{(x_{i+1} -x_i)^2}{4} M_2^f \qquad x\in[x_i,x_{i+1}]
+\end{aligned}$$
+
+Il fenomeno di Runge non può accadere, perchè:
+
+$$
+|R^s(x)| \le\frac{(x_{i+1} - x_i)^2}{4} M_2^f \qquad x\in[x_i,x_{i+1}]
+$$
+
+nodi equispaziati $\Rightarrow x_{i+1} - x_i = h$. Dove $h$ rappresenta la distanza tra due nodi consecutivi.
+
+$$
+|R^s(x)| \le \frac{h^2}{8}M_2^f \quad\forall x\in[a,b]
+$$
+
+---
+
+# (25) Lezione 28-04-2026 | s .. | Interpolazione polinomiale a tratti e inizio spline
+
+### Interpolazione a Tratti $-$ continuo...
+
+#### Rispiegazione sul resto di interpolazione a tratti
+
+DATI $(x_i, x_{i+1}) i=0,\dots,m+1$
+
+$$
+I_i = [x_i,x_{i+1}] \quad i=0,\dots,m
+$$
+
+La funzione di interpolazione che abbiamo descritto è definita lineare a tratti.
+
+$$
+\text{Per} x\in I_i \Rightarrow s(x) = y_i + \frac{y_{i+1} - y_i}{x_{i+1} - x_i}(x - x_i) \qquad\text{Retta per } (x_i, y_i), (x_{i+1}. y_{i+1})
+$$
+
+$$
+y_i = f(x_i), \qquad i=0,\dots,m+1 \\
+f:[\underbrace{a}_{x_0},\underbrace{b}_{x_{m+1}}]\to\R, \qquad f\in C^2([a,b])
+$$
+
+Dato $x$, la distanza massima tra la funzione originale e quella di interpolazione è:
+
+$$
+|f(x) - s(x)| \le \frac{(x - x_i)(x - x_{i+1})}{2}M_2^f \quad\Leftarrow\quad M_2^f = \max_{x\in[a,b]} |f^{''}(x)|
+$$
+
+Arrivando ad una disuguaglianza per cui la distanza descritta è minore del polinomio e di una costante di aplificazione. Quindi:
+
+
+$$\begin{aligned}
+|f(x) - s(x)| &\le \frac{(x - x_i)(x - x_{i+1})}{2}M_2^f \\
+&\le \Big( \max_{x\in[a,b]} (x-x_i)(x-x_{i-1}) \Big) \frac{M_2^f}{2} \\
+&\le (x_{i+1} - x_i)^2 \frac{M_2^f}{8} \\
+&= h^2 \frac{M_2^f}{8}
+\end{aligned}$$
+
+Abbiamo dimostrato come la distanza tra la funzione e l'interpolante è sicuramente minore del valore $h^2 \frac{M_2^f}{8}$. Che dipende quindi dalla dimensione degli intervalli e dalla costante $M_2^f$.
+
+Qual'è la massima distanza tra due punti estremi di un $i$-intervallo generico? Individuiamo adesso qual'è la massima distanza dell'iesimo sottointervallo:
+
+$$
+\max_{i=0,\dots,m} x_{i+1} - x_i
+$$
+
+Troviamo quindi la formula in cui si vede come: La distanza massima tra i valori le due funzioni (in verticale) è limitato dal valore trovato prima dipendente da $h$.
+
+$$
+|f(x) - s(x)| \le h^2 \frac{M_2^f}{8} \quad\forall x\in[a,b]
+$$
+
+Il Fenomeno di Runge non si può osservare se si parla di interpolazione a tratti. Scegliamo i punti in modo che siano equispaziati in maniera uniforme.
+
+$$
+x_i = a + \underbrace{\frac{b-a}{m+1}}_{h=x_{i+1}-x_i}\cdot i, \qquad i=0,\dots,m+1
+$$
+
+I punti sono quindi equispaziati secondo $\boxed{\frac{b-a}{m+1}}$; la selezione dell'intervallo è approtata dall'indice $i$.
+
+Abbiamo capito quindi che, con punti equispaziati, la massima distanza tra il grafico di spezzata e funzioni non possono superare:
+
+$$
+|f(x) - s(x)| \le \frac{(b-a)^2}{(m+1)^2} \frac{M_2^f}{8} \xrightarrow{m\to+\infin} 0
+$$
+
+Naturalmente se il numero di punti cresce all'infinito la dimensione degli intervalli descresce all'infinito, tendendo a zero.
+
+> **Nota**. Limitandoci alla spezzata, abbiamo definito si una funzione che con tanti punti riesce a seguire abastanza bene l'andamento di una nonlineare, ma non è derivabile in ciascuno dei punti dati (si ha solo la derivata sinistra e destra), quindi non è regolare nell'intervallo (comunq. continita).
+
+---
+
+### Interpolazione $-$ Funzioni Spline
+
+Per definire una spline abbiamo bisogno di un intervallo partizionato in un qualche modo.
+
+$$
+a = x_0 < x_i < x_{i+1} < x_{m+1} = b \qquad\text{grado}:n
+$$
+
+Una Funzione Spline, definita per uno specifico degli intervalli, è un polinomio di grado al più $n$, che deve rispettare le due regole:
+- Deve essere differenziabile in tutte le derivate fino all'ordine $n-1$.
+- Le derivate fino all'ordine $n-1$ devono anche essere continue.
+
+$$
+s\in\mathcal{C}^{(n-1)}([a,b])
+$$
+
+Per indicare che una spline è ristretta in un certo intervallo si indica come:
+
+$$
+s\Big|_{I_i} = s_i
+$$
+
+Avremo quindi $m$ restrizioni, una per intervallo. Per ciascuna riduzione è necessario definire una funzione spline:
+
+$$
+s_0 ... s_m
+$$
+
+Ciascuna di queste deve essere:
+1. $s_i$ polinomi di grado al più $n \qquad\forall i=0,\dots,n$
+2. $s_i(x_{i+1}) = s_{i+1}(x_{i+1}) \quad\forall i =0,\dots,m-1 \to$ Richiesta della definizione nel caso di spline di ordine zero. Questo deve valere ovunque due funzioni si attaccano, cioè nei punti di raccordo (tranne il primo e l'ultimo che non hanno un intervallo prima/dopo rispettivamente).
+    
+    Lo stesso ragionamento lo si applica iterativamente per le derivate fino alla $(m-1)$-esima.
+
+    $$\begin{cases}
+    s_i(x_{i+1}) &= s_{i+1}(x_{i+1}) \\
+    s_i'(x_{i+1}) &= s_{i+1}'(x_{i+1}) \\
+    s_i''(x_{i+1}) &= s_{i+1}''(x_{i+1}) \\
+    \vdots \\
+    s_i^{(n-1)}(x_{i+1}) &= s_{i+1}^{(n-1)}(x_{i+1}) \\
+    \end{cases}\quad\text{per } i=0,\dots,m-1 $$
+
+    
+
+> **Oss**. Dati $s_i$ su $(x_i,x_{i+1})$ è derivabile $n-1$ volte. Questa proprietà è già garantita quasi d'appertutto. Gli unici punti in cui l'unicità non è mantenuta sono u raccordi: dove si incrociano due funzioni diverse.
+>
+> Un polinomio a tratti che non è una spline potrebbe non mantenere la regolarità nei punti di raccordo. Invece le spline sono un sottogruppo di funzioni che consentono di collegare correttamente le due funzioni nei punti di raccordo tra gli intervalli.
+
+#### Funzioni Spline di 3° grado
+
+Quando si parla di spline cubiche (grado m), sono polinomi di terzo grado con derivate prime e seconde (per m-1) continue, come descritto in precedenza nel caso generico.
+
+####
+
+Da quanti parametri dipende una generica spline di grado $n$? Ricordiamoci che il nostro scopo è quello di interpolare la funzione orignale, in questo caso per ogni itervallo.
+
+Quindi vediamo ciascuna delle $s_i(x)$ come polinomio di grado $n$:
+
+$$
+s_i(x) = a_{0i} + a_{1i}x + a_{2i}x^2 + \dots + a_{ni}x, \qquad i=0,\dots,n
+$$
+
+> Per abesso stiamo considerando solamente la prima delle condizioni. 
+
+Il numero di parametri da cui un generico polinomio a tratti di grado $n$ definito sulla partizione di $m+1$ intervalli:
+
+$$
+(n+1)(m+1)
+$$
+
+> Ma questi polinomi devono soddisfare anche la seconda condizione (il sistema). Ogni volta che una delle condizioni viene vefificata in realtà uno dei parametri sarà calcolato e fissato. Quindi al numero totale di parametri andiamo a sottrarre quelli fissati $nm$.
+
+$$
+(n+1)(m+1) - nm = n + m + 1
+$$
+
+Questa considerazione ci serve per stabilire il numero di funzioni spline da utilizzare.
+
+#### Costruzione di una spline
+
+Scegliamo come partizioni quelle definite dai nodi (punti dati) di interpolazione.
+
+Dati i vettori $(x_i, y_i)$ per $i=0,\dots,m+1$, una spline di grado $n$ relativa ai punti $x_0,\dots,x_{m+1}$, deve rispettare le condizioni di interpolazione:
+
+$$
+s(x_i) = y_i \qquad\forall i=0,\dots,m+1
+$$
+
+Le condizioni di interpolazione sono $(m + 2)$, e quindi i gradi di libertà rimanenti sono:
+
+$$
+n + m + 1 - (m + 2) = n - 1
+$$
+
+---
+
+# (26) Lezione 29-04-2026 | s .. | Interpolazione tramite funzioni spline, continuo...
+
+### Ripasso Interpolazione con funzioni spline
+
+**DATI**: $(x_i, y_i),\;i=0,\dots,m+1;\;n,n\le1$
+
+**OUTPUT**: "una spline" $s(x)$ di grado $n$ t.c. $s(x_i)=y_i,\;i=0,\dots,m+1$ relativa alla partizione data dai punti $x_0,x_1,\dots,x_{m+1}$.
+
+### Grado di libertà spline di terzo grado
+
+Consideriamo nello specifico il caso cubico ($n=3$). Fissato il grado dei polinomi rimangono comunque due gradi di libertà da scegliere.
+
+Quello che cerchiamo come obiettivo, è una funzione $s(x)$ che deve soddisfare le seguenti condizioni:
+1. Polinomio di **grado 3** in $[x_i,x_{i+1}],\;i=0,\dots,m+1$;
+2. Le **condizioni di raccordo**:
+    $$
+    \begin{cases}
+    s_i(x_{i+1})=s_{i+1}(x_{i+1})\\
+    s_i'(x_{i+1})=s_{i+1}'(x_{i+1})\\
+    s_i''(x_{i+1})=s_{i+1}''(x_{i+1})\\
+    \vdots\\
+    s_i^{(n-1)}(x_{i+1})=s_{i+1}^{(n-1)}(x_{i+1})
+    \end{cases}
+    \qquad i=0,\dots,m-1
+    $$;
+3. Le **condizioni di interpolazione**:
+    $$ s(x_i)=y_i,\;i=0,\dots,m+1 $$
+
+Queste tre condizioni (proprietà astratte) si possono tradurre in un sistema lineare riconducibile ad una forma quadrata. Risolvendo il sistema si riesce ad ottenere un polinomio univoco di terzo grado per ciascuno degli itervalli. Non vedremo i passaggi dell'algoritmo.
+
+### Costruzione di funzione spline di terzo grado
+
+Invece di utilizzare la rappresentazione canonica per $s_i(x)$ ne usiamo una alternativa:
+
+$$
+s_i(x) = \alpha_i + \beta_i(x - x_i) + \gamma_i(x-x_i)^2 + \delta_i(x - x_i)^3 \quad\forall i=0,\dots,m
+$$
+
+Questa forma ci è più comoda; risulta più semplice da manipolare nei massaggi successivi. Questo procedimento lo facciamo ciascuno degli intervalli. Ciascun intervallo dipende da 4 coefficienti $(\alpha,\beta,\gamma,\delta)$.
+
+Vogliamo calcolare questi quattro coefficienti per ciascuno dei polinomi:
+
+$$
+\alpha_i,\beta_i,\gamma_i,\delta_i \qquad\forall i=0,\dots,m
+$$
+
+Per fare questo decidiamo di utilizzare le proprietà del punto 2 e 3. Vogliamo riscrivere queste relazioni tenendo conto che le derivate del sistema hanno la nuova forma appena descritta.
+
+Nel fare questo si vede come arriviamo a ideare un vero e proprio algoritmo numerico.
+
+1. Applicando la terza proprietà, e sostituendo $x_i$ a $x$ nella nuova forma otteniamo:
+
+    $$
+    s_i(x) = \boxed{\alpha_i = y_i}
+    $$
+
+    Il termine costante di ciascun pezzo deve essere uguale alle ordinate dei dati. Abbiamo così fissato $\alpha$.
+
+2. Per ciascuno degli $i$ intervalli, utilizziamo la nuova forma integrata con le condizioni di raccordo:
+
+    $$\begin{aligned}
+    s_i(x) &= \alpha_i + \beta_i(x - x_i) + \gamma_i(x-x_i)^2 + \delta_i(x - x_i)^3 \\
+    s_i'(x) &= b_i + 2\gamma_i(x-x_i)+3\delta_i(x-x_i)^2 \\
+    s_i''(x) &= 2\gamma_i + 6\delta(x-x_i)
+    \end{aligned}$$
+
+    Quindi fisssando $h_i = x_i+1 - x_i$ abbiamo:
+    
+    $$\begin{aligned}
+    s_i(x_{i+1}) &= \alpha + \beta_ih_i + \gamma_ih_i^2 + \delta_ih_i^3 \\
+    &= s_{i+1}(x_{i+1}) = \alpha_{i+1}
+    \end{aligned}$$
+
+    Ottenendo:
+
+    $$
+    y_i + \beta_ih_i + \gamma_ih_i^2 + \delta_ih_i^2 = y_{i+1}
+    $$
+
+    Ho costruito una relazione che lega i quattro coefficienti da trovare e le condizioni di raccordo.
+
+3.  Questi passaggi si applicano per: $s_i(x), s_i'(x), s_i''(x)$.
+
+    Svolti i passaggi otteniamo il sistema:
+
+    $$\begin{cases}
+    y_i + \beta_ih_i + \gamma_ih_i^2 + \delta_ih_i^3 = y_{i+1} \\
+    \beta_i + 2\gamma_ih_i + 3\delta_ih_i^2 = \beta_{i+1} \\
+    2\gamma_i + 6\delta_ih_i = 2\gamma_{i+1}
+    \end{cases}$$
+
+    Le tre condizioni di continuità portano a questo sistema lineare. Le componenti da calcolare sono le $\beta,\gamma,\delta$, mentre le $\alpha$ le abbiamo già fissate.
+
+    $$\begin{cases}
+    y_i + \boxed{\beta_i}h_i + \boxed{\gamma_i}h_i^3 + \boxed{\delta_i}h_i^2 = y_{i+1} \\
+    \boxed{\beta_i} + 2\boxed{\gamma_i}h_i + 3\boxed{\delta_i}h_i^2 = \boxed{\beta_{i+1}} \\
+    2\boxed{\gamma_i} + 6\boxed{\delta_i}h_i = 2\boxed{\gamma_{i+1}}
+    \end{cases}$$
+
+    Mentre ad esempio le $h$ le possiamo ottenere semplicemente calcolando $h=x_{i+1}-x_i$.
+
+4. A questo punto bisogna ridurre il sistema cercando di apportare delle sostituzioni preliminari:
+
+    In un qualche modo il sistema si riesce a dividere in due sottosistemi.
+
+5. Con successivi passaggi si raggiunge la forma classica di un sistema lineare risolvibile con i metodi già visti.
+
+Il sistema risultante però non ha infinite soluzioni. Come facciamo? Si aggiungono dei dati e all'interno delle infinite spline di interpolazione ne andiamo a cercare una in particolare.
+
+Alcune casistiche e relative condizioni possono essere:
+- Spline cubica naturale
+- Spline cubica perioica (ciclica)
+- Spline cubica not-a-knot
+
+La condizione che di solito si trova nelle librerie standard è la not-a-knot.
+
+---
+
+### Teorema sulle spline cubiche: curvatura minima
+
+Una funzione spline si dice che ha "curvatura minima". Cioè le curve sono le più dolci. E quindi oscillerà poco.
+
+Tra tutte le funzioni $f\in\mathcal C^2([a,b])$ che interpolano i punti $(x_i,y_i), i=0,\dots,m+1$ e che soddisfano una delle tre condizioni.
+
+La spline cubica di interpolazione vincolata, naturale o periodica è quella per cui a proprità di minimo
+
+$$
+\int_a^b (s''(x))^2 \le \int_a^b (f''(x))^2
+$$
+
+e l'uguaglianza fale solamente se $f = s$.
+
+### Teorema spline cubiche: errore di interpolazione
+
+$$
+(x_i,y_i) i=0,\dots,m+1 \\
+y_i=f(x_i),i=0,\dots,n+1 \qquad f:[a,b]\to\R, f\in C^2([a,b])
+$$
+
+$s(x)$ è una spline cubica di interpolazione
+
+1. Abbiamo che:
+
+    $$
+    |f(x) - s(x)| \le \boxed{h^{3/2}\cdot\Big( \int_a^b(f''(x))^2\cdot dx \Big)^{1/2}} \qquad\forall x\in[a,b]
+    $$
+
+    A destra del segono di disuguaglianza mettiamo una quantità.
+    - L'integrale esprime la curvatura della funzione scelta (che può essere maggiorato per una costante); Quindi lo consideriamo come una costante.
+    - $h$ è la distanza massima che abbiamo tra due punti consecutivi della partizione.
+
+    Aumentando il numero di punti equispaziati nello stesso intervallo $[a,b]$ decresce h e quindi anche l'errore decresce:
+
+    $$
+    m\to+\infin \qquad h\to0 \qquad |s(x)-f(x)|\to0
+    $$
+
+2. Vale anche questo secondo risultato:
+
+    $$
+    |f'(x) - s'(x)| \le \boxed{h^{1/2}\cdot\Big( \int_a^b(f''(x))^2\cdot dx \Big)^{1/2}} \qquad\forall x\in[a,b]
+    $$
+
+    Più punti prendiamo e meglio la derivata della spline riuscirà ad approsimare la derivata della funzione originale.
+
+    Quindi più punti si hanno, più la spline riuscirà a "matchare" la pendenza della funzione originale.
+
+    Si tratta di un risultato in più che nessuno degli altri metodi visti può dimostrare. Spline di ordine superiore non si può dimostrare.
+
+# (27) Lezione -04-2026 | s .. | 
+
