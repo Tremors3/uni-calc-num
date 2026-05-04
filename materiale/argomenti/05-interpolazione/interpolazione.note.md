@@ -2098,3 +2098,135 @@ Infatti:
 Per questo motivo le spline cubiche rappresentano uno degli strumenti più importanti e utilizzati nell’interpolazione numerica.
 
 ---
+
+### Vantaggi delle spline cubiche e applicazioni
+
+Uno dei principali vantaggi delle spline cubiche rispetto all’interpolazione polinomiale globale è che sono **polinomi definiti a tratti**. Questo significa che non è necessario conoscere tutti i punti di interpolazione fin dall’inizio: se vengono aggiunti nuovi dati, è possibile estendere l’interpolante introducendo nuovi intervalli e nuovi tratti della spline, senza dover necessariamente ricostruire un unico polinomio globale di grado elevato.
+
+Questa proprietà rende le spline particolarmente adatte a contesti in cui i dati arrivano progressivamente oppure in cui è necessario modificare localmente l’interpolazione senza alterare drasticamente l’intera curva.
+
+Un’importante applicazione delle spline cubiche si trova nei software di grafica e disegno vettoriale. In questi contesti curve e contorni non vengono memorizzati come insiemi di pixel, ma tramite **punti di controllo** che determinano geometricamente la forma della curva. Interpolando tali punti con spline si ottengono curve lisce e scalabili: quando l’oggetto viene ingrandito, ridotto, deformato o traslato, basta trasformare i punti di controllo e ricostruire la curva interpolante, senza perdita di risoluzione. Questo principio è alla base della grafica vettoriale e della rappresentazione dei font tipografici moderni.
+
+---
+
+## Interpolazione bidimensionale
+
+L’interpolazione bidimensionale estende il problema dell’interpolazione dal caso monodimensionale al caso di funzioni di due variabili.
+
+Sono dati punti di una griglia del piano:
+
+$$
+(x_i,y_j)\in\mathbb R^2
+\qquad i=1,\dots,n,\quad j=1,\dots,m
+$$
+
+e per ogni coppia di coordinate è assegnato un valore reale:
+
+$$
+z_{ij}\in\mathbb R
+$$
+
+L’obiettivo è costruire una funzione
+
+$$
+g:\mathbb R^2\to\mathbb R
+$$
+
+tale che:
+
+$$
+g(x_i,y_j)=z_{ij}
+\qquad \forall i=1,\dots,n,\; j=1,\dots,m
+$$
+
+In questo contesto i punti dati non sono semplicemente una lista di coordinate, ma costituiscono una **griglia cartesiana**: per ogni ascissa $x_i$ si considerano tutte le ordinate $y_j$, ottenendo tutte le combinazioni possibili. Il valore $z_{ij}$ rappresenta allora l’altezza della superficie nel punto $(x_i,y_j)$.
+
+---
+
+## Interpolazione bilineare
+
+Uno dei metodi più semplici per interpolare dati su una griglia bidimensionale è l’**interpolazione bilineare**.
+
+Nonostante il nome, l’interpolante risultante **non è lineare globalmente**, ma è costruito applicando ripetutamente interpolazioni lineari monodimensionali.
+
+L’idea fondamentale è ridurre il problema 2D a più problemi 1D.
+
+Supponiamo di voler stimare il valore della funzione in un punto interno a un rettangolo della griglia:
+
+$$
+(x,y)\in[x_1,x_2]\times[y_1,y_2]
+$$
+
+e di conoscere i valori della funzione nei quattro vertici:
+
+$$
+z_{11}=g(x_1,y_1),\quad
+z_{21}=g(x_2,y_1),\quad
+z_{12}=g(x_1,y_2),\quad
+z_{22}=g(x_2,y_2)
+$$
+
+L’interpolazione bilineare procede in tre passaggi.
+
+1. Si interpola linearmente lungo la direzione $x$ tra i punti inferiori del rettangolo:
+
+    $$
+    R_1=
+    \frac{x_2-x}{x_2-x_1}z_{11}
+    +
+    \frac{x-x_1}{x_2-x_1}z_{21}
+    $$
+
+    ottenendo una stima intermedia del valore sulla retta $y=y_1$.
+
+2. Si ripete poi la stessa interpolazione lungo $x$ per i punti superiori:
+
+    $$
+    R_2=
+    \frac{x_2-x}{x_2-x_1}z_{12}
+    +
+    \frac{x-x_1}{x_2-x_1}z_{22}
+    $$
+
+    ottenendo la stima corrispondente sulla retta $y=y_2$.
+
+3. Infine si interpola linearmente lungo la direzione $y$ tra $R_1$ e $R_2$:
+
+    $$
+    g(x,y)=
+    \frac{y_2-y}{y_2-y_1}R_1
+    +
+    \frac{y-y_1}{y_2-y_1}R_2
+    $$
+
+    Il risultato finale è una funzione che interpola correttamente i quattro vertici del rettangolo e fornisce una stima continua nei punti interni.
+
+---
+
+### Interpretazione del metodo
+
+L’interpolazione bilineare può quindi essere vista come:
+
+$$
+\text{2 interpolazioni lineari lungo }x
+\quad+\quad
+1\text{ interpolazione lineare lungo }y
+$$
+
+oppure equivalentemente nel verso opposto (prima lungo $y$, poi lungo $x$): il risultato finale è lo stesso.
+
+---
+
+### Caso di griglia uniforme
+
+Se i punti della griglia sono equispaziati, cioè se la distanza tra nodi consecutivi è costante nelle due direzioni, le formule precedenti si semplificano notevolmente. In tal caso l’interpolazione bilineare può essere interpretata come una **media pesata** dei quattro valori ai vertici del rettangolo, dove i pesi dipendono dalla posizione relativa del punto interno rispetto ai vertici.
+
+---
+
+### Applicazioni pratiche
+
+L’interpolazione bilineare è largamente utilizzata in elaborazione numerica e grafica computazionale. Un’applicazione classica è il **ridimensionamento delle immagini raster**, dove i valori dei pixel mancanti vengono stimati interpolando quelli vicini.
+
+È inoltre usata nell’approssimazione di superfici campionate su griglie regolari, nella modellazione di dati sperimentali bidimensionali e nella computer graphics per il texturing e il rendering di superfici.
+
+---
