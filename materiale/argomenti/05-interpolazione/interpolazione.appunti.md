@@ -947,5 +947,71 @@ $s(x)$ è una spline cubica di interpolazione
 
     Si tratta di un risultato in più che nessuno degli altri metodi visti può dimostrare. Spline di ordine superiore non si può dimostrare.
 
-# (27) Lezione -04-2026 | s .. | 
+# (27) Lezione 04-04-2026 | s .. | Interpolazione di curve nel piano
 
+Esempi di interpolazione polinomiale, spezzata e spline cubica (*laboratori 07e,08*).
+
+### Vantaggio delle spline cubiche e applicazioni
+
+Le spline cubiche, essendo un polinomio a tratti, non ha bisogno di saperre l'interezza dei punti fin da subito. Ma possiamo invece estendere la funzione aggiungendo nuovi punti e quindi intervalli calcolando i successivi polinomi man mano che conosciamo nuovi punti. Un vantaggio dell'interpolazione a tratti è quindi che i tratti possono arrivare un po' alla volta.
+
+Possibili applicazioni:
+- Una possibile applicazione potrebbe essere la realizzazione di software per il disegno (*vedi laboratorio 07e*).
+
+- Quando ingrandiamo un documento l'immagine non perde risoluzione. Questo perchè i caratteri tipografici non vengono resi in termini di pixels (come in immagini) ma definiti tramite dei puntini definiti come "punti di controllo della curva"; interpolando questi puntini è possibile ricostruire il contorno del carattere. Quando ingrandiamo il documento i punti di controllo vengono allontanati tramite una qualche mappatura matematica e il contorno del carattere ricostruito tramite interpolazione. In questo modo non si perde risoluzione. Lo stesso discorso lo si può applicare al rimpicciolimento, e traslazioni del carattere.
+
+---
+
+### Interpolazione 2D
+
+Dati $(x_i,y_j)\in\R^2$ e $z_{ij}\in\R, i=1,\dots,m,\; j=1,\dots,m$, trovare una funzione $g:\R^2\to\R$:
+
+$$
+g(x_i,y_j) = z_{ij} \qquad\forall i=1,\dots,n\quad j=1,\dots,m
+$$
+
+- GLi indici delle $x$ e $z$ sono diverse perchè in questo modo facciamo un **prodotto cartesiano tra i punti**. Per ogni $x$ avremo un punto su tutte le $y$, dato che stiamo definendo un piano. Inoltre per ognuna delle combinazioni avremo un'altezza $z_{ij}$.
+
+#### Interpolazione bilineare
+
+Ci serve definire una funzione che abbia le proprietà di interpolazione appena descritte. L'interpolazione bilineare (che è nonlineare) consiste nell'applicare per tre volte. 
+
+**Slide 335**. L'idea è quella di tornare ad una interpolazione 1D procedendo separatamente per i due assi.
+
+1. Assegnare un valore (interpolando linearmente) lungo l'asse $Z$ per il punto $R_1$.
+
+    ```
+        ^Z                    ____
+        |                ____/    |
+        |      Z_1  _.__/         |
+    ^   |      ____/ !            |
+    Y\  |     /      !            |
+      \ |    |       !            |
+       \|    |       !            |
+        +----|-------|------------|------->X
+            x_1      X           x_2
+    ```
+
+    Visione di lato della prima interpolazione. Cerchiamo di trovare l'altezza del pallino che si trova a coordinate $x,z$ ma l'altezza $z$ ci è sconosciuta. Per calcolarla interpoliamo linearmente tra $x_1$ e $x_2$ ottenendo una retta che passa per i due punti. Il valore della retta nel punto $x$ ci darà l'altezza $z$.
+
+2. Assegnare un valore (interpolando linearmente) lungo l'asse $Z$ per il punti $R_2$.
+
+    Rieseguiamo lo stesso procedimento per calcolare il punto $R_2$.
+
+3. Interpoliamo linearmente per $R_1 e R_2$ sul punto $x,y$.
+
+    Questa volta interpoliamo sull'asse delle ordinate i punti $R_1$ e $R_2$ trovati ottenendo una retta che passa sul punto di cui vogliamo sapere l'altezza.
+
+In totale si fanno **due interpolazioni sull'asse delle ascisse** e **una finale sull'asse delle ordinate**.
+
+A slide 335 si vede bene graficamente questo processo.
+
+#### Estensione interpolazione bilineare
+
+Possiamo semplificare il caso dell'interpolazione bilineare se la distanza tra i punti del piano è costante (è la stessa). E quindi le formule per calcolare l'interpolante bilineare si possono ulteriormente semplificare. Si tratta di calcolare una media dei valori dei dati del problema (quindi è una stima).
+
+#### Esempio di applicazione in laboratorio
+
+In laboratorio abbiamo visto un esempio di interpolazione bilinare su una supeficie (*laboratorio 08*).
+
+---
