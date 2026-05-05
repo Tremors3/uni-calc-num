@@ -60,3 +60,7 @@ Dobbiamo trovare qual'è la coppia $a_0,a_1$ che identificano la retta che minim
 
 Vedremo di esprimere il problema in termini di vettori, matrici ed incognite. Troveremo un algoritmo generale che si può applicare anche a funzioni polinomiali di un grado più alto.
 
+---
+
+# (29) Lezione 06-04-2026 | s 342.. | Criterio dei Minimi Quadrati
+
