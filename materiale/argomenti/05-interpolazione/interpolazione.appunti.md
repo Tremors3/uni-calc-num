@@ -1015,3 +1015,24 @@ Possiamo semplificare il caso dell'interpolazione bilineare se la distanza tra i
 In laboratorio abbiamo visto un esempio di interpolazione bilinare su una supeficie (*laboratorio 08*).
 
 ---
+
+# (28) Lezione 05-04-2026 | s .. | Applicazione delle tecniche di interpolazione 2D all'ingrandimento di immagini
+
+### Elaborazione delle immagini
+
+Direttamente associate ad una superficie. Un'immagine non è altro che un diverso modo di rappresentare una superficie.
+
+## Nearset Neighbor Interpolation (Costante a Tratti)
+
+Possiamo considerare un polinomio a tratti con funzioni polinomiali costanti (di grado 0). Creare una funzione polinomio di grado zero a tratti vuol dire, non utilizzare più la spezzata, ma una funzione non continua che ha valori costanti ttra gli intervalli sulle ascisse ($x_0,\dots,x_m$). Non è continua perchè fa dei salti ogni volta che si cambia valore.
+
+### Ricampionamento uniforme
+
+Se abbiamo una grignia partizionata di dimensione $n\times n$ andiamo ad aggiungere $n-1$ in modo che stiano a metà degli intervalli su ascisse e ordinate. Il numero di punti per asse sarà quindi $(n+(n-1))$.
+
+Formula che esprime la nuova dimensione:
+
+$$
+2^N \times N(N+1) + 1
+$$
+
