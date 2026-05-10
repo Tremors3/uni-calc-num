@@ -947,7 +947,7 @@ $s(x)$ è una spline cubica di interpolazione
 
     Si tratta di un risultato in più che nessuno degli altri metodi visti può dimostrare. Spline di ordine superiore non si può dimostrare.
 
-# (27) Lezione 04-04-2026 | s .. | Interpolazione di curve nel piano
+# (27) Lezione 04-05-2026 | s .. | Interpolazione di curve nel piano
 
 Esempi di interpolazione polinomiale, spezzata e spline cubica (*laboratori 07e,08*).
 
@@ -1016,7 +1016,7 @@ In laboratorio abbiamo visto un esempio di interpolazione bilinare su una supefi
 
 ---
 
-# (28) Lezione 05-04-2026 | s .. | Applicazione delle tecniche di interpolazione 2D all'ingrandimento di immagini
+# (28) Lezione 05-05-2026 | s .. | Applicazione delle tecniche di interpolazione 2D all'ingrandimento di immagini
 
 ### Elaborazione delle immagini
 

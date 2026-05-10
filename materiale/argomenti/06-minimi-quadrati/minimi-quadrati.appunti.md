@@ -1,5 +1,5 @@
 
-# (28) Lezione 05-04-2026 | s 342.. | Approssimazione di dati e funzioni: il criterio dei minimi quadrati
+# (28) Lezione 05-05-2026 | s 342.. | Approssimazione di dati e funzioni: il criterio dei minimi quadrati
 
 ### Svantaggio dell'approssimazione di dati mediante interpolazione
 
@@ -62,7 +62,7 @@ Vedremo di esprimere il problema in termini di vettori, matrici ed incognite. Tr
 
 ---
 
-# (29) Lezione 06-04-2026 | s 342.. | Criterio dei Minimi Quadrati
+# (29) Lezione 06-05-2026 | s 342.. | Criterio dei Minimi Quadrati
 
 Fino ad ora abbiamo considerato il caso lineare. Come facciamo a risolvere il problema e trovare le giuste $a_0,a_0$?
 
@@ -348,3 +348,5 @@ Casi che vedremo per i problemi di regressione
 - Ulteriori caso in cui non si ha una somma pesata di funzioni.
 
 ---
+
+# (30) Lezione 11-05-2026 | s 342.. | Criterio dei Minimi Quadrati
