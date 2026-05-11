@@ -343,10 +343,43 @@ Ci troviamo quindi a dover risolvere questo sistema lineare la cui soluzione esi
 ### Casi che vedremo
 
 Casi che vedremo per i problemi di regressione
-- Caso generale lineare caso rango piento
-- Caso generale lineare caso degenere (non rango piento)
-- Ulteriori caso in cui non si ha una somma pesata di funzioni.
+- Caso generale lineare caso rango pieno
+- Caso generale lineare caso degenere (non rango pieno)
+- Ulteriori casi in cui non si ha una somma pesata di funzioni.
 
 ---
 
-# (30) Lezione 11-05-2026 | s 342.. | Criterio dei Minimi Quadrati
+# (30) Lezione 11-05-2026 | s 342.. | Continuo Criterio dei Minimi Quadrati
+
+Abbiamo sperimentato con l'algoritmo dei minimi quadrati (**Laboratorio 09a**).
+
+---
+
+Ci sono alcuni dataframe che non sono approssimabili utilizzando la classica interpolazione o riduzione con polinomi.
+
+Per esempio funzioni che mostrano una certa periodicità (esempio rilevazioni annuali della CO_2 nell'atmosfera). Per questo motivo introduciamo le funzioni sin e cos.
+
+$$
+f(x,a_0,a_1,a_2,a_3) = a_0 + a_1x + a_2\sin(2\pi x) + a_3\cos(2\pi x)
+$$
+
+Questo è un esempio del **caso lineare generale** del criterio dei minimi quadrati:
+
+$$\begin{aligned}
+\phi_0(x) = 1 \qquad\phi_2(x) = \sin(2\pi x) \\
+\phi_1(x) = x \qquad \phi_3(x) = \cos(2\pi x)
+\end{aligned}$$
+
+Anche in questo caso, applicando gli stessi passaggi applicati per il caso dei polinomi, ci riconduciamo alla forma:
+
+$$
+Q(a_0,\ldots,a_{n-1}) = \|A\alpha -y\|^2
+$$
+
+Proviamo a pensare come riscrivere la funzione che crea la matrice di Vandermonde nel caso non abbiamo monomi ma funzioni. I parametri di ingresso rimangono 2: la x e una lista che fa riferimento alle funzioni della base che vogliamo applicare. La lunghezza della matrice sarà quindi determinata dal numero di funzioni.
+
+Non è più detto che la matrice sia a rango pieno. Non sappiamo quali sono i valori effettivi delle x fin da subito dato che le calcoliamo con le 4 funzioni.
+
+Invece della fattorizzazione QR ma la Decomposizione ai Valori Singoli (SVD).
+
+---
