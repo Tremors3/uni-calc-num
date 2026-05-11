@@ -62,7 +62,7 @@ Vedremo di esprimere il problema in termini di vettori, matrici ed incognite. Tr
 
 ---
 
-# (29) Lezione 06-05-2026 | s 342.. | Criterio dei Minimi Quadrati
+# (29) Lezione 06-05-2026 | s .. | Criterio dei Minimi Quadrati
 
 Fino ad ora abbiamo considerato il caso lineare. Come facciamo a risolvere il problema e trovare le giuste $a_0,a_0$?
 
@@ -349,7 +349,7 @@ Casi che vedremo per i problemi di regressione
 
 ---
 
-# (30) Lezione 11-05-2026 | s 342.. | Continuo Criterio dei Minimi Quadrati
+# (30) Lezione 11-05-2026 | s .. | Minimi Quadrati con Funzioni Generiche
 
 Abbiamo sperimentato con l'algoritmo dei minimi quadrati (**Laboratorio 09a**).
 
@@ -383,3 +383,5 @@ Non è più detto che la matrice sia a rango pieno. Non sappiamo quali sono i va
 Invece della fattorizzazione QR ma la Decomposizione ai Valori Singoli (SVD).
 
 ---
+
+# (30) Lezione 12-05-2026 | s .. | Continuo Criterio dei Minimi Quadrati

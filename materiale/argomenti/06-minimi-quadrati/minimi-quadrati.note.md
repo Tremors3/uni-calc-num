@@ -823,3 +823,148 @@ si risolve facilmente tramite **sostituzione all’indietro**.
 Questo è esattamente il principio matematico utilizzato dagli algoritmi numerici basati sulla fattorizzazione QR per risolvere i problemi ai minimi quadrati.
 
 ---
+
+## Minimi Quadrati con Funzioni Generiche
+
+Non sempre i dati sperimentali possono essere approssimati bene tramite polinomi. In molti problemi reali il fenomeno osservato presenta comportamenti particolari, ad esempio **periodicità, oscillazioni o andamenti non riconducibili ad una semplice curva polinomiale**.
+
+Un esempio tipico è dato dalle rilevazioni periodiche nel tempo, come:
+- temperatura media annuale;
+- concentrazione di $CO_2$ nell'atmosfera;
+- segnali fisici periodici;
+- onde sonore.
+
+In questi casi utilizzare soltanto potenze di $x$ può produrre modelli poco accurati oppure numericamente instabili. Per descrivere correttamente il fenomeno conviene quindi introdurre altre funzioni di base, ad esempio seno e coseno.
+
+Consideriamo il modello:
+
+$$
+f(x;a_0,a_1,a_2,a_3)
+=
+a_0 + a_1x + a_2\sin(2\pi x) + a_3\cos(2\pi x)
+$$
+
+Osserviamo che:
+- il modello non è polinomiale;
+- tuttavia rimane lineare rispetto ai parametri
+  $a_0,a_1,a_2,a_3$.
+
+Questa è la proprietà fondamentale che permette di applicare ancora il criterio dei minimi quadrati.
+
+Infatti il modello può essere riscritto come combinazione lineare di funzioni assegnate:
+
+$$
+f(x)
+=
+a_0\phi_0(x)
++
+a_1\phi_1(x)
++
+a_2\phi_2(x)
++
+a_3\phi_3(x)
+$$
+
+dove:
+
+$$
+\phi_0(x)=1,
+\qquad
+\phi_1(x)=x,
+\qquad
+\phi_2(x)=\sin(2\pi x),
+\qquad
+\phi_3(x)=\cos(2\pi x)
+$$
+
+Questo rientra nel cosiddetto **caso lineare generale** del metodo dei minimi quadrati.
+
+Dato un insieme di dati:
+
+$$
+(x_i,y_i),
+\qquad i=1,\dots,m
+$$
+
+si vuole trovare il vettore dei parametri
+
+$$
+\alpha =
+\begin{pmatrix}
+a_0\\
+a_1\\
+a_2\\
+a_3
+\end{pmatrix}
+$$
+
+che minimizza la distanza quadratica cumulativa:
+
+$$
+Q(a_0,\dots,a_{n-1})
+=
+\sum_{i=1}^{m}
+\left(
+a_0\phi_0(x_i)
++
+\dots
++
+a_{n-1}\phi_{n-1}(x_i)
+-
+y_i
+\right)^2
+$$
+
+### Differenza matrice $A$ rispetto al caso polinomiale
+
+Anche in questo caso il problema può essere scritto in forma matriciale:
+
+$$
+Q(\alpha)=\|A\alpha-y\|^2
+$$
+
+dove:
+- $A$ è la matrice di regressione;
+- $\alpha$ contiene i parametri incogniti;
+- $y$ contiene i dati osservati.
+
+La matrice $A$ non è più una matrice di Vandermonde classica, perché le colonne non contengono potenze di $x$, ma i valori delle funzioni base valutate nei punti dati:
+
+$$
+A =
+\begin{pmatrix}
+\phi_0(x_1) & \phi_1(x_1) & \dots & \phi_{n-1}(x_1)\\
+\phi_0(x_2) & \phi_1(x_2) & \dots & \phi_{n-1}(x_2)\\
+\vdots & \vdots & & \vdots\\
+\phi_0(x_m) & \phi_1(x_m) & \dots & \phi_{n-1}(x_m)
+\end{pmatrix}
+$$
+
+Dal punto di vista implementativo, invece di costruire la matrice usando i monomi:
+
+$$
+1,x,x^2,\dots
+$$
+
+si costruiscono le colonne applicando direttamente le funzioni della base ai dati $x_i$.
+
+Quindi la funzione che costruisce la matrice di regressione riceve:
+- il vettore delle ascisse $x$;
+- una lista di funzioni base $\phi_i$.
+
+Il numero di colonne della matrice coincide con il numero di funzioni scelte.
+
+### Rango massimo non garantito
+
+A differenza del caso polinomiale, però, **non è più garantito automaticamente che la matrice abbia rango massimo**. Alcune funzioni della base potrebbero infatti risultare linearmente dipendenti sui dati considerati.
+
+Per questo motivo, in applicazioni generali, invece della fattorizzazione QR si preferisce spesso utilizzare la **decomposizione ai valori singolari (SVD)**.
+
+La SVD è più stabile numericamente e permette di gestire anche casi in cui:
+- la matrice è quasi singolare;
+- le colonne sono quasi dipendenti;
+- il problema è mal condizionato.
+
+Per questo motivo la SVD rappresenta uno degli strumenti più importanti nell'approssimazione numerica e nell'analisi dei dati.
+
+---
