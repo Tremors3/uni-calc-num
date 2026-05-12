@@ -386,7 +386,11 @@ Invece della fattorizzazione QR ma la Decomposizione ai Valori Singoli (SVD).
 
 # (31) Lezione 12-05-2026 | s .. | Continuo Criterio dei Minimi Quadrati
 
-> Nota: Possiamo utilizzare la QR solamente se siamo sicuri che le colonne della matrice A siano linearmente indipendenti.
+> **Nota**: Possiamo utilizzare la QR solamente se siamo sicuri che le colonne della matrice A siano linearmente indipendenti.
+
+Le colonne \[righe\] di una matrice sono linearmente indipendenti se nessuna di esse può essere espressa come combinazione lineare delle altre. Operativamente, le colonne \[righe\] sono linearmente indipendenti se il rango della matrice è uguale al numero di colonne \[righe\], ovvero se riducendo la matrice a scala (con l'algoritmo di Gauss), non si ottengono colonne \[righe\] nulle.
+
+Se la matrice ha più righe che colonne, le righe sono necessariamente linearmente dipendenti.
 
 ## La decomposizione ai valori singolari (SVD)
 
@@ -409,7 +413,7 @@ $$
 & & \ddots   & & 0 & \ldots & 0 \\
 & & & \sigma_n & 0 & \ldots & 0 \\
 0 & \ldots & \ldots & 0 & 0 & \ldots & 0 \\
-\vdots  &  & & & & & \\  
+\vdots & & & \vdots & \vdots & & \vdots \\  
 0 & \ldots & \ldots & 0 & 0 & \ldots & 0 \\  
 
 \end{pmatrix}
@@ -477,15 +481,15 @@ z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_m
 \end{pmatrix} \\
 &= 
 \begin{pmatrix}
-\sigma_1\gamma_1 \\ \sigma_2\gamma_2 \\ \vdots \\ \sigma_k\gamma_k \\ -z_{k+1} \\ \vdots \\ -z_{m}
+\sigma_1\gamma_1 \\ \sigma_2\gamma_2 \\ \vdots \\ \sigma_k\gamma_k \\ 0 \\ \vdots \\ 0
 \end{pmatrix}
 -
 \begin{pmatrix}
-z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_n
+z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_m
 \end{pmatrix}
 =
 \begin{pmatrix}
-\sigma_1\gamma_1-z_1 \\ \sigma_2\gamma_2-z_2 \\ \vdots \\ \sigma_k\gamma_k-z_k \\ 0 \\ \vdots \\ 0
+\sigma_1\gamma_1-z_1 \\ \sigma_2\gamma_2-z_2 \\ \vdots \\ \sigma_k\gamma_k-z_k \\ -z_{k+1} \\ \vdots \\ -z_{m}
 \end{pmatrix} \\
 &=
 \left\|
@@ -561,7 +565,7 @@ Implementazione dell'algoritmo vista in laboratorio (**laboratorio 09b**).
 
 ---
 
-# (32) Lezione 13-05-2026 | s .. | 
+# (32) Lezione 13-05-2026 | s .. | Continuo SVD $-$ Decomposizione ai Valori Singolari
 
 
 

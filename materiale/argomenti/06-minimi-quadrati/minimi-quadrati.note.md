@@ -967,4 +967,316 @@ La SVD è più stabile numericamente e permette di gestire anche casi in cui:
 
 Per questo motivo la SVD rappresenta uno degli strumenti più importanti nell'approssimazione numerica e nell'analisi dei dati.
 
+> **Nota**. La fattorizzazione QR può essere utilizzata per risolvere il problema dei minimi quadrati soltanto se le colonne della matrice $A$ sono linearmente indipendenti, cioè se nessuna colonna può essere scritta come combinazione lineare delle altre. Equivalentemente, questo significa che il rango della matrice deve coincidere con il numero delle colonne:
+>
+> $$
+> \operatorname{rank}(A)=n
+> $$
+>
+> dove $n$ è il numero di colonne della matrice.
+>
+> Operativamente, questa proprietà può essere verificata riducendo la matrice a scala tramite eliminazione di Gauss: se non compaiono colonne pivot mancanti (o colonne nulle nella parte ridotta), allora le colonne sono linearmente indipendenti. Nel caso tipico dei minimi quadrati si ha una matrice rettangolare con più righe che colonne:
+>
+> $$
+> A\in\mathbb R^{m\times n},
+> \qquad m>n
+> $$
+>
+> In questa situazione le righe sono necessariamente linearmente dipendenti, mentre è fondamentale che siano indipendenti le colonne, perché esse rappresentano le funzioni della base del modello scelto.
+
+---
+
+## Decomposizione ai Valori Singolari (SVD)
+
+La **decomposizione ai valori singolari** (*Singular Value Decomposition*, SVD) si applica a matrici rettangolari di qualsiasi dimensione e di qualsiasi rango. Sia quindi:
+
+$$
+A\in\mathbb R^{m\times n}
+$$
+
+una matrice di rango $k$. Allora $A$ può essere fattorizzata nella forma:
+
+$$
+A = U\Sigma V^T
+$$
+
+dove:
+- $U\in\mathbb R^{m\times m}$ e $V\in\mathbb R^{n\times n}$ sono matrici ortogonali;
+- $\Sigma\in\mathbb R^{m\times n}$ è una matrice rettangolare diagonale della forma
+
+$$
+\Sigma =
+\begin{pmatrix}
+\sigma_1 & & & & 0 & \ldots & 0 \\
+& \sigma_2 & & & 0 & \ldots & 0 \\
+& & \ddots & & 0 & \ldots & 0 \\
+& & & \sigma_k & 0 & \ldots & 0 \\
+0 & \ldots & \ldots & 0 & 0 & \ldots & 0 \\
+\vdots & & & \vdots & \vdots & & \vdots \\
+0 & \ldots & \ldots & 0 & 0 & \ldots & 0
+\end{pmatrix}
+$$
+
+in cui gli unici elementi non nulli si trovano sulla diagonale principale. I valori:
+
+$$
+\sigma_1,\sigma_2,\dots,\sigma_k
+$$
+
+sono detti **valori singolari** della matrice $A$ e vengono ordinati dal più grande al più piccolo:
+
+$$
+\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_k > 0
+$$
+
+mentre gli eventuali rimanenti valori sulla diagonale sono nulli. I valori singolari sono legati agli autovalori delle matrici simmetriche:
+
+$$
+A^TA
+\qquad\text{e}\qquad
+AA^T
+$$
+
+Infatti:
+- i valori $\sigma_i^2$ sono gli autovalori positivi di $A^TA$;
+- le colonne di $V$ sono gli autovettori di $A^TA$;
+- le colonne di $U$ sono gli autovettori di $AA^T$.
+
+Poiché $A$ ha rango $k$, anche $A^TA$ ha rango $k$, e quindi possiede:
+- $k$ autovalori positivi;
+- $n-k$ autovalori nulli.
+
+Le radici quadrate degli autovalori positivi di $A^TA$ coincidono esattamente con i valori singolari della matrice $A$.
+
+### Dimostrazione e ottenimento della soluzione tramite SVD
+
+La decomposizione ai valori singolari (SVD) è una **fattorizzazione molto generale**, applicabile anche a **matrici rettangolari che non hanno rango pieno**. Dal punto di vista computazionale è però più costosa della fattorizzazione $QR$, quindi viene utilizzata soprattutto quando non si conosce il rango della matrice oppure quando non si può garantire che le colonne della matrice di regressione siano linearmente indipendenti.
+
+Vogliamo utilizzare la decomposizione SVD per risolvere lo stesso problema di minimi quadrati già visto:
+
+$$
+\|A\alpha - y\|^2
+$$
+
+Supponiamo quindi di avere la fattorizzazione:
+
+$$
+A = U\Sigma V^T
+$$
+
+dove:
+- $U$ e $V$ sono matrici ortogonali;
+- $\Sigma$ è la matrice diagonale rettangolare contenente i valori singolari $\sigma_i$.
+
+Sostituendo la decomposizione nel problema otteniamo:
+
+$$\begin{aligned}
+\|A\alpha - y\|^2
+&=
+\|U\Sigma V^T\alpha - y\|^2 \\
+\textit{(proprietà della norma euclidea)}\qquad
+&=
+\|U^T(U\Sigma V^T\alpha - y)\|^2 \\
+&=
+\|\Sigma \underbrace{V^T\alpha}_{\gamma} - \underbrace{U^Ty}_{z}\|^2 \\
+&=
+\|\Sigma\gamma - z\|^2
+\end{aligned}$$
+
+Abbiamo quindi introdotto:
+- il vettore: $z = U^Ty$ che dipende solamente dai dati noti;
+- il cambio di variabile: $\gamma = V^T\alpha$ che trasforma il problema originale in uno equivalente ma più semplice da analizzare.
+
+A questo punto espandiamo il prodotto con la matrice diagonale rettangolare $\Sigma$:
+
+$$\begin{aligned}
+\|\Sigma\gamma - z\|^2
+&=
+\begin{pmatrix}
+\sigma_1 &0  & 0 & 0 \\
+0 & \ddots & 0 & 0 \\
+0 & 0 & \sigma_k & 0 \\
+\vdots & & &\vdots \\
+0 & \ldots & \ldots & 0  \\
+\end{pmatrix}
+\begin{pmatrix}
+\gamma_1 \\ \gamma_2 \\ \vdots \\ \gamma_k \\ \gamma_{k+1} \\ \vdots \\ \gamma_n
+\end{pmatrix}
+-
+\begin{pmatrix}
+z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_m
+\end{pmatrix} \\
+&= 
+\begin{pmatrix}
+\sigma_1\gamma_1 \\ \sigma_2\gamma_2 \\ \vdots \\ \sigma_k\gamma_k \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+-
+\begin{pmatrix}
+z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_m
+\end{pmatrix}
+=
+\begin{pmatrix}
+\sigma_1\gamma_1-z_1 \\ \sigma_2\gamma_2-z_2 \\ \vdots \\ \sigma_k\gamma_k-z_k \\ -z_{k+1} \\ \vdots \\ -z_{m}
+\end{pmatrix}
+\end{aligned}$$
+
+Applicando ora la proprietà della norma euclidea sulla somma delle componenti otteniamo:
+
+$$\begin{aligned}
+\|\Sigma\gamma - z\|^2
+&=
+\left\|
+\begin{pmatrix}
+\sigma_1\gamma_1-z_1 \\
+\vdots \\
+\sigma_k\gamma_k-z_k
+\end{pmatrix}
+\right\|^2
++
+\left\|
+\begin{pmatrix}
+-z_{k+1} \\
+\vdots \\
+-z_m
+\end{pmatrix}
+\right\|^2
+\end{aligned}$$
+
+Osserviamo ora un fatto importante:
+- il secondo termine dipende solamente dai dati noti, quindi non possiamo modificarlo;
+- l’unico termine che possiamo minimizzare è il primo.
+
+Poiché una norma quadratica è sempre maggiore o uguale a zero, il valore minimo si ottiene imponendo che tutte le componenti del primo vettore siano nulle:
+
+$$
+\sigma_i\gamma_i-z_i = 0
+\qquad i=1,\dots,k
+$$
+
+Da cui otteniamo:
+
+$$
+\boxed{
+\gamma_i = \frac{z_i}{\sigma_i}
+}
+\qquad i=1,\dots,k
+$$
+
+Le prime $k$ componenti del vettore $\gamma$ risultano quindi completamente determinate. Le restanti componenti:
+
+$$
+\gamma_{k+1},\dots,\gamma_n
+$$
+
+non compaiono nel prodotto con $\Sigma$, perché vengono moltiplicate per gli zeri presenti nella parte finale della matrice diagonale rettangolare. Questo significa che non influenzano il valore della funzione da minimizzare.
+
+Di conseguenza il problema non ha una sola soluzione, ma infinite soluzioni minimizzanti:
+
+$$
+\begin{pmatrix}
+\dfrac{z_1}{\sigma_1} \\
+\dfrac{z_2}{\sigma_2} \\
+\vdots \\
+\dfrac{z_k}{\sigma_k} \\
+\gamma_{k+1} \\
+\vdots \\
+\gamma_n
+\end{pmatrix}
+\qquad
+\text{con }
+\gamma_{k+1},\dots,\gamma_n\in\mathbb R
+$$
+
+Tutti questi vettori minimizzano la distanza quadratica:
+
+$$
+\|A\alpha-y\|^2
+$$
+
+Nel caso in cui la matrice $A$ abbia rango pieno ($k=n$), non esistono componenti libere e la soluzione minimizzante diventa unica.
+
+### Individuazione di una soluzione a norma minima
+
+Riassumendo tutti i passaggi visti nella risoluzione tramite decomposizione SVD, siamo arrivati alla conclusione che il problema dei minimi quadrati:
+
+$$
+\|A\alpha-y\|^2
+$$
+
+può essere ricondotto alla ricerca di un vettore $\gamma$ tale che:
+
+$$
+\gamma_i=\frac{z_i}{\sigma_i}
+\qquad i=1,\dots,k
+$$
+
+dove:
+- $\sigma_i$ sono i valori singolari non nulli della matrice $A$;
+- $z=U^Ty$;
+- $k=\operatorname{rank}(A)$.
+
+Le prime $k$ componenti del vettore $\gamma$ sono quindi completamente determinate. Rimangono invece libere le ultime $n-k$ componenti:
+
+$$
+\gamma_{k+1},\dots,\gamma_n
+$$
+
+che non influenzano il valore della funzione da minimizzare, poiché vengono annullate dagli zeri presenti nella matrice $\Sigma$.
+
+In generale possiamo quindi costruire un vettore della forma:
+
+$$
+\gamma=
+\begin{pmatrix}
+\dfrac{z_1}{\sigma_1} \\
+\dfrac{z_2}{\sigma_2} \\
+\vdots \\
+\dfrac{z_k}{\sigma_k} \\
+\gamma_{k+1} \\
+\vdots \\
+\gamma_n
+\end{pmatrix}
+$$
+
+e successivamente ricavare la soluzione del problema tramite il cambio di variabile:
+
+$$
+V^T\alpha=\gamma
+\qquad\Rightarrow\qquad
+\boxed{\alpha=V\gamma}
+$$
+
+Esistono quindi infinite soluzioni minimizzanti, una per ogni possibile scelta delle componenti libere. Tuttavia, tra tutte queste soluzioni, si sceglie quasi sempre quella detta **soluzione a norma minima**.
+
+L’idea consiste nel porre uguali a zero tutte le componenti libere:
+
+$$
+\gamma=
+\begin{pmatrix}
+\dfrac{z_1}{\sigma_1} \\
+\dfrac{z_2}{\sigma_2} \\
+\vdots \\
+\dfrac{z_k}{\sigma_k} \\
+0 \\
+\vdots \\
+0
+\end{pmatrix}
+$$
+
+In questo modo otteniamo il vettore $\gamma$ con norma euclidea minima e, di conseguenza, anche la soluzione $\alpha$ avrà norma minima.
+
+Questo è vero perché le matrici ortogonali preservano la norma euclidea. Infatti:
+
+$$
+\|\alpha\|_2
+=
+\|V\gamma\|_2
+=
+\|\gamma\|_2
+$$
+
+dato che $V$ è una matrice ortogonale. Ridurre al minimo la norma di $\gamma$ equivale quindi a ridurre al minimo anche la norma della soluzione $\alpha$.
+
+La soluzione a norma minima è quella normalmente restituita dagli algoritmi numerici basati sulla decomposizione SVD, perché tra tutte le possibili soluzioni è la più stabile e la meno “energetica”, cioè quella con coefficienti complessivamente più piccoli.
+
 ---
