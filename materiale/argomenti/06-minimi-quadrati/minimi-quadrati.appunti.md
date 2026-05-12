@@ -384,4 +384,185 @@ Invece della fattorizzazione QR ma la Decomposizione ai Valori Singoli (SVD).
 
 ---
 
-# (30) Lezione 12-05-2026 | s .. | Continuo Criterio dei Minimi Quadrati
+# (31) Lezione 12-05-2026 | s .. | Continuo Criterio dei Minimi Quadrati
+
+> Nota: Possiamo utilizzare la QR solamente se siamo sicuri che le colonne della matrice A siano linearmente indipendenti.
+
+## La decomposizione ai valori singolari (SVD)
+
+SI applica a matrici rettangolari di dimensione $m\times n$ di qualsiasi rango. Ovviamente il rango $k$.
+
+Sia $A\in\R^{m\times n}$ una matrice di rango $k$. Allora $A$ si può fattorizzare nella forma
+
+$$
+A = U\Sigma V^T
+$$
+
+Dove:
+- $U\in\R^{m\times m},V\in\R^{n\times n}$ sono matrici ortogonali
+- $\Sigma\in\R^{m\times n}$ è una matrice rettangolar ediagonale nella forma
+
+$$
+\Sigma = \begin{pmatrix}
+\sigma_1 & & & & 0 & \ldots & 0 \\
+& \sigma_2 & & & 0 & \ldots & 0 \\
+& & \ddots   & & 0 & \ldots & 0 \\
+& & & \sigma_n & 0 & \ldots & 0 \\
+0 & \ldots & \ldots & 0 & 0 & \ldots & 0 \\
+\vdots  &  & & & & & \\  
+0 & \ldots & \ldots & 0 & 0 & \ldots & 0 \\  
+
+\end{pmatrix}
+$$
+
+dove gli elementi non nulli si collocano sulla diagonale principale.
+
+I valori $\sigma_i$ sono detti i **valori singolari** di $A$. Assumiamo di numerarli dal più grande al più piccolo
+
+$$
+\sigma_1 \ge \sigma_2 \ge \ldots \ge \sigma_n
+$$
+
+In particolare si ha che $\sigma_i^2$ sono gli autovalori di $A^TA$, mentre le colonne di $U$ e $V$ sono gli autovettori di $AA^T$ e di $A^TA$.
+
+- $A^TA$: ha rango $k$ $\to$ abbiamo $n-k$ autovalori nulli e i rimanenti positivi. La loro radice ci da esattamente i **valori singolari**.
+
+### Dimostrazione e ottenimento della Soluzione
+
+La decomposizione SVD è molto generale e ha molti algoritmi e implementazioni specifiche. Questi algoritmi sono molto costosi.
+
+- Riserviamo la decomposizione SVD solamente quando non si hanno informazioni sul rango della matrice (se non si è sicuri che la matrice abbia rango pieno).
+
+Vogliamo utilizzare questa fattorizzazione al posto della $QR$ per risolvere lo stesso problema
+
+$$
+\|A\alpha - y\|^2
+$$
+
+Che possiamo riscrivere quindi come:
+
+$$\begin{aligned}
+\|A\alpha - y\|^2
+&=
+\|U\Sigma V^T\alpha - y\|^2 \\
+\textit{Applico proprietà norma euclidea} &=
+\|U^T(U\Sigma V^T\alpha - y)\|^2 \\
+&=
+\|\Sigma \underbrace{V^T\alpha}_{\gamma} - \underbrace{U^Ty}_{z}\| \\
+&=
+\|\Sigma\gamma - z\|^2
+\end{aligned}$$
+
+- Possiamo calcolare $z=U^Ty$ direttamente dai dati.
+- Con $\gamma$ abbiamo effettuato un cambio di variabile. Il vettore $\gamma$ è quindi dipendente da $\alpha$. Il notro obiettivo è quindi calcolare il vettore $\gamma$.
+
+Ora riscriviamo il nuovo sistema come:
+
+$$\begin{aligned}
+\|\Sigma\gamma - z\|^2
+&=
+\begin{pmatrix}
+\sigma_1 &0  & 0 & 0 \\
+0 & \ddots & 0 & 0 \\
+0 & 0 & \sigma_k & 0 \\
+\vdots & & &\vdots \\
+0 & \ldots & \ldots & 0  \\
+\end{pmatrix}
+\begin{pmatrix}
+\gamma_1 \\ \gamma_2 \\ \vdots \\ \gamma_k \\ \gamma_{k+1} \\ \vdots \\ \gamma_n
+\end{pmatrix}
+-
+\begin{pmatrix}
+z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_m
+\end{pmatrix} \\
+&= 
+\begin{pmatrix}
+\sigma_1\gamma_1 \\ \sigma_2\gamma_2 \\ \vdots \\ \sigma_k\gamma_k \\ -z_{k+1} \\ \vdots \\ -z_{m}
+\end{pmatrix}
+-
+\begin{pmatrix}
+z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_n
+\end{pmatrix}
+=
+\begin{pmatrix}
+\sigma_1\gamma_1-z_1 \\ \sigma_2\gamma_2-z_2 \\ \vdots \\ \sigma_k\gamma_k-z_k \\ 0 \\ \vdots \\ 0
+\end{pmatrix} \\
+&=
+\left\|
+\begin{pmatrix}
+\sigma_1\gamma_1-z_1 \\ \vdots \\ \sigma_k\gamma_k-z_k
+\end{pmatrix}
+\right\|^2
++
+\left\|
+\begin{pmatrix}
+-z_{k+1} \\ \vdots \\ -z_m
+\end{pmatrix}
+\right\|^2
+\end{aligned}$$
+
+- Il vettore $z$ dipende esclusivamente dai dati noti.
+- La matrice di regressione si calcola a partire delle funzioni note $\phi$ e dalle $x$, quindi anche $A$ dipende esclusivamente da dati noti.
+
+L'unico caso in cui la norma del vettore ha valore minimo è se quel vettore ha tutte componenti nulle.
+
+Dobbiamo quindi trovare $\gamma$ in modo che i valori del vettore siano minimi:
+
+$$
+\gamma_i : \sigma_i\gamma_i = z_i \xrightarrow{quindi} \boxed{\gamma_i = \frac{z_i}{\sigma_i}}
+$$
+
+Quando il vettore $\gamma$ ha le sue prime $k$ componenti che seguono quella frazione. Ma questa frazione ci definisce solamente le prime $k$ componenti del vettore. Le altre $n-k$ che fine fanno?
+
+Si scopre essere completamente trasparenti. Lo si nota nei passaggi fatti prima. Si vede come vengono annullati dagli zeri presenti nella matrice rettangolare diagonale in cui si trovano le $\sigma_i$ sulla diagonale principale. Le abbiamo perse a fare quel prodotto matrice vettore $\gamma$.
+
+Abbiamo quindi infinite soluzioni del problema:
+
+$$
+\begin{pmatrix}
+\frac{z_1}{\sigma_1} \\ \frac{z_2}{\sigma_2} \\ \vdots \\ \frac{z_k}{\sigma_k} \\ \gamma_{k+1} \\ \vdots \\ \gamma_n
+\end{pmatrix}
+\;:\;
+\gamma_{k+1},\ldots,\gamma_n\in\R
+$$
+
+Sono tutti quanti vettori che minimizzano la funzione di distanza quadratica.
+
+### Individuazione di una soluzione (minima norma)
+
+1. Sintetizzando tutti i passaggi fatti fino ad ora possiamo applicare i passaggi visti in precedenza.
+
+2. Voglio quindi crearmi un vettore le cui prime $k$ componenti rispettano la forma $\frac{z_i}{\sigma_i}$;
+
+3. Seleziono altri valori "a caso" per i successivi $n-k$ valori.
+
+4. Ottengo:
+
+    $$ V^T\alpha = \gamma \Rightarrow \boxed{\alpha = V\gamma} $$
+
+
+In realtà non scelgo le $n-k$ componenti a caso. Scelgo le n-k componenti libere tutte uguali a zero:
+
+$$
+\begin{pmatrix}
+\frac{z_1}{\sigma_1} \\ \frac{z_2}{\sigma_2} \\ \vdots \\ \frac{z_k}{\sigma_k} \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+\;:\;
+\gamma_{k+1},\ldots,\gamma_n=0
+$$
+
+Viene chiamata soluzione con norma minima. Mettere a zero le componenti libere porta ad avere la norma più piccola.
+
+Nota: Le norme euclidee sono invarianti dal prodotto di una matrice ortogonale. Quindi il rango di $\alpha$ è uguale al rango di $\gamma$.
+
+### Algoritmo ed implementazione
+
+Implementazione dell'algoritmo vista in laboratorio (**laboratorio 09b**).
+
+---
+
+# (32) Lezione 13-05-2026 | s .. | 
+
+
+
+---
