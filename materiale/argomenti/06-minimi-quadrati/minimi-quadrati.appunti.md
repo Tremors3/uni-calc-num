@@ -567,6 +567,210 @@ Implementazione dell'algoritmo vista in laboratorio (**laboratorio 09b**).
 
 # (32) Lezione 13-05-2026 | s .. | Continuo SVD $-$ Decomposizione ai Valori Singolari
 
+### Ripasso lezione precedente
 
+Data la fattorizzazione:
+
+$$
+A = U\Sigma V^T
+$$
+
+Abbiamo trovato la soluzione di minima norma:
+
+$$
+\min_{d\in\R^n}\|A = U\Sigma V^T\|^2
+$$
+
+Per fare ciò abbiamo calcolato:
+
+$$
+\boxed{1}\;
+z = U^Ty
+,\qquad
+\boxed{2}\;
+\begin{pmatrix}
+\frac{z_1}{\sigma_1} \\ \frac{z_2}{\sigma_2} \\ \vdots \\ \frac{z_k}{\sigma_k} \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+,\qquad
+\boxed{3}\;
+\alpha=V\gamma
+$$
+
+### Risoluzione con matrice pseudo inversa
+
+Questi tre passaggi possiamo esprimerli tramite un singolo prodotto matrice vettore:
+
+$$
+\underbrace{
+\begin{pmatrix}
+\frac1{\sigma_1} &0  & 0 & 0 \\
+0 & \ddots & 0 & 0 \\
+0 & 0 & \frac1{\sigma_k} & 0 \\
+0 & \ldots & \ldots & 0  \\
+\vdots & & &\vdots \\
+0 & \ldots & \ldots & 0  \\
+\end{pmatrix}
+}_{\Sigma}
+\begin{pmatrix}
+z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_m
+\end{pmatrix}
+=
+\begin{pmatrix}
+\frac{z_1}{\sigma_1} \\ \frac{z_2}{\sigma_2} \\ \vdots \\ \frac{z_k}{\sigma_k} \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+= \gamma
+$$
+
+Stessa struttura della matrice già vista prima ma in questo caso i valori singolari sono invertiti.
+
+> **Attenzione**. Si tratta di un modo formale che ci permette di esprimere il prodotto dell'algoritmo nel suo secondo passo. MA NON E' COSI' CHE SI FA: questo metodo è instabile. Perchè può dare luogo a problemi di stabilità (troncamento): data dall'inversione dei valori singolari e la successiva moltiplicazione con le $z_i$.
+
+Sappiamo che:
+
+$$
+\alpha = V\gamma = V\Sigma^\dagger z = \underbrace{V\Sigma^\dagger U^T}_{A^\dagger}y
+$$
+
+$A^\dagger$ viene chiamata la **matrice pseudo inversa** di $A$.
+- L'inversa di una matrice quadrata e non signolare è un caso particolare della pseudo inversa.
+- La pseudo inversa però la si può definire per matrici non quadrate e che non hanno rango pieno.
+
+Ma questa non è la strata dumericamente corretta da seguire per avere la massima stabilità possibile.
+
+---
+
+## Minimi Quadrati - Altro utilizzo per l'SVD - Compressione di matrici
+
+Noi sappiamo che data una matrice $A$ sappiamo scriverla come
+
+$$
+A = U\Sigma V^T
+$$
+
+Per interpretare in un modo utile la formula introduciamo una notazione per indicare le colonne di $U$ e righe di $V$:
+
+- $u_i\in\R^m=i$-esima colonna di $U\;i=1,\ldots,m$
+- $v_i\in\R^n=i$-esima riga di $V\;i=1,\ldots,n$
+
+Scriviamo A come la concatenazione delle colonne
+
+$$\begin{aligned}
+A = U\Sigma V^T &= (u_1\;u_2\;\ldots\;u_k\;u_{k+1}\;\ldots\;u_m)
+\underbrace{
+\begin{pmatrix}
+\sigma_1 &0  & 0 & 0 \\
+0 & \ddots & 0 & 0 \\
+0 & 0 & \sigma_k & 0 \\
+\vdots & & &\vdots \\
+0 & \ldots & \ldots & 0  \\
+\end{pmatrix}
+\begin{pmatrix}
+v_1^T \\ v_2^T \\ \vdots \\ v_{k}^T \\ v_{k+1}^T \\ \vdots \\ v_n^T
+\end{pmatrix}
+}_{m\times n\;\cdot\; n\times n \qquad\textit{calcoliamo per primo}}
+\\&=
+(u_1\;u_2\;\ldots\;u_k\;u_{k+1}\;\ldots\;u_m)
+\begin{pmatrix}
+\sigma_1v_1^T \\ \sigma_2v_2^T \\ \vdots \\ \sigma_kv_{k}^T \\ 0 \\ \vdots \\ 0
+\end{pmatrix}
+\\\textit{colonne}\times\textit{righe} &=
+\sigma_1u_1v_1^T + \sigma_2u_2v_2^T + \ldots + \sigma_ku_kv_k^T
+\end{aligned}$$
+
+- Abbiamo scritto la matrice V come la concatenazione delle sue colonne
+
+    $$
+    V = (v_1\;\ldots\;v_n)
+    $$
+
+    Le v sono vettori colonne. Se vogliamo metterli su una riga dobbiamo trasporli.
+
+Possiamo quindi riscrivere la matrice $A$ come:
+
+$$
+\boxed{A = \sigma_1u_1v_1^T + \sigma_2u_2v_2^T + \ldots + \sigma_ku_kv_k^T}
+$$
+
+Cioè una somma pesata di $k$ termini ciascuno dei quali che dipendono dalle colonne corrispondenti di $U$ e $V$. Somma pesata di $k$ matrici, ciascuna con le stesse dimensioni di $A$, pesate per i valori singolari.
+
+Inoltre abbiamo le $u_i\cdot v_i^T\in\R^{m\times n}$.
+
+E' quindi sufficiete calcolare solamente le prime $k$ colonne della matrice $U$ e le prime $k$ righe della matrice $V$. Questo comporta un aumento dell'efficienza. Si evita di calcolare una parte dell'output completo. (Opzione `np.svd(..., full_matrices=False)`)
+
+### Compressione di una matrice
+
+> **Oss**. I valori singolari (pesi dell'espressione di $A$) sono ordinati in modo decrescente
+>
+> $$\sigma_1 \ge \sigma_2 \ge \ldots \ge \sigma_k$$
+>
+> L'idea legata alla **compressione** è questa: 
+> costruire un'approssimazione di $A$ costruita a partire dalla somma pesata che abbiamo trovato ma che prende dentro meno termini:
+>
+> $$ \bar A = \sigma_1u_1v_1^T + \sigma_2u_2v_2^T + \ldots + \sigma_{\bar k}u_{\bar k}v_{\bar{k}}^T \qquad\bar k < k $$
+>
+> Una matrice richiede solitamente $m\times n$ valori floating-point.
+> Apportando l'approssimazione avremo invece il seguente numero di locazioni di memoria:
+>
+> $$ \bar{k}\cdot(m+n+1) $$
+>
+> Di solito questo numero è ovviamente molto più piccolo di $m\times n$
+
+### Implementazione dell'SVD con la compressione
+
+Vista durante il laboratorio (**laboratorio 10a**).
+
+---
+
+La norma 2 di una matrice è la radice del massimo degli autovalori di $A^TA$:
+
+$$
+\|A\|_2 = \sqrt{\underbrace{\max_{1,\ldots,m}\lambda_i(A^TA)}_{\sigma_1^2}}
+$$
+
+Possiamo riformulare questa norma in modo da utilizzare i **valori singolari**. Abbiamo che $\sigma_1$^2 è il più grande dei valori singolari al cubo e corrisponde al massimo degli autovalori. 
+
+$$
+\|A\|_2 = \sigma_1
+$$
+
+Proprietà di invarianza rispetto alla norma:
+
+$$
+U: \qquad \|AU\|_2 = \|A\|_2 \\
+V: \qquad \|VA\|_2 = \|A\|
+$$
+
+La norma di Frobenius è la radice della somma degli elementi al quadrato della matrice:
+
+$$
+\|A\|_F = \sqrt{\sum_{i,\;j} a_{ij}^2}
+$$
+
+Quindi può valere ad esempio:
+
+$$
+\|Ax\|_2 = \|A\|_F\cdot\|x\|_2
+$$
+
+La norma di Frobenius può essere mescolata con la Euclidea ed anchessa è invariante per prodotti con matrici ortogonali.
+
+Abbiamo che
+
+$$\begin{aligned}
+\|A - \bar A\| &= \|U\Sigma V^T - U\bar\Sigma V^T\| \\
+&= \|U(\Sigma-\bar\Sigma)V^T\| \\
+&= \|\Sigma-\bar\Sigma\|
+\end{aligned}$$
+
+Quella intera ha anche i valori singolari oltre a $\bar k$, mentre la seconda ha al loro posto degli zeri.
+
+Una misura di distanza tra le due matrici è ad esempio
+
+$$\begin{aligned}
+\|A - \bar A\|_F &= \|U\Sigma V^T - U\bar\Sigma V^T\| \\
+&= \|U(\Sigma-\bar\Sigma)V^T\|_F \\
+&= \|\Sigma-\bar\Sigma\|_F \\
+&= \max{\sigma_{k+1},\ldots,\sigma_k} = \sigma_{k+1}
+\end{aligned}$$
 
 ---
