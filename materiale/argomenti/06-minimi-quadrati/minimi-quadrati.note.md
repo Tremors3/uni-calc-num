@@ -1280,3 +1280,394 @@ dato che $V$ è una matrice ortogonale. Ridurre al minimo la norma di $\gamma$ e
 La soluzione a norma minima è quella normalmente restituita dagli algoritmi numerici basati sulla decomposizione SVD, perché tra tutte le possibili soluzioni è la più stabile e la meno “energetica”, cioè quella con coefficienti complessivamente più piccoli.
 
 ---
+
+### Ripasso: soluzione ai minimi quadrati tramite SVD
+
+Data la fattorizzazione ai valori singolari:
+
+$$
+A = U\Sigma V^T
+$$
+
+abbiamo studiato il problema dei minimi quadrati:
+
+$$
+\min_{\alpha\in\mathbb R^n}\|A\alpha-y\|^2
+$$
+
+e abbiamo visto che la soluzione di minima norma può essere costruita in tre passaggi fondamentali.
+
+Per prima cosa si calcola:
+
+$$
+\boxed{1}\qquad
+z = U^Ty
+$$
+
+Successivamente si costruisce il vettore $\gamma$ imponendo:
+
+$$
+\boxed{2}\qquad
+\gamma =
+\begin{pmatrix}
+\dfrac{z_1}{\sigma_1} \\
+\dfrac{z_2}{\sigma_2} \\
+\vdots \\
+\dfrac{z_k}{\sigma_k} \\
+0 \\
+\vdots \\
+0
+\end{pmatrix}
+$$
+
+dove:
+- $\sigma_1,\dots,\sigma_k$ sono i valori singolari non nulli;
+- $k=\operatorname{rank}(A)$.
+
+Infine, tramite il cambio di variabile $\gamma=V^T\alpha$, si ottiene:
+
+$$
+\boxed{3}\qquad
+\alpha = V\gamma
+$$
+
+Le componenti libere vengono poste uguali a zero per ottenere la soluzione con norma euclidea minima.
+
+---
+
+## Compressione di matrici tramite SVD
+
+### Risoluzione tramite matrice pseudo-inversa
+
+I tre passaggi precedenti possono essere condensati in un unico prodotto matrice-vettore introducendo una nuova matrice diagonale rettangolare:
+
+$$
+\underbrace{
+\begin{pmatrix}
+\dfrac1{\sigma_1} &0  & 0 & 0 \\
+0 & \ddots & 0 & 0 \\
+0 & 0 & \dfrac1{\sigma_k} & 0 \\
+0 & \ldots & \ldots & 0  \\
+\vdots & & &\vdots \\
+0 & \ldots & \ldots & 0
+\end{pmatrix}
+}_{\Sigma^\dagger}
+\begin{pmatrix}
+z_1 \\ z_2 \\ \vdots \\ z_k \\ z_{k+1} \\ \vdots \\ z_m
+\end{pmatrix}
+=
+\begin{pmatrix}
+\dfrac{z_1}{\sigma_1} \\
+\dfrac{z_2}{\sigma_2} \\
+\vdots \\
+\dfrac{z_k}{\sigma_k} \\
+0 \\
+\vdots \\
+0
+\end{pmatrix}
+=
+\gamma
+$$
+
+La matrice ottenuta ha la stessa struttura della matrice $\Sigma$, ma con i valori singolari invertiti. Essa viene indicata con:
+
+$$
+\Sigma^\dagger
+$$
+
+ed è chiamata pseudo-inversa di $\Sigma$.
+
+Sostituendo nella relazione:
+
+$$
+\alpha = V\gamma
+$$
+
+otteniamo:
+
+$$
+\alpha
+=
+V\Sigma^\dagger z
+=
+V\Sigma^\dagger U^Ty
+$$
+
+Da qui si definisce la **matrice pseudo-inversa** di $A$:
+
+$$
+\boxed{
+A^\dagger = V\Sigma^\dagger U^T
+}
+$$
+
+e quindi:
+
+$$
+\boxed{
+\alpha = A^\dagger y
+}
+$$
+
+L’inversa classica di una matrice quadrata non singolare è un caso particolare della pseudo-inversa. La pseudo-inversa, però, può essere definita anche per matrici rettangolari o non a rango pieno.
+
+Dal punto di vista teorico questa formulazione è molto elegante, ma numericamente non è il metodo più stabile da implementare direttamente. Infatti invertire valori singolari molto piccoli può amplificare gli errori numerici e introdurre problemi di instabilità e troncamento.
+
+---
+
+### Compressione di matrici tramite SVD
+
+Una delle applicazioni più importanti della decomposizione SVD è la compressione di matrici.
+
+Data una matrice:
+
+$$
+A = U\Sigma V^T
+$$
+
+introduciamo la seguente notazione:
+- $u_i\in\mathbb R^m$ = $i$-esima colonna di $U$;
+- $v_i\in\mathbb R^n$ = $i$-esima colonna di $V$.
+
+Possiamo quindi scrivere:
+
+$$
+U=(u_1\;u_2\;\ldots\;u_m)
+$$
+
+e:
+
+$$
+V=(v_1\;v_2\;\ldots\;v_n)
+$$
+
+per cui:
+
+$$
+V^T=
+\begin{pmatrix}
+v_1^T \\
+v_2^T \\
+\vdots \\
+v_n^T
+\end{pmatrix}
+$$
+
+Sostituendo queste espressioni nella SVD otteniamo:
+
+$$\begin{aligned}
+A
+&=
+U\Sigma V^T \\
+&=
+(u_1\;u_2\;\ldots\;u_m)
+\begin{pmatrix}
+\sigma_1 &0  & 0 & 0 \\
+0 & \ddots & 0 & 0 \\
+0 & 0 & \sigma_k & 0 \\
+\vdots & & &\vdots \\
+0 & \ldots & \ldots & 0
+\end{pmatrix}
+\begin{pmatrix}
+v_1^T \\
+v_2^T \\
+\vdots \\
+v_k^T \\
+\vdots \\
+v_n^T
+\end{pmatrix}
+\\
+&=
+(u_1\;u_2\;\ldots\;u_m)
+\begin{pmatrix}
+\sigma_1v_1^T \\
+\sigma_2v_2^T \\
+\vdots \\
+\sigma_kv_k^T \\
+0 \\
+\vdots \\
+0
+\end{pmatrix}
+\\
+&=
+\sigma_1u_1v_1^T
++
+\sigma_2u_2v_2^T
++
+\ldots
++
+\sigma_ku_kv_k^T
+\end{aligned}$$
+
+Otteniamo quindi la rappresentazione:
+
+$$
+\boxed{
+A =
+\sigma_1u_1v_1^T
++
+\sigma_2u_2v_2^T
++
+\ldots
++
+\sigma_ku_kv_k^T
+}
+$$
+
+La matrice $A$ viene espressa come somma pesata di matrici di rango 1.
+
+Ogni termine:
+
+$$
+u_iv_i^T\in\mathbb R^{m\times n}
+$$
+
+ha le stesse dimensioni di $A$, ma è costruito tramite il prodotto esterno tra due vettori.
+
+Poiché i valori singolari sono ordinati in modo decrescente:
+
+$$
+\sigma_1\ge\sigma_2\ge\ldots\ge\sigma_k
+$$
+
+i primi termini della somma sono quelli che contribuiscono maggiormente alla struttura della matrice.
+
+---
+
+### Compressione tramite troncamento
+
+L’idea della compressione consiste nel costruire una matrice approssimata usando solo i primi $\bar k$ termini della somma:
+
+$$
+\bar A =
+\sigma_1u_1v_1^T
++
+\sigma_2u_2v_2^T
++
+\ldots
++
+\sigma_{\bar k}u_{\bar k}v_{\bar k}^T
+\qquad
+\bar k<k
+$$
+
+In questo modo non memorizziamo più tutti gli elementi della matrice originale.
+
+Una matrice completa richiede infatti:
+
+$$
+m\times n
+$$
+
+valori floating-point.
+
+L’approssimazione compressa richiede invece:
+
+$$
+\bar k(m+n+1)
+$$
+
+valori:
+- $\bar k$ valori singolari;
+- $\bar k$ colonne di $U$;
+- $\bar k$ colonne di $V$.
+
+Se $\bar k$ è molto più piccolo di $k$, il risparmio di memoria può essere enorme.
+
+Per questo motivo la SVD viene utilizzata nella compressione di immagini, segnali e dati numerici.
+
+---
+
+## Norme di matrici e valori singolari
+
+La norma 2 di una matrice è definita come:
+
+$$
+\|A\|_2
+=
+\sqrt{
+\max_i\lambda_i(A^TA)
+}
+$$
+
+Poiché gli autovalori di $A^TA$ sono i quadrati dei valori singolari, otteniamo:
+
+$$
+\boxed{
+\|A\|_2 = \sigma_1
+}
+$$
+
+cioè la norma 2 coincide con il più grande valore singolare della matrice.
+
+Le norme sono invarianti rispetto al prodotto con matrici ortogonali:
+
+$$
+\|AU\|_2=\|A\|_2
+$$
+
+$$
+\|VA\|_2=\|A\|_2
+$$
+
+se $U$ e $V$ sono ortogonali.
+
+---
+
+### Norma di Frobenius
+
+La norma di Frobenius è definita come:
+
+$$
+\|A\|_F
+=
+\sqrt{
+\sum_{i,j}a_{ij}^2
+}
+$$
+
+cioè la radice quadrata della somma dei quadrati di tutti gli elementi della matrice.
+
+Anche questa norma è invariante rispetto al prodotto con matrici ortogonali.
+
+Se confrontiamo la matrice originale con quella compressa otteniamo:
+
+$$\begin{aligned}
+\|A-\bar A\|_F
+&=
+\|U\Sigma V^T-U\bar\Sigma V^T\|_F \\
+&=
+\|U(\Sigma-\bar\Sigma)V^T\|_F \\
+&=
+\|\Sigma-\bar\Sigma\|_F
+\end{aligned}$$
+
+poiché le matrici ortogonali non modificano la norma.
+
+La matrice $\Sigma-\bar\Sigma$ contiene soltanto i valori singolari scartati. Da qui segue:
+
+$$
+\boxed{
+\|A-\bar A\|_2
+=
+\sigma_{\bar k+1}
+}
+$$
+
+cioè l’errore nella norma 2 coincide con il primo valore singolare escluso dalla compressione.
+
+Per la norma di Frobenius invece:
+
+$$
+\boxed{
+\|A-\bar A\|_F
+=
+\sqrt{
+\sigma_{\bar k+1}^2+\ldots+\sigma_k^2
+}
+}
+$$
+
+L’errore dipende quindi dai valori singolari che vengono trascurati nell’approssimazione.
+
+---
