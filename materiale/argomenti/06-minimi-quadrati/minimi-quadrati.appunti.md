@@ -774,3 +774,117 @@ $$\begin{aligned}
 \end{aligned}$$
 
 ---
+
+# (33) Lezione 18-05-2026 | s 365.. | Regressione lineare in più dimensioni (sempre SVD)
+
+## Regressione Lineare in Più Dimensioni
+
+Altro proble risolvibile tramite l'algoritmo dell'SVD
+
+Caso più semplice di un problema molto più generale che è quello tipico del Machine Learning e dell'apprendimento.
+
+Problema di regressione lineare, che però rispetto ai casi precedenti lo spazio dei dati non è più piano ma in più dimensioni.
+
+**DATI**:
+Abbiamo sembre un vettore di coppie, ma le coppie non contengono più uno scalare (coordinata x o y) ma un vettore con p componenti (da qui l'aumento di dimensioni).
+
+$$
+\{(x^{(i)}, y_i)\} \qquad\text{con } x^{(i)}\in\R^p, y_i\in\R
+$$
+
+- Il primo vettore $x^{(i)}$ della coppia è un vettore le cui componenti sono dette FEATURES.
+
+- $y_i$ invece viene chiamta risposta del campione.
+
+Esista una funzione $f$ dipendente da un certo numero di parametri $\alpha_0,\dots,\alpha_n$. Funzione della variabile $x$ ha valori in $\R$ tale che.
+
+Quello che troviamo dev'essere la variabile di rispostta $y_i$. Si assume che esista un legame tra i dati e questa $y_i$; e che questo legame dipenda da un certo numero di parametri.
+
+$$
+f : \R^p\to\R, \quad f(\alpha_0,\ldots,\alpha_n;x)
+$$
+
+vogliamo trovare $\alpha_0,\ldots,\alpha_n$ tali che la funzione ci porti ad un valore che si avvicina ad $y_i$:
+
+$$
+f(\alpha_0,\ldots,\alpha_n;x) \approxeq y_i
+$$
+
+Questi valori devono essere IMPARATI dai dati (learning). Il problema che uno ha di fronte davanti ad un dataset di questo tipo è, una volta che abbiamo fissato il modello, dobbiamo trovare la configurazione dei parametri ottimale in modo che la funzione $f$ spieghi bene il set di dati.
+
+Esprimento il problema con i Minimi Quadrati abbiamo:
+
+$$
+\min_{\alpha\R^{n+1}} \sum_{i=1}^n\left(f(\alpha_0,\ldots,\alpha_n;x^{(i)})-y_i\right)^2
+$$
+
+### 1. Modello Lineare
+
+Si tratta di una generalizzazione di quello che abbiamo visto precedentemente.
+
+$$
+f(\alpha_0,\ldots,\alpha_n;x^{(i)}) = \alpha_0 + \alpha_1x + \alpha_2x^2 + \ldots + \alpha_nx^n
+$$
+
+Non è altro che una somma pesata delle varia features. Quando scegliamo un modello di questo tip ostiamo assumento che la variabile di risposta sia in qualche modo legata ad una combinazione lineare (somma pesata) di tutte le features.
+
+Si definisce quindi la matrice di regressione $A$ (come matrice di Householder) ed il vettor edelle risposte.
+
+$$
+A = \begin{pmatrix}
+1 & x_1^{(1)} & x_2^{(1)} & \ldots & x_n^{(1)} \\
+1 & x_1^{(2)} & x_2^{(2)} & \ldots & x_n^{(2)} \\
+\vdots & \vdots & \vdots & & \vdots \\
+1 & x_1^{(m)} & x_2^{(m)} & \ldots & x_n^{(m)} \\
+\end{pmatrix} \quad y = \begin{pmatrix}
+y_1 \\ y_2 \\ \vdots \\ y_n
+\end{pmatrix}
+$$
+
+Dove abbiamo per esempio nella seconda colonna:
+
+$$
+\begin{matrix}
+x_1^{(1)} & \text{Prima feature, primo campione} \\
+x_1^{(2)} & \text{Prima feature, secondo campione} \\
+\vdots \\
+\end{matrix}
+$$
+
+Il criterio dei minimi quadrati si formula nel modo seguente:
+
+$$
+\min_{\alpha\in\R^{n+1}} \|A\alpha - y\|^2
+$$
+
+Risolvibile come abbiamo visto.
+
+#### Esempio in laboratorio
+
+Esempio di dataset ed applicazione del modello nel caso lineare (**laboratorio 11a**).
+
+#### Features e Pesi
+
+Abbiamo visto due casi d'esempio:
+1. Il primo in cui si avevano poche features ma dataset grande;
+2. Il secondo con un numero ingente di features ma un dataset ristretto.
+
+Nel secondo caso potrebbero esserci alcune features che sono meno influenti rispetto ad altre features.
+
+Questo lo capiano perchè il dato che stiamo cercando sono proprio i pesi che moltiplicano le features.
+
+Quindi se abbiamo un $\alpha_i$ grande la feature importerà molto, mentre se è piccolo allora la feature forse ha meno importanza rispetto alla risposta ($y_i$).
+
+Ci si rende conto quali sono le features più rilevanti per la risposta. Non tutte solitamente sono importanti per la risposta.
+
+#### Perchè vogliamo la funzione f con gli alpha giusti?
+
+Perchè ho bisogno di fare una previsione. Per esempio voglio sapere qual'è il prezzo più giusto per vendere un'immobile. Con un modello costruito bene ho una funzione con i parametri giusti che mi darà il prezzo migliore per vendere l'immobile.
+
+#### 
+
+Suddivisione del dataset per fare training:
+- $50-70\%$ dei campione per il training set
+- $30-50\%$ dei campioni per il testing set
+
+---
