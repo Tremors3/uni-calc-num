@@ -43,7 +43,7 @@ Questa operazione è definita **componente per componente**.
 
 ---
 
-### Somma tra avettori
+### Somma tra vettori
 
 Se $v,w \in \R^n$, la loro somma è definita come
 
