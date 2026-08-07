@@ -38,7 +38,7 @@ Queste strutture permettono comunque di risolvere il sistema in modo efficiente 
 
 #### ▹ **Sistema triangolare inferiore $-$ sostituzione in avanti**
 
-Consideriamo una matrice triangolare **inferiore**, ossia $A_{ij} = 0$ per $i > j$
+Consideriamo una matrice triangolare **inferiore**, ossia $A_{ij} = 0$ per $i < j$
 
 $$ R=
 \begin{pmatrix}
@@ -107,7 +107,9 @@ Consideriamo il primo passo dell’algoritmo di sostituzione per un sistema tria
 
 $$ x_1 = \frac{b_1}{l_{11}} $$
 
-Nel calcolo numerico reale questa operazione viene eseguita in **aritmetica floating-point**, quindi il risultato effettivo è affetto da un piccolo errore di arrotondamento. Indichiamo con $\tilde x_1$ il valore calcolato dalla macchina:
+Nel calcolo numerico reale questa operazione viene eseguita in **aritmetica floating-point**, quindi il risultato effettivo è affetto da un piccolo errore di arrotondamento.
+
+Indichiamo con $\tilde x_1$ il valore calcolato dalla macchina:
 
 $$ \tilde x_1 = \frac{b_1}{l_{11}}(1 + \epsilon_1) = x_1^*(1 + \epsilon_1), $$
 
