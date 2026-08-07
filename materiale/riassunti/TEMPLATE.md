@@ -1,6 +1,13 @@
 
 <!--%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
 
+$$
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcy}[1]{\textcolor{yellow}{#1}}
+\newcommand{\tclg}[1]{\textcolor{lightgreen}{#1}}
+\newcommand{\tclb}[1]{\textcolor{lightblue}{#1}}
+$$
+
 <!-- Giallo Intenso -->
 <mark>Questo concetto è importante.</mark>
 
