@@ -2,10 +2,10 @@
 
 | Metodo | Ipotesi | Complessità | Stabilità |
 |---|---|---:|---|
-| **Gauss con pivoting parziale** | $A$ nonsingolare | $\mathcal{O}\left(\frac{n^3}{3}\right)$ | **Debole** |
+| Gauss con pivoting parziale | $A$ nonsingolare | $\mathcal{O}\left(\frac{n^3}{3}\right)$ | **Debole** |
 | **$LDL^T$** | $A$ simmetrica, minori principali $\neq 0$ | $\mathcal{O}\left(\frac{n^3}{6}\right)$ | **Debole** |
-| **Cholesky** ($LL^T$) | $A$ simmetrica definita positiva | $\mathcal{O}\left(\frac{n^3}{6}\right)$ | **Forte** |
-| **QR** | Colonne di $A$ linearmente indipendenti | $\mathcal{O}\left(\frac{2n^3}{3}\right)$ | **Debole** |
+| Cholesky ($LL^T$) | $A$ simmetrica definita positiva | $\mathcal{O}\left(\frac{n^3}{6}\right)$ | **Forte** |
+| QR | Colonne di $A$ linearmente indipendenti | $\mathcal{O}\left(\frac{2n^3}{3}\right)$ | **Debole** |
 
 ## Stabilità delle fattorizzazioni
 
