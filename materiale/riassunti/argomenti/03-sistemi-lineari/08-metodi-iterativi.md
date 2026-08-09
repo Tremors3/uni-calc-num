@@ -382,7 +382,7 @@ Le stime con la norma sono utili per garantire la convergenza, ma il raggio spet
 
 ---
 
-## Dal metodo all’algoritmo: criterio d’arresto
+## Criteri d'arresto
 
 I metodi iterativi generano, in teoria, una successione infinita di vettori $\{x^{(k)}\}$. In pratica però dobbiamo fermarci dopo un numero finito di iterazioni, trasformando quindi il metodo in un **algoritmo**.
 
@@ -396,7 +396,7 @@ dove $\varepsilon$ è una tolleranza prefissata. Tuttavia questo criterio **non 
 
 ---
 
-### Criterio pratico: differenza tra iterate
+### ▸ 1° Criterio pratico: **Differenza tra Iterate**
 
 Per questo motivo si utilizza un criterio basato sulla distanza tra due iterate successive:
 
@@ -408,7 +408,7 @@ L’idea è che, se il metodo converge, le iterate diventano sempre più simili 
 
 ---
 
-#### Interpretazione teorica
+#### ▹ Interpretazione teorica
 
 Partiamo dalla differenza tra due iterate:
 
@@ -430,9 +430,7 @@ $$
 cioè:
 
 $$
-\boxed{
 x^{(k+1)} - x^{(k)} = (G - I)(x^{(k)} - x^*)
-}
 $$
 
 Questa relazione collega direttamente:
@@ -442,7 +440,7 @@ Questa relazione collega direttamente:
 
 ---
 
-#### Stima dell’errore
+#### ▹ Stima dell’errore
 
 Se $(G - I)$ è invertibile (cosa vera se $\rho(G) < 1$), possiamo scrivere:
 
@@ -464,9 +462,7 @@ $$
 \|x^{(k)} - x^*\| \approx \|x^{(k+1)} - x^{(k)}\|
 $$
 
----
-
-#### Schema algoritmico
+#### ▹ Schema algoritmico
 
 Un possibile algoritmo è:
 
@@ -483,15 +479,13 @@ for k = 0,1,...
 end
 ```
 
----
-
-#### Osservazione finale
+#### ▹ Osservazione
 
 Questo criterio di arresto è molto usato perché semplice ed economico. Tuttavia è solo una stima indiretta dell’errore, quindi in alcuni casi può essere troppo ottimista o troppo conservativo.
 
 ---
 
-### Altro criterio d’arresto: il residuo
+### ▸ 2° Criterio pratico: **Il Residuo**
 
 Un secondo criterio di arresto molto usato nei metodi iterativi si basa sul **residuo** del sistema lineare.
 
@@ -529,7 +523,7 @@ cioè quando il residuo è sufficientemente piccolo.
 
 ---
 
-#### Interpretazione
+#### ▹ Interpretazione
 
 Il residuo fornisce una misura indiretta dell’errore: se $x^{(k)}$ è vicino a $x^*$, allora anche $Ax^{(k)}$ sarà vicino a $b$, quindi il residuo sarà piccolo.
 
@@ -537,7 +531,7 @@ Come per il criterio basato sulle iterate successive, anche il residuo è una **
 
 ---
 
-#### Residuo e condizionamento
+#### ▹ Residuo e condizionamento
 
 La relazione tra residuo ed errore è influenzata dal **condizionamento del problema**. In generale si ha una stima del tipo:
 
@@ -551,7 +545,7 @@ Questo significa che, se il problema è mal condizionato, anche un residuo picco
 
 ---
 
-#### Uso combinato dei criteri
+### ▸ Uso combinato dei criteri
 
 Nella pratica si utilizzano spesso entrambi i criteri:
 
@@ -568,9 +562,13 @@ $$
 
 Questo permette di controllare sia la stabilizzazione delle iterate sia la qualità della soluzione rispetto al sistema originale.
 
+#### ▹ Osservazione
+
+I criteri d’arresto assumono implicitamente che il metodo sia convergente: solo in quel caso le iterate si stabilizzano e il residuo tende a zero. Se il metodo non converge, nessun criterio d’arresto sarà soddisfatto (a meno del limite sulle iterazioni).
+
 ---
 
-#### Terzo criterio: numero massimo di iterazioni
+### ▸ 3° Criterio pratico: **Numero massimo di iterazioni**
 
 Per sicurezza si impone anche un numero massimo di iterazioni $N_{\max}$, utile per evitare loop infiniti in caso di mancata convergenza:
 
@@ -592,13 +590,7 @@ Questo criterio non riguarda la matematica della convergenza, ma è una misura d
 
 ---
 
-#### Osservazione finale
-
-I criteri d’arresto assumono implicitamente che il metodo sia convergente: solo in quel caso le iterate si stabilizzano e il residuo tende a zero. Se il metodo non converge, nessun criterio d’arresto sarà soddisfatto (a meno del limite sulle iterazioni).
-
----
-
-### Complessità computazionale
+## Complessità computazionale
 
 A differenza dei metodi diretti, nei metodi iterativi non è possibile conoscere **a priori** il numero esatto di operazioni necessarie, perché il numero di iterazioni dipende dal criterio di arresto (tolleranza, residuo, numero massimo di iterazioni).  
 
@@ -637,7 +629,7 @@ Inoltre, quando non è richiesta una soluzione esatta ma solo una buona approssi
 
 ---
 
-#### Scelta della matrice di iterazione
+### ▸ Scelta della matrice di iterazione
 
 La forma generale di un metodo iterativo è:
 $$
@@ -691,7 +683,7 @@ Questa filosofia porta ai metodi classici come **Jacobi**, **Gauss-Seidel** e va
 
 ---
 
-### Decomposizione della matrice
+## Decomposizione della matrice
 
 I metodi iterativi classici si basano sull’idea di riscrivere la matrice del sistema nella forma:
 
@@ -818,7 +810,7 @@ A differenza di Jacobi, ogni componente di $x^{(k+1)}$ utilizza **anche i valori
 
 ---
 
-### Adattamento del metodo iterativo alla decomposizione
+### ▸ Adattamento del metodo iterativo alla decomposizione
 
 Partiamo dalla forma generale dei metodi iterativi:
 
@@ -861,7 +853,7 @@ In questo modo, ad ogni iterazione si risolve un sistema lineare con matrice $M$
 
 ---
 
-#### Specializzazione dei metodi
+#### ▹ Specializzazione dei metodi
 
 A partire dalla decomposizione $A = D - E - F$, otteniamo i metodi classici.
 
@@ -935,7 +927,7 @@ $$
 
 ---
 
-#### Convergenza: matrici a diagonale dominante
+#### ▹ Convergenza: matrici a diagonale dominante
 
 Una classe importante di matrici per cui i metodi iterativi convergono è quella delle **matrici a diagonale dominante**.
 
@@ -956,7 +948,7 @@ In pratica, se gli elementi diagonali “dominano” gli altri, il metodo tende 
 
 ---
 
-#### Velocità di convergenza
+#### ▹ Velocità di convergenza
 
 La velocità di convergenza dipende dal **raggio spettrale** della matrice di iterazione:
 
@@ -973,7 +965,7 @@ In generale:
 
 ---
 
-#### Forma per componenti (Gauss-Seidel)
+#### ▹ Forma per componenti (Gauss-Seidel)
 
 Scriviamo il sistema:
 
