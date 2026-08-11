@@ -197,6 +197,29 @@ Una soluzione consiste nell'utilizzare i **nodi di Chebyshev**, che permettono d
 
 In sintesi, il fenomeno di Runge evidenzia l'importanza della **distribuzione dei nodi** nell'interpolazione polinomiale: non conta solamente quanti nodi vengono utilizzati, ma anche **dove vengono posizionati**.
 
+### ▸ Esempio: funzione di Runge
+
+La **funzione di Runge** è
+
+$$
+f(x)=\frac{1}{1+25x^2},
+\qquad x\in[-1,1].
+$$
+
+Interpolandola su $n+1$ **nodi equispaziati**.
+
+<!-- Immagine Centrata -->
+<div align="center">
+    <img src="./imgs/0503-funzione-di-runge.png" width="300">
+</div>
+
+Il polinomio interpolante può presentare **forti oscillazioni vicino agli estremi dell'intervallo**, anche aumentando il numero di nodi. Questo è il **fenomeno di Runge**.
+
+<!-- Immagine Centrata -->
+<div align="center">
+    <img src="./imgs/0503-oscillazioni-runge.png" width=500">
+</div>
+
 ### ▸ Nodi di Chebyshev
 
 I nodi di Chebychev si ottengono partizionando in modo uniforme la semi-circonferenza goniometrica e proiettando i punti di questa partizione sul diametro.
@@ -217,5 +240,10 @@ $$
 $$
 
 calcolata quando $x_0,\ldots,x_n$ sono i nodi di Chebychev è minima rispetto a qualsiasi altra scelta della distribuzione dei nodi.
+
+<!-- Immagine Centrata -->
+<div align="center">
+    <img src="./imgs/0503-oscillazioni-con-chebyshev.png" width="500">
+</div>
 
 ---
