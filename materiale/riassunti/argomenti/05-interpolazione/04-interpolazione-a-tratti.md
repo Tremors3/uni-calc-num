@@ -10,6 +10,11 @@ Per superare questi problemi si può rinunciare a costruire un unico polinomio g
 
 L’idea più semplice consiste nel collegare ogni coppia di punti consecutivi con un segmento, ottenendo una funzione spezzata che interpola tutti i dati.
 
+<!-- Immagine Centrata -->
+<div align="center">
+    <img src="./imgs/0504-interpolante-a-tratti.png" width="500">
+</div>
+
 La funzione ottenuta non è un unico polinomio su tutto l’intervallo, ma possiede una struttura polinomiale locale: su ciascun sottointervallo coincide con un polinomio di grado $1$.
 
 L’interpolazione a tratti costruisce quindi una funzione che è globalmente una funzione spezzata e localmente, su ciascun intervallo, un polinomio.
