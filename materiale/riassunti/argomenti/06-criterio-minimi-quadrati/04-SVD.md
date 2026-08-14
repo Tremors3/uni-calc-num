@@ -54,11 +54,13 @@ La matrice $\Sigma$ ha quindi la struttura
 $$
 \Sigma=
 \begin{pmatrix}
-\sigma_1 & & & & 0\\
-& \sigma_2 & & & \vdots\\
-& & \ddots & & \vdots\\
-& & & \sigma_k & 0\\
-& & & & \ddots
+\sigma_1 & & & & & & 0\\
+& \sigma_2 & & & & & \vdots\\
+& & \ddots   & & & & \vdots\\
+& & & \sigma_k & & & \vdots\\
+& & & & 0 & & \vdots\\
+& & & & & \ddots\\
+0 & \dots & \dots & \dots & \dots & \dots & 0
 \end{pmatrix}
 $$
 
