@@ -89,7 +89,7 @@ Matematicamente le due espressioni sono equivalenti:
 $$ \left( \frac{33}{5} \right)^2 = \frac{33^2}{5^2} $$
 e dovrebbero risultare entrambe **43.56**.
 
-Il problema nasce dal fatto che in Python i `float` sono rappresentati in formati **IEEE 754 double precision**.
+Il problema nasce dal fatto che in Python i `float` sono rappresentati nel formato **IEEE 754 double precision**.
 
 Nel primo caso, $(33/5)^2$ abbiamo che:
 1. `33 / 5` produce **6.6**, ma 6.6 non è rappresentabile esattamente in binario. Viene salvato come qualcosa tipo:

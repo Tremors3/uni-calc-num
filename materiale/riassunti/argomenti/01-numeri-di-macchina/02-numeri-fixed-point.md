@@ -50,9 +50,9 @@ Se $N < 0$ si rappresenta il numero mediante il **complemento a 2** su (t+1) bit
 
 > ◇ **Esempio** Rappresentazione di numero (base dieci) in Fixed Point.
 > 
-> $1235_{10}=10011010011_2$
+> ${1235}_{10}={10011010011}_2={0000010011010011}_2$
 > 
-> $-1235_{10}=-(10011010011)_2$
+> $-{1235}_{10}=-{(10011010011)}_2={1111101100101101}_2$
 > 
 > La rappresentazione effettiva dipende dal numero di bit disponibili (t+1).
 
@@ -88,7 +88,7 @@ Se $N < 0$ si rappresenta il numero mediante il **complemento a 2** su (t+1) bit
 Con (t+1) bit è possibile rappresentare esattamente gli interi appartenenti all'intervallo
 
 $$
-[-2^t,;2^t-1]
+[-2^t,\,2^t-1]
 $$
 
 ---
@@ -110,7 +110,7 @@ Si verifica quando $N < -2^t$ cioè il numero è **troppo piccolo** (troppo nega
 Quando un numero esce dall'intervallo
 
 $$
-[-2^t,;2^t-1]
+[-2^t,\,2^t-1]
 $$
 
 la sua rappresentazione **perde informazione**.

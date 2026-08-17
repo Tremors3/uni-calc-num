@@ -333,7 +333,7 @@ In questa formula:
 
 - La prima parte rappresenta l’errore dovuto alla **rappresentazione dei dati**, cioè il fatto che i numeri iniziali non sono esatti.
 
-- La parte in giallo rappresenta l’errore dovuto alle **operazioni**, cioè all’algoritmo utilizzato e al troncamento/arrottondamento in ciascun passo.
+- La seconda parte rappresenta l’errore dovuto alle **operazioni**, cioè all’algoritmo utilizzato e al troncamento/arrottondamento in ciascun passo.
 
 Osservazioni chiave:
 
