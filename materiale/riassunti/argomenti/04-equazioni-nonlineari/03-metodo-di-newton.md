@@ -75,14 +75,6 @@ il **metodo di Newton ha iterazioni più costose, ma ne richiede molte meno risp
 
 ---
 
-## Covergenza del metodo di newton
-
-Il metodo di Newton è molto più veloce rispetto ai metodi dicotomici: quando converge, lo fa tipicamente con **convergenza quadratica**, cioè l’errore viene (approssimativamente) elevato al quadrato ad ogni iterazione.
-
-Tuttavia, a differenza della bisezione, il metodo **non garantisce sempre la convergenza**: una scelta non adeguata del punto iniziale o particolari caratteristiche della funzione (ad esempio derivata molto piccola o nulla) possono causare divergenza o comportamenti instabili.
-
----
-
 ## Criteri di arresto nel metodo di Newton
 
 Nel metodo di Newton, poiché non si conosce a priori il numero di iterazioni necessario, si utilizzano generalmente **due criteri di arresto**. Fissata una tolleranza $\tau$, il metodo si arresta quando sono contemporaneamente soddisfatte
@@ -98,6 +90,14 @@ $$
 Il primo criterio controlla la **variazione relativa tra due iterate successive**, mentre il secondo controlla il **residuo**, cioè quanto $x_k$ soddisfa l'equazione $f(x)=0$.
 
 Il residuo, tuttavia, può essere poco indicativo dell'errore sulla soluzione quando $f$ è molto piatta in prossimità della radice.
+
+---
+
+## Covergenza del metodo di newton
+
+Il metodo di Newton è molto più veloce rispetto ai metodi dicotomici: quando converge, lo fa tipicamente con **convergenza quadratica**, cioè l’errore viene (approssimativamente) elevato al quadrato ad ogni iterazione.
+
+Tuttavia, a differenza della bisezione, il metodo **non garantisce sempre la convergenza**: una scelta non adeguata del punto iniziale o particolari caratteristiche della funzione (ad esempio derivata molto piccola o nulla) possono causare divergenza o comportamenti instabili.
 
 ---
 
